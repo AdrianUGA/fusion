@@ -176,12 +176,29 @@ void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 
 
 	printf("Affichage hexadécimal de la section « %s »\n", STR_buffer+ITERheader.sh_name);
-	int ligne = ITERheader.sh_offset;	
-	fseek(file, ligne, SEEK_SET);
+	int ligne = ITERheader.sh_addr;	
+	fseek(file, ITERheader.sh_offset, SEEK_SET);
 	for(i=0;i < ITERheader.sh_size; i+=16){
-		int16_t mot=0;
-		fread(&mot, sizeof(mot),1, file);		
-		printf(" Ox%08x : %x\n",ligne,mot);
+		printf("Ox%08x : ",ligne);
+		int k;
+		char * convert;
+		convert = (char *) malloc(1);		
+		for(k=0;k<16;k++){
+			if(ITERheader.sh_size > i+k){
+				unsigned char mot;
+				fread(&mot, sizeof(mot),1, file);
+				if (isprint(mot))			
+					convert[k] = mot;
+				else
+					convert[k] = '.';							
+				if(k % 4 == 0)
+					printf(" %02x",mot);
+				else
+					printf("%02x",mot);
+				convert = realloc(convert, k+1);
+			}
+		}
+		printf(" | %s\n",convert);		
 		ligne += 16;	
 	}
 	free(STR_buffer);
