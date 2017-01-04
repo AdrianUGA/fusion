@@ -151,21 +151,43 @@ void afficherSection(Elf32_Shdr header){
 }
 
 // header de la section
-void afficherSectionContenu(Elf32_Ehdr header, Elf32_Shdr sectionHeader, FILE* file){
-
-	// printf("Affichage hexadécimal de la section « %s »\n", sectionHeader.sh_name);
-	printf("Affichage hexadécimal de la section « »\n");
-	uint64_t mot;
-	int ligne = sectionHeader.sh_offset;
-	fseek(file, sectionHeader.sh_offset, SEEK_SET);
-	
+void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
+	Elf32_Shdr sectionHeader,ITERheader;
+	fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	char * STR_buffer=NULL;
 	int i;
-	for(i=0; i<sectionHeader.sh_size; i+=64){	
-		fread(&mot, 1, 64, file);
-		printf("0x%08x %x \n", ligne, mot);
-		ligne += 64;
+	for ( i=0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &sectionHeader, header.e_shentsize, 1, file );
+		if ((sectionHeader.sh_type == SHT_STRTAB) && (sectionHeader.sh_addr == 0x00000000)){
+			STR_buffer = (char *)malloc( sectionHeader.sh_size);
+			fseek( file, sectionHeader.sh_offset, SEEK_SET);
+			fread( STR_buffer, sectionHeader.sh_size, 1, file);
+			i=header.e_shnum+1;
+		}
+	}	
+	fseek(file, 0, SEEK_SET);
+	for ( i=0; i <= j; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
 	}
+
+
+	printf("Affichage hexadécimal de la section « %s »\n", STR_buffer+ITERheader.sh_name);
+	int ligne = ITERheader.sh_offset;	
+	fseek(file, ligne, SEEK_SET);
+	for(i=0;i < ITERheader.sh_size; i+=16){
+		int16_t mot=0;
+		fread(&mot, sizeof(mot),1, file);		
+		printf(" Ox%08x : %x\n",ligne,mot);
+		ligne += 16;	
+	}
+	free(STR_buffer);
+	fclose( file );
 }
+
 void afficherSectionName(FILE * file, Elf32_Ehdr header){
 	Elf32_Shdr sectionHeader,ITERheader;
 	fseek( file, 0, SEEK_SET );
@@ -210,9 +232,9 @@ int main(int argc, char* argv[]){
 		}
 
 		afficherHeader(header);
-			afficherSection(section);
-			afficherSectionContenu(header, section, file);*/
-		afficherSectionName(file, header);
+		afficherSection(section);*/
+		afficherSectionContenu(header, 3, file);
+		//afficherSectionName(file, header);
 	}
 	else{
 		printf("Ne donnez qu'un seul argument");
