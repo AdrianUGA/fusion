@@ -1,8 +1,7 @@
 #include <elf.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-
+#include <ctype.h>
 
 void afficherHeader(Elf32_Ehdr header){
 
@@ -206,7 +205,6 @@ void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 }
 
 void afficherSectionHeader(Elf32_Shdr* sectionH, int i){
-	printf("passe %d %x\n",i,sectionH);
 	char* type;
 	switch(sectionH->sh_type){
 		case SHT_NULL :
@@ -328,6 +326,42 @@ void afficherSectionName(FILE * file, Elf32_Ehdr header){
 	fclose( file );
 }
 
+void afficherRelocTable(FILE* file, Elf32_Ehdr *header){
+	printf("\nRelocation table:\n");
+	int i,j;
+	Elf32_Shdr sectionHeader;
+	Elf32_Rel relcel;
+	Elf32_Rela relacel;
+	for(i=0;i<header->e_shnum;i++){
+		fseek(file,(int)header->e_shoff+(i*sizeof(Elf32_Shdr)),SEEK_SET);	
+		fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
+		if (sectionHeader.sh_type==SHT_REL){
+			printf("OK\n");
+			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
+			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
+			printf("  Offset    Info      Type        Sym.\n");
+			for(j = 0; j < nbEnt;j++){
+				fread(&relcel,sizeof(Elf32_Rel),1,file);
+				printf("%08x  %08x  %10d  %x\n",relcel.r_offset, relcel.r_info,ELF32_R_TYPE(relcel.r_info),ELF32_R_SYM(relcel.r_info));
+ 			}			
+			printf("\n");
+		} else if (sectionHeader.sh_type==SHT_RELA){
+			printf("OK\n");
+			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
+			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
+			printf("  Offset    Info      Type        Sym. + Addend\n");
+			for(j = 0; j < nbEnt;j++){
+				fread(&relacel,sizeof(Elf32_Rela),1,file);
+				printf("%08x  %08x  %10d  %x + %d\n",relacel.r_offset, relacel.r_info,ELF32_R_TYPE(relacel.r_info),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
+ 			}			
+			printf("\n");
+		}
+		
+	}
+	
+}
 
 int main(int argc, char* argv[]){
 	if(argc==2){
@@ -342,13 +376,13 @@ int main(int argc, char* argv[]){
 		printf("%d\n",header.e_shoff);
 		printf("[Nr]\tNom\tType\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n");
 		for(i=0;i<header.e_shnum;i++){
-			printf("Avant appel : %x\n",&sectionHeader);
 			fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
 			afficherSectionHeader(&sectionHeader,i);
 		}
 
-		afficherSectionContenu(header, 3, file);
+		//afficherSectionContenu(header, 3, file);
 		//afficherSectionName(file, header);
+		afficherRelocTable(file,&header);
 	}
 	else{
 		printf("Ne donnez qu'un seul argument");
