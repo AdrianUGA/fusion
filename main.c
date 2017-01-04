@@ -188,6 +188,100 @@ void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 	fclose( file );
 }
 
+void afficherSectionHeader(Elf32_Shdr* sectionH, int i){
+	printf("passe %d %x\n",i,sectionH);
+	char* type;
+	switch(sectionH->sh_type){
+		case SHT_NULL :
+			type = malloc(4*sizeof(char));
+			type = "NULL";
+			break;
+		case SHT_PROGBITS :
+			type = malloc(8*sizeof(char));
+			type ="PROGBITS";
+			break;
+		case SHT_SYMTAB :
+			type = malloc(6*sizeof(char));
+			type = "SYMTAB";
+			break;
+		case SHT_STRTAB :
+			type = malloc(6*sizeof(char));
+			type = "STRTAB";
+			break;
+		case SHT_RELA :
+			type = malloc(4*sizeof(char));
+			 type ="RELA";
+			break;
+		case SHT_HASH :
+			type = malloc(4*sizeof(char));
+			type ="HASH";
+			break;
+		case SHT_DYNAMIC :
+			type = malloc(7*sizeof(char));
+			type ="DYNAMIC";
+			break;
+		case SHT_NOTE :
+			type = malloc(4*sizeof(char));
+			type ="NOTE";
+			break;
+		case SHT_NOBITS :
+			type = malloc(6*sizeof(char));
+			type ="NOBITS";
+			break;
+		case SHT_REL :
+			type = malloc(3*sizeof(char));
+			type ="REL";
+			break;
+		case SHT_SHLIB :
+			 type ="SHLIB";
+			break;
+		case SHT_DYNSYM :
+			type = malloc(6*sizeof(char));
+			type ="DYNSYM";
+			break;
+		case SHT_LOPROC :
+			type = malloc(6*sizeof(char));
+			type ="LOPROC";
+			break;
+		case SHT_HIPROC :
+			type = malloc(6*sizeof(char));
+			type ="HIPROC";
+			break;
+		case SHT_LOUSER :
+			type = malloc(6*sizeof(char));
+			type ="LOUSER";
+			break;
+		case SHT_HIUSER :
+			type = malloc(6*sizeof(char));
+			type ="HIUSER";
+			break;
+		default : 
+			type = malloc(6*sizeof(char));
+			type ="NONDEF";
+			break;
+	}
+	char flags;
+	switch(sectionH->sh_flags){
+		case SHF_WRITE :
+			flags = 'W';
+			break;
+		case SHF_ALLOC :
+			flags = 'A';
+			break;
+		case SHF_EXECINSTR :
+			flags = 'E';
+			break;
+		case SHF_MASKPROC :
+			flags = 'M';
+			break;
+		default : 
+			flags = ' ';
+			break;
+	}
+
+	printf("[%d]\t%s\t%s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,"NAME",type, sectionH->sh_addr, sectionH->sh_offset, sectionH->sh_size, sectionH->sh_entsize, flags, sectionH->sh_link, sectionH->sh_info, sectionH->sh_addralign);
+}
+
 void afficherSectionName(FILE * file, Elf32_Ehdr header){
 	Elf32_Shdr sectionHeader,ITERheader;
 	fseek( file, 0, SEEK_SET );
@@ -223,16 +317,19 @@ int main(int argc, char* argv[]){
 		Elf32_Ehdr header;
 		FILE* file = fopen(argv[1],"rb");
 		fread(&header,1,sizeof(header),file);
-/*		Elf32_Shdr sectionHeaders[header.e_shnum];
-
-		fseek(file,header.e_shoff ,SEEK_SET);
-		int i;
-		for(i=0;i<header.e_shnum;i++){
-			fread(&sectionHeaders[i], 1, sizeof(Elf32_Shdr), file);
-		}
 
 		afficherHeader(header);
-		afficherSection(section);*/
+		fseek(file,(int)header.e_shoff,SEEK_SET);
+		int i;
+		Elf32_Shdr sectionHeader;
+		printf("%d\n",header.e_shoff);
+		printf("[Nr]\tNom\tType\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n");
+		for(i=0;i<header.e_shnum;i++){
+			printf("Avant appel : %x\n",&sectionHeader);
+			fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
+			afficherSectionHeader(&sectionHeader,i);
+		}
+
 		afficherSectionContenu(header, 3, file);
 		//afficherSectionName(file, header);
 	}
