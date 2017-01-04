@@ -325,7 +325,194 @@ void afficherSectionName(FILE * file, Elf32_Ehdr header){
 	free(STR_buffer);
 	fclose( file );
 }
+void afficherSymbole(Elf32_Sym symbole, char * strtab, int i){
+	
+	char * type;		
+	switch(ELF32_ST_TYPE(symbole.st_info)){
+		case STT_NOTYPE : 
+		type = (char *)malloc(6*sizeof(char));
+		type = "NOTYPE";
+		break;
+		case STT_OBJECT :
+		type = (char *)malloc(6*sizeof(char));
+		type = "OBJECT";
+		break;
+		case STT_FUNC :
+		type = (char *)malloc(8*sizeof(char));
+		type = "FONCTION";
+		break;
+		case STT_SECTION:
+			type = (char *)malloc(7*sizeof(char));
+			type = "SECTION";
+			break;
+		case STT_FILE :
+		type = (char *)malloc(4*sizeof(char));
+		type = "FILE";
+		break;
+		case STT_COMMON :
+		type = (char *)malloc(6*sizeof(char));
+		type = "COMMON";
+		break;
+		case STT_TLS :
+		type = (char *)malloc(3*sizeof(char));
+		type = "TLS";
+		break;
+		case STT_LOOS :
+		type = (char *)malloc(4*sizeof(char));
+		type = "LOOS";
+		break;
+		case STT_HIOS :
+		type = (char *)malloc(4*sizeof(char));
+		type = "HIOS";
+		break;
+		case STT_LOPROC :
+		type = (char *)malloc(6*sizeof(char));
+		type = "LOPROC";
+		break;
+		case STT_HIPROC :
+		type = (char *)malloc(6*sizeof(char));
+		type = "HIPROC";
+		break;
+		default :
+		type=NULL;
+		break;
+	}
+	char * visibilite;
+	switch(symbole.st_other){
+		case STV_INTERNAL :
+		visibilite = (char *)malloc(8*sizeof(char));			
+		visibilite = "INTERNAL";
+		break;
+		case STV_HIDDEN :
+		visibilite = (char *)malloc(6*sizeof(char));			
+		visibilite = "HIDDEN";
+		break;
+		case STV_DEFAULT :
+		visibilite = (char *)malloc(7*sizeof(char));			
+		visibilite = "DEFAULT";
+		break;
+		case STV_PROTECTED :
+		visibilite = (char *)malloc(9*sizeof(char));			
+		visibilite = "PROTECTED";
+		break;
+		default :
+		visibilite = NULL;
+		break;
+	}
+	char * lien;
+	switch(ELF32_ST_BIND(symbole.st_info)){
+		case STB_LOCAL :
+		lien = (char *)malloc(5*sizeof(char));
+		lien = "LOCAL";			
+		break;
+		case STB_GLOBAL :
+		lien = (char *)malloc(6*sizeof(char));
+		lien = "GLOBAL";
+		break;
+		case STB_LOOS :
+		lien = (char *)malloc(4*sizeof(char));
+		lien = "LOOS";
+		break;
+		case STB_HIOS :
+		lien = (char *)malloc(4*sizeof(char));
+		lien = "HIOS";
+		break;
+		case STB_WEAK :
+		lien = (char *)malloc(4*sizeof(char));
+		lien = "WEAK";
+		break;
+		case STB_LOPROC :
+		lien = (char *)malloc(6*sizeof(char));
+		lien = "LOPROC";
+		break;
+		case STB_HIPROC :
+		lien = (char *)malloc(6*sizeof(char));
+		lien = "HIPROC";
+		break;
+		default :
+		lien=NULL;
+		break;
+	}
+	printf("%ld %08x %d %s %s %s %d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
+}
 
+void afficherTableSymbole(FILE * file){
+	
+	Elf32_Ehdr header;
+	Elf32_Shdr dyn, sym, tmp;
+	Elf32_Sym symbole;
+	char * strtab;
+	int idyn, isym, itab, itab2,i;
+	//Partie a modifier lorsque les fonctions des tableaux seront faites	
+	idyn = 4;
+	isym = 29;
+	itab = 30;
+	//Partie a modifier lorsque les fonctions des tableaux seront faites
+	fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	
+	// Affichage des symboles de .symtab
+	fseek( file, 0, SEEK_SET );
+	for ( i=0; i <header.e_shnum; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &tmp, header.e_shentsize, 1, file );
+		if (i == itab){
+			strtab = (char *)malloc(tmp.sh_size);
+			fseek( file, tmp.sh_offset, SEEK_SET);
+			fread( strtab, tmp.sh_size, 1, file);
+			i=header.e_shnum+1;
+		}
+	}
+	for ( i=0; i <= isym; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &sym, header.e_shentsize, 1, file );
+	}
+	printf("Table de symboles « .symtab » contient %ld entrées:\n",sym.sh_size/sizeof(symbole));
+	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
+	fseek(file, sym.sh_offset,SEEK_SET);	
+	for(i=0; i < sym.sh_size; i+=sizeof(symbole)){
+		fread(&symbole, sizeof(symbole), 1, file);
+		afficherSymbole(symbole,strtab,i);
+	}
+	
+
+
+
+	//Affichage des symboles de .dynsym
+	itab = 5;	
+	fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	fseek( file, 0, SEEK_SET );
+	for ( i=0; i <header.e_shnum; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &tmp, header.e_shentsize, 1, file );
+		if (i == itab){
+			strtab = (char *)malloc(tmp.sh_size);
+			fseek( file, tmp.sh_offset, SEEK_SET);
+			fread( strtab, tmp.sh_size, 1, file);
+			i=header.e_shnum+1;
+		}
+	}
+	for ( i=0; i <= idyn; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &dyn, header.e_shentsize, 1, file );
+	}
+	fseek( file, 0, SEEK_SET );
+	fseek(file, dyn.sh_offset,SEEK_SET);	
+	printf("\n\n");
+	printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
+	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
+	for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
+		fread(&symbole, sizeof(symbole), 1, file);
+		afficherSymbole(symbole,strtab,i);
+	}
+	free(strtab);
+	
+}
 void afficherRelocTable(FILE* file, Elf32_Ehdr *header){
 	printf("\nRelocation table:\n");
 	int i,j;
