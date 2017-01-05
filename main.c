@@ -509,35 +509,35 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 	char * lien;
 	switch(ELF32_ST_BIND(symbole.st_info)){
 		case STB_LOCAL :
-		lien = (char *)malloc(5*sizeof(char));
-		lien = "LOCAL";			
+			lien = (char *)malloc(5*sizeof(char));
+			lien = "LOCAL";			
 		break;
 		case STB_GLOBAL :
-		lien = (char *)malloc(6*sizeof(char));
-		lien = "GLOBAL";
+			lien = (char *)malloc(6*sizeof(char));
+			lien = "GLOBAL";
 		break;
 		case STB_LOOS :
-		lien = (char *)malloc(4*sizeof(char));
-		lien = "LOOS";
+			lien = (char *)malloc(4*sizeof(char));
+			lien = "LOOS";
 		break;
 		case STB_HIOS :
-		lien = (char *)malloc(4*sizeof(char));
-		lien = "HIOS";
+			lien = (char *)malloc(4*sizeof(char));
+			lien = "HIOS";
 		break;
 		case STB_WEAK :
-		lien = (char *)malloc(4*sizeof(char));
-		lien = "WEAK";
+			lien = (char *)malloc(4*sizeof(char));
+			lien = "WEAK";
 		break;
 		case STB_LOPROC :
-		lien = (char *)malloc(6*sizeof(char));
-		lien = "LOPROC";
+			lien = (char *)malloc(6*sizeof(char));
+			lien = "LOPROC";
 		break;
 		case STB_HIPROC :
-		lien = (char *)malloc(6*sizeof(char));
-		lien = "HIPROC";
+			lien = (char *)malloc(6*sizeof(char));
+			lien = "HIPROC";
 		break;
 		default :
-		lien=NULL;
+			lien=NULL;
 		break;
 	}
 	printf("%3ld: %08x %3d %8s %8s %8s %5d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
