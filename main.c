@@ -495,25 +495,34 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 void displayTableSymbole(FILE * file, char * sectionNames[]){
 	
 	Elf32_Ehdr header;
-	Elf32_Shdr dyn, sym;
+	Elf32_Shdr dyn, sym,tmp;
 	Elf32_Sym symbole;
 	char * strtab;
-	int i;
-	//Partie a modifier lorsque les fonctions des tableaux seront faites	
+	int i,itab;
+        
+        fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+
+
+	//Affichage des symboles de .dynsym
 	fseek( file, 0, SEEK_SET );
-	for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &sym, header.e_shentsize, 1, file );
-		if(strcmp(".symtab", sectionNames[i]) == 0)
+        for(itab = 0; itab < header.e_shnum; itab++){
+		fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
+		fread( &strtab, header.e_shentsize, 1, file );
+		if(strcmp(".dynstr", sectionNames[itab]) == 0)
 			break;
 	}
-	
-	//Partie a modifier lorsque les fonctions des tableaux seront faites
-	/*fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
-	// Affichage des symboles de .symtab
 	fseek( file, 0, SEEK_SET );
-	/*for ( i=0; i <header.e_shnum; i++ )
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+        fseek( file, 0, SEEK_SET );
+	for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &dyn, header.e_shentsize, 1, file );
+		if(strcmp(".dynsym", sectionNames[i]) == 0)
+			break;
+	}
+	fseek( file, 0, SEEK_SET );
+	for ( i=0; i <header.e_shnum; i++ )
 	{
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &tmp, header.e_shentsize, 1, file );
@@ -524,17 +533,44 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 			i=header.e_shnum+1;
 		}
 	}
-	for ( i=0; i <= isym; i++ )
-	{
+	fseek( file, 0, SEEK_SET );
+	fseek(file, dyn.sh_offset,SEEK_SET);
+	printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
+	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
+	for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
+		fread(&symbole, sizeof(symbole), 1, file);
+		displaySymbole(symbole,strtab,i);
+	}
+	
+	
+	// Affichage des symboles de .symtab
+       fseek( file, 0, SEEK_SET );
+	for(i = 0; i < header.e_shnum; i++){
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &sym, header.e_shentsize, 1, file );
-	}*/
-        for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &strtab, header.e_shentsize, 1, file );
-		if(strcmp(".strtab", sectionNames[i]) == 0)
+		if(strcmp(".symtab", sectionNames[i]) == 0)
 			break;
 	}
+	fseek( file, 0, SEEK_SET );
+        for(itab = 0; itab < header.e_shnum; itab++){
+		fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
+		fread( &strtab, header.e_shentsize, 1, file );
+		if(strcmp(".strtab", sectionNames[itab]) == 0)
+			break;
+	}
+	fseek( file, 0, SEEK_SET );
+	for ( i=0; i <header.e_shnum; i++ )
+	{
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &tmp, header.e_shentsize, 1, file );
+		if (i == itab){
+			strtab = (char *)malloc(tmp.sh_size);
+			fseek( file, tmp.sh_offset, SEEK_SET);
+			fread( strtab, tmp.sh_size, 1, file);
+			i=header.e_shnum+1;
+		}
+	}	
+	printf("\n\n");
 	printf("Table de symboles « .symtab » contient %ld entrées:\n",sym.sh_size/sizeof(symbole));
 	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
 	fseek(file, sym.sh_offset,SEEK_SET);	
@@ -543,53 +579,6 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 		displaySymbole(symbole,strtab,i);
 	}
 	
-
-
-
-	//Affichage des symboles de .dynsym
-	/*fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
-	fseek( file, 0, SEEK_SET );
-	for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &strtab, header.e_shentsize, 1, file );
-		if(strcmp(".dynstr", sectionNames[i]) == 0)
-			break;
-	}	
-	/*fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
-	fseek( file, 0, SEEK_SET );
-	/*for ( i=0; i <header.e_shnum; i++ )
-	{
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &tmp, header.e_shentsize, 1, file );
-		if (i == itab){
-			strtab = (char *)malloc(tmp.sh_size);
-			fseek( file, tmp.sh_offset, SEEK_SET);
-			fread( strtab, tmp.sh_size, 1, file);
-			i=header.e_shnum+1;
-		}
-	}
-	for ( i=0; i <= idyn; i++ )
-	{
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &dyn, header.e_shentsize, 1, file );
-	}*/
-        for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &dyn, header.e_shentsize, 1, file );
-		if(strcmp(".dynsim", sectionNames[i]) == 0)
-			break;
-	}
-	fseek( file, 0, SEEK_SET );
-	fseek(file, dyn.sh_offset,SEEK_SET);	
-	printf("\n\n");
-	printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
-	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
-	for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
-		fread(&symbole, sizeof(symbole), 1, file);
-		displaySymbole(symbole,strtab,i);
-	}
 	free(strtab);
 	
 }
