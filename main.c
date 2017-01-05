@@ -179,12 +179,17 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 				else
 					convert[k] = '.';							
 				if(k % 4 == 0)
-					printf(" %02x",mot);
-				else
-					printf("%02x",mot);
+					printf(" ");
+
+				printf("%02x",mot);
 				convert = realloc(convert, k+1);
+			}else{
+				if(k % 4 == 0)
+					printf(" ");
+				printf("  ");
 			}
 		}
+
 		printf(" | %s\n",convert);		
 		ligne += 16;	
 	}
@@ -631,7 +636,6 @@ int main(int argc, char* argv[]){
 	
 	/* Récupération des arguments */
 	int opt;
-	//char *option1, *option2;
 	
 	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_use_dynamics=0, arg_hexdump=0, arg_string_dump=0;
 	int arg_section=0;
@@ -771,9 +775,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	/* Memory free */
 	fclose(file);
-	//free(sectionHeaders);
-	//free(sectionNames);
+
 
 	return 0;
 }
