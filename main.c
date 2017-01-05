@@ -15,64 +15,64 @@
 void afficherHeader(Elf32_Ehdr header){
 		if(header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F'){
 			printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
-			printf("Magique : ");
+			printf("\tMagique : ");
 			int i;
 			for(i =0; i<16;i++){
-				printf(" %x", header.e_ident[i]);
+				printf(" %02x", header.e_ident[i]);
 
 			}
 			switch(header.e_ident[EI_CLASS]){
 				case 1: 
-					printf("\n Classe : ELF32 \n"); 
+					printf("\n\tClasse : ELF32 \n"); 
 					break;
 				case 2 : 
-					printf("\n Classe : ELF64 \n"); 
+					printf("\n\tClasse : ELF64 \n"); 
 					break;
 				default : 
-					printf("\n Classe : Invalide \n"); 
+					printf("\n\tClasse : Invalide \n"); 
 					break;
 			}
 			switch(header.e_ident[EI_DATA]){
 				case 1: 
-					printf("Donnees : Complement à 2, Little Endian\n"); 
+					printf("\tDonnees : Complement à 2, Little Endian\n"); 
 					break;
 				case 2 : 
-					printf("Donnees : Complement à 2, Big Endian\n"); 
+					printf("\tDonnees : Complement à 2, Big Endian\n"); 
 					break;
 				default : 
-					printf("Donnees: Invalide\n"); 
+					printf("\tDonnees: Invalide\n"); 
 					break;
 			}
-			printf("Version : %d\n",header.e_ident[EI_VERSION]);
-			printf("OS/ABI : %d\n", header.e_ident[EI_OSABI]);	// switch a faire
-			printf("Version ABI: %d\n",header.e_ident[EI_ABIVERSION]);	
+			printf("\tVersion : %d\n",header.e_ident[EI_VERSION]);
+			printf("\tOS/ABI : %d\n", header.e_ident[EI_OSABI]);	// switch a faire
+			printf("\tVersion ABI: %d\n",header.e_ident[EI_ABIVERSION]);	
 			switch(header.e_type){
 				case ET_REL:
-					printf("Type : RELOCABLE\n");
+					printf("\tType : RELOCABLE\n");
 					break;
 				case ET_EXEC:
-					printf("Type : EXEC\n");
+					printf("\tType : EXEC\n");
 					break;
 				case ET_DYN : 
-					printf("Type : SHARED\n");
+					printf("\tType : SHARED\n");
 					break;
 				case ET_CORE :
-					printf("Type : CORE\n");
+					printf("\tType : CORE\n");
 					break;
 				case ET_LOPROC :
-					printf("Type : LOPROC\n");
+					printf("\tType : LOPROC\n");
 					break;
 				case ET_HIPROC :
-					printf("Type : HIPROC\n");
+					printf("\tType : HIPROC\n");
 					break;
 				case ET_NONE : 
-					printf("Type : NOFILE\n");
+					printf("\tType : NOFILE\n");
 					break;
 				default: 	
 					break;
 
 			}
-			printf("Machine : ");
+			printf("\tMachine : ");
 			switch(header.e_machine){
 				case EM_NONE:         
 					printf("An unknown machine");
@@ -133,18 +133,18 @@ void afficherHeader(Elf32_Ehdr header){
 					break;
 
 			}
-			printf("\n Version: %x\n",header.e_version);
-			printf("Adresse du point d'entree 0x%x\n",header.e_entry);
-			printf("Début des  en-têtes de programme: %x\n",header.e_phoff);
-			printf("Débuts des entêtes de sections: %d\n",header.e_shoff); //
-			printf("Flags : %x\n",header.e_flags);
+			printf("\n\tVersion: %x\n",header.e_version);
+			printf("\tAdresse du point d'entree 0x%x\n",header.e_entry);
+			printf("\tDébut des  en-têtes de programme: %x\n",header.e_phoff);
+			printf("\tDébuts des entêtes de sections: %d\n",header.e_shoff); //
+			printf("\tFlags : %x\n",header.e_flags);
 				
-			printf("Taille de cet entête : %d\n",header.e_ehsize);
-			printf("Taille de l'entête du programme : %d\n",header.e_phentsize);
-			printf("Nombre d'entêtes du programme : %d\n",header.e_phnum);
-			printf("Taille des entêtes de section : %d\n",header.e_shentsize); //
-			printf("Nombre d'entêtes de section : %d\n",header.e_shnum); //
-			printf("Table d'indexes des chaînes d'entête de sections : %d\n",header.e_shstrndx);
+			printf("\tTaille de cet entête : %d\n",header.e_ehsize);
+			printf("\tTaille de l'entête du programme : %d\n",header.e_phentsize);
+			printf("\tNombre d'entêtes du programme : %d\n",header.e_phnum);
+			printf("\tTaille des entêtes de section : %d\n",header.e_shentsize); //
+			printf("\tNombre d'entêtes de section : %d\n",header.e_shnum); //
+			printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",header.e_shstrndx);
 			
 		}
 }
@@ -179,7 +179,6 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 		convert = (char *) malloc(1);		
 		for(k=0;k<16;k++){
 			if(ITERheader.sh_size > i+k){
-
 				unsigned char mot;
 				nbc = fread(&mot, sizeof(mot),1, file);
 				if(nbc != 1){
@@ -284,7 +283,7 @@ void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char *
 //Affichage du contenu des headers des différentes sections
 void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
 		char flags[4];
-        printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,0);
+        printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,header.e_shoff);
         printf("[Nr]\t%-15s\t%-10s\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n", "Nom", "Type");
 
         int i;
@@ -425,8 +424,10 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 void usage(char *name){
 	fprintf(stderr, "Usage:\n"
 		"%s [ options ] file\n\n"
-		"-h Prints file heders\n"
+		"-h Prints file headers\n"
 		"-S Prints sections headers\n"
+		"-s Prints symbols table\n"
+		"-r Prints relocation table\n"
 		"-x <num> Hexa dump of section number <num>\n"
 		, name);
 }
@@ -581,7 +582,6 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 		if(strcmp(".dynstr", sectionNames[itab]) == 0)
 			break;
 	}
-
 	fseek( file, 0, SEEK_SET );
 	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, file);
 	if(nbc != 1){
@@ -594,7 +594,6 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 
         fseek( file, 0, SEEK_SET );
 	for(i = 0; i < header.e_shnum; i++){
-
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		nbc = fread( &dyn, header.e_shentsize, 1, file );
 		if(nbc != 1){
@@ -734,29 +733,38 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	
 }
 
+char* getTypeRealoc(int type){
+	switch(type){
+		case R_ARM_ABS32:
+			return "R_ARM_ABS32";
+		case R_ARM_PLT32:
+			return "R_ARM_PLT32";
+		case R_ARM_CALL:
+			return "R_ARM_CALL";
+		case R_ARM_JUMP24:
+			return "R_ARM_JUMP24";
+		default:
+			return "Autre instruction";
+	}
+}
+
 //Affiche les tables de réimplantation 
-void displayRelocTable(FILE* file, Elf32_Ehdr *header){
-	printf("\nRelocation table:\n");
-	int i,j, nbc;
-	Elf32_Shdr sectionHeader;
+void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr* sections, char * sectionNames[]){
+	printf("********************\n");
+	printf("* Relocation table *\n");
+	printf("********************\n");
+	int i,j,nbc;
 	Elf32_Rel relcel;
 	Elf32_Rela relacel;
 	for(i=0;i<header->e_shnum;i++){
-		fseek(file,(int)header->e_shoff+(i*sizeof(Elf32_Shdr)),SEEK_SET);	
-		nbc = fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
-		if(nbc != 1){
-			if(feof(file)){
-				/* End of file */
-			}else{
-				debug("Erreur de lecture.");
-			}
-		}
+		Elf32_Shdr sectionHeader = sections[i];
 		if (sectionHeader.sh_type==SHT_REL){
-			printf("OK\n");
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
 			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
-			printf("  Offset    Info      Type        Sym.\n");
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", sectionNames[i], nbEnt); 
+			printf("---------------------------------------------------------\n"); 
+			printf(" Offset     Info         Type            Sym.\n");
+			printf("---------------------------------------------------------\n"); 
 			for(j = 0; j < nbEnt;j++){
 				nbc = fread(&relcel,sizeof(Elf32_Rel),1,file);
 				if(nbc != 1){
@@ -766,15 +774,17 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 						debug("Erreur de lecture.");
 					}
 				}
-				printf("%08x  %08x  %10d  %x\n",relcel.r_offset, relcel.r_info,ELF32_R_TYPE(relcel.r_info),ELF32_R_SYM(relcel.r_info));
+				printf("%08x  %08x  %17s  %6d\n",relcel.r_offset, relcel.r_info,getTypeRealoc(ELF32_R_TYPE(relcel.r_info)),ELF32_R_SYM(relcel.r_info));
  			}			
+			printf("---------------------------------------------------------\n"); 
 			printf("\n");
 		} else if (sectionHeader.sh_type==SHT_RELA){
-			printf("OK\n");
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
 			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
-			printf("  Offset    Info      Type        Sym. + Addend\n");
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", sectionNames[i], nbEnt); 
+			printf("---------------------------------------------------------\n"); 
+			printf(" Offset     Info         Type             Sym. + Addend\n");
+			printf("---------------------------------------------------------\n"); 
 			for(j = 0; j < nbEnt;j++){
 				nbc = fread(&relacel,sizeof(Elf32_Rela),1,file);
 				if(nbc != 1){
@@ -784,13 +794,13 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 						debug("Erreur de lecture.");
 					}
 				}
-				printf("%08x  %08x  %10d  %x + %d\n",relacel.r_offset, relacel.r_info,ELF32_R_TYPE(relacel.r_info),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
+				printf("%08x  %08x  %17s  %6d + %d\n",relacel.r_offset, relacel.r_info,getTypeRealoc(ELF32_R_TYPE(relacel.r_info)),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
  			}			
+			printf("---------------------------------------------------------\n"); 
 			printf("\n");
 		}
 		
 	}
-	
 }
 
 int main(int argc, char* argv[]){
@@ -936,7 +946,7 @@ int main(int argc, char* argv[]){
 		printf("Option not available yet.\n");
 	}
 	if(arg_relocs){
-		printf("Option not available yet.\n");
+		displayRelocTable(file, &header, sectionHeaders, sectionNames);
 	}
 	if(arg_hexdump){
 		if(isNumber(arg_section)){

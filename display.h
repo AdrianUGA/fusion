@@ -7,6 +7,6 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 void usage(char *name);
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
 void displayTableSymbole(FILE * file,char * sectionNames[]);
-void displayRelocTable(FILE* file, Elf32_Ehdr *header);
+void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr *sections, char * sectionNames[]);
 char isNumber(char *str);
 int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header);
