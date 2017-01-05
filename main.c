@@ -11,6 +11,7 @@
 #include "debug.h"
 
 
+//Affichage de l'header du fichier elf
 void afficherHeader(Elf32_Ehdr header){
 		if(header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F'){
 			printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
@@ -148,9 +149,7 @@ void afficherHeader(Elf32_Ehdr header){
 		}
 }
 
-
-
-// header de la section
+//Affichage du contenu de la section avec pour parametre son idice
 void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectionNames[]){
 	Elf32_Shdr ITERheader;
 	
@@ -191,6 +190,7 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 	}
 }
 
+//Affichage du contenu de la section avec pour parametre son nom
 void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char * sectionNames[]){
 	Elf32_Shdr ITERheader;
 	Elf32_Shdr sectionHeaders[header.e_shnum];
@@ -232,6 +232,7 @@ void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char *
 	}
 }
 
+//Affichage du contenu des headers des différentes sections
 void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
         printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,0);
         int i;
@@ -329,6 +330,7 @@ void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectio
         }
 }
 
+//Récupere le contenu d'une section
 void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 
 	if(fseek(file, sectionHeader.sh_offset, SEEK_SET) != 0){
@@ -339,6 +341,7 @@ void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 
 }
 
+//Récupère les noms des sections
 void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]){
 	/* On récupère la section des noms */
 	int size = sectionHeaders[header.e_shstrndx].sh_size;
@@ -361,7 +364,7 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 	}
 }
 
-
+//Aide pour les options 
 void usage(char *name){
 	fprintf(stderr, "Usage:\n"
 		"%s [ options ] file\n\n"
@@ -370,6 +373,8 @@ void usage(char *name){
 		"-x <num> Hexa dump of section number <num>\n"
 		, name);
 }
+
+//Affiche un symbole
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 	
 	char * type;		
@@ -481,24 +486,29 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 	printf("%ld %08x %d %s %s %s %d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
 }
 
-void displayTableSymbole(FILE * file){
+//Affiche les tables de symboles
+void displayTableSymbole(FILE * file, char * sectionNames[]){
 	
 	Elf32_Ehdr header;
-	Elf32_Shdr dyn, sym, tmp;
+	Elf32_Shdr dyn, sym;
 	Elf32_Sym symbole;
 	char * strtab;
-	int idyn, isym, itab,i;
+	int i;
 	//Partie a modifier lorsque les fonctions des tableaux seront faites	
-	idyn = 4;
-	isym = 29;
-	itab = 30;
-	//Partie a modifier lorsque les fonctions des tableaux seront faites
 	fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &sym, header.e_shentsize, 1, file );
+		if(strcmp(".symtab", sectionNames[i]) == 0)
+			break;
+	}
 	
+	//Partie a modifier lorsque les fonctions des tableaux seront faites
+	/*fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
 	// Affichage des symboles de .symtab
 	fseek( file, 0, SEEK_SET );
-	for ( i=0; i <header.e_shnum; i++ )
+	/*for ( i=0; i <header.e_shnum; i++ )
 	{
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &tmp, header.e_shentsize, 1, file );
@@ -513,6 +523,12 @@ void displayTableSymbole(FILE * file){
 	{
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &sym, header.e_shentsize, 1, file );
+	}*/
+        for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &strtab, header.e_shentsize, 1, file );
+		if(strcmp(".strtab", sectionNames[i]) == 0)
+			break;
 	}
 	printf("Table de symboles « .symtab » contient %ld entrées:\n",sym.sh_size/sizeof(symbole));
 	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
@@ -526,11 +542,19 @@ void displayTableSymbole(FILE * file){
 
 
 	//Affichage des symboles de .dynsym
-	itab = 5;	
+	/*fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
 	fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &strtab, header.e_shentsize, 1, file );
+		if(strcmp(".dynstr", sectionNames[i]) == 0)
+			break;
+	}	
+	/*fseek( file, 0, SEEK_SET );
+	fread( &header , sizeof(Elf32_Ehdr), 1, file);*/
 	fseek( file, 0, SEEK_SET );
-	for ( i=0; i <header.e_shnum; i++ )
+	/*for ( i=0; i <header.e_shnum; i++ )
 	{
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &tmp, header.e_shentsize, 1, file );
@@ -545,6 +569,12 @@ void displayTableSymbole(FILE * file){
 	{
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
 		fread( &dyn, header.e_shentsize, 1, file );
+	}*/
+        for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &dyn, header.e_shentsize, 1, file );
+		if(strcmp(".dynsim", sectionNames[i]) == 0)
+			break;
 	}
 	fseek( file, 0, SEEK_SET );
 	fseek(file, dyn.sh_offset,SEEK_SET);	
@@ -558,6 +588,8 @@ void displayTableSymbole(FILE * file){
 	free(strtab);
 	
 }
+
+//Affiche les tables de réimplantation 
 void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 	printf("\nRelocation table:\n");
 	int i,j;
