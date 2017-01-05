@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <ctype.h>
 
 #include "display.h"
 #include "debug.h"
