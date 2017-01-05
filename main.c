@@ -167,7 +167,7 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 	int ligne = ITERheader.sh_addr;	
 	fseek(file, ITERheader.sh_offset, SEEK_SET);
 	for(i=0;i < ITERheader.sh_size; i+=16){
-		printf("Ox%08x : ",ligne);
+		printf("  Ox%08x",ligne);
 		int k;
 		char * convert;
 		convert = (char *) malloc(1);		
@@ -191,7 +191,7 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 			}
 		}
 
-		printf(" | %s\n",convert);		
+		printf(" %s\n",convert);		
 		ligne += 16;	
 	}
 }
