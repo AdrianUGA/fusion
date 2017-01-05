@@ -489,7 +489,7 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 		lien=NULL;
 		break;
 	}
-	printf("%ld %08x %d %s %s %s %d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
+	printf("%3ld: %08x %3d %8s %8s %8s %5d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
 }
 
 //Affiche les tables de symboles
@@ -537,7 +537,7 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	fseek( file, 0, SEEK_SET );
 	fseek(file, dyn.sh_offset,SEEK_SET);
 	printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
-	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
+	printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
 	for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
 		fread(&symbole, sizeof(symbole), 1, file);
 		displaySymbole(symbole,strtab,i);
@@ -573,7 +573,7 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	}	
 	printf("\n\n");
 	printf("Table de symboles « .symtab » contient %ld entrées:\n",sym.sh_size/sizeof(symbole));
-	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
+        printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
 	fseek(file, sym.sh_offset,SEEK_SET);	
 	for(i=0; i < sym.sh_size; i+=sizeof(symbole)){
 		fread(&symbole, sizeof(symbole), 1, file);
@@ -627,7 +627,7 @@ int main(int argc, char* argv[]){
 	/* Récupération des arguments */
 	int opt;
 	
-	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_use_dynamics=0, arg_hexdump=0, arg_string_dump=0;
+	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, /*arg_use_dynamics=0,*/ arg_hexdump=0, arg_string_dump=0;
 	char * arg_section;
 	int num_section = -1;
 	FILE *file;
@@ -682,7 +682,7 @@ int main(int argc, char* argv[]){
 			arg_relocs=1;
 			break;
 		case 'D':
-			arg_use_dynamics=1;
+			//arg_use_dynamics=1;
 			break;
 		case 'x':
 			arg_hexdump=1;
@@ -742,7 +742,7 @@ int main(int argc, char* argv[]){
 		displaySectionHeader(sectionHeaders, header, sectionNames);
 	}
 	if(arg_symbols){
-		printf("Option not available yet.\n");
+		displayTableSymbole(file, sectionNames);
 	}
 	if(arg_dyn_syms){
 		printf("Option not available yet.\n");
