@@ -86,5 +86,7 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 		
 		sectionNames[i] = malloc(strlen(tmp));
 		strcpy(sectionNames[i], tmp);
+		printf("%s\n", sectionNames[i]);
 	}
+
 }

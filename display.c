@@ -625,14 +625,14 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 
 
 //Affiche les tables de réimplantation 
-void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr* sections, char * sectionNames[]){
+void displayRelocTable(FILE* file, Elf32_Ehdr header, Elf32_Shdr* sections, char * sectionNames[]){
 	printf("********************\n");
 	printf("* Relocation table *\n");
 	printf("********************\n");
 	int i,j,nbc;
 	Elf32_Rel relcel;
 	Elf32_Rela relacel;
-	for(i=0;i<header->e_shnum;i++){
+	for(i=0;i<header.e_shnum;i++){
 		Elf32_Shdr sectionHeader = sections[i];
 		if (sectionHeader.sh_type==SHT_REL){
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
