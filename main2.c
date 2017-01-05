@@ -212,7 +212,6 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 }
 
 
-
 void usage(char *name){
 	fprintf(stderr, "Usage:\n"
 		"%s [ options ] file\n\n"
@@ -221,6 +220,7 @@ void usage(char *name){
 		"-x <num> Hexa dump of section number <num>\n"
 		, name);
 }
+
 
 int main(int argc, char* argv[]){
 	
