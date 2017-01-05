@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = Options_and_debug_example$(EXEEXT)
+bin_PROGRAMS = main$(EXEEXT) phase2$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/hostsubdir.m4 \
@@ -102,12 +102,12 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = debug.$(OBJEXT) util.$(OBJEXT)
-am_Options_and_debug_example_OBJECTS = $(am__objects_1) \
-	Options_and_debug_example.$(OBJEXT)
-Options_and_debug_example_OBJECTS =  \
-	$(am_Options_and_debug_example_OBJECTS)
-Options_and_debug_example_LDADD = $(LDADD)
+am_main_OBJECTS = main.$(OBJEXT) debug.$(OBJEXT)
+main_OBJECTS = $(am_main_OBJECTS)
+main_LDADD = $(LDADD)
+am_phase2_OBJECTS = phase2.$(OBJEXT) debug.$(OBJEXT)
+phase2_OBJECTS = $(am_phase2_OBJECTS)
+phase2_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -136,8 +136,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(Options_and_debug_example_SOURCES)
-DIST_SOURCES = $(Options_and_debug_example_SOURCES)
+SOURCES = $(main_SOURCES) $(phase2_SOURCES)
+DIST_SOURCES = $(main_SOURCES) $(phase2_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -307,6 +307,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -325,7 +326,9 @@ AM_CFLAGS = -Wall -Werror -g -D DEBUG -D WARNING
 SUBDIRS = . Examples_fusion
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
-Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
+#Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
+main_SOURCES = main.c debug.c
+phase2_SOURCES = phase2.c debug.c
 all: all-recursive
 
 .SUFFIXES:
@@ -406,9 +409,13 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-Options_and_debug_example$(EXEEXT): $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_DEPENDENCIES) $(EXTRA_Options_and_debug_example_DEPENDENCIES) 
-	@rm -f Options_and_debug_example$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_LDADD) $(LIBS)
+main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) $(EXTRA_main_DEPENDENCIES) 
+	@rm -f main$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(main_OBJECTS) $(main_LDADD) $(LIBS)
+
+phase2$(EXEEXT): $(phase2_OBJECTS) $(phase2_DEPENDENCIES) $(EXTRA_phase2_DEPENDENCIES) 
+	@rm -f phase2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(phase2_OBJECTS) $(phase2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -416,9 +423,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Options_and_debug_example.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phase2.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

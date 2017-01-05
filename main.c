@@ -152,13 +152,20 @@ void afficherHeader(Elf32_Ehdr header){
 //Affichage du contenu de la section avec pour parametre son idice
 void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectionNames[]){
 	Elf32_Shdr ITERheader;
-	
-        int i;
+	int nbc;
+
+    int i;
 	fseek(file, 0, SEEK_SET);
-	for ( i=0; i <= j; i++ )
-	{
+	for ( i=0; i <= j; i++ ){
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &ITERheader, header.e_shentsize, 1, file );
+		nbc = fread( &ITERheader, header.e_shentsize, 1, file );
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
 	}
 
 
@@ -167,13 +174,22 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 	fseek(file, ITERheader.sh_offset, SEEK_SET);
 	for(i=0;i < ITERheader.sh_size; i+=16){
 		printf("  Ox%08x",ligne);
-		int k;
+		int k, nbc;
 		char * convert;
 		convert = (char *) malloc(1);		
 		for(k=0;k<16;k++){
 			if(ITERheader.sh_size > i+k){
+
 				unsigned char mot;
-				fread(&mot, sizeof(mot),1, file);
+				nbc = fread(&mot, sizeof(mot),1, file);
+				if(nbc != 1){
+					if(feof(file)){
+						/* End of file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
+
 				if (isprint(mot))			
 					convert[k] = mot;
 				else
@@ -199,13 +215,32 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char * sectionNames[]){
 	Elf32_Shdr ITERheader;
 	Elf32_Shdr sectionHeaders[header.e_shnum];
+	int nbc;
+
 	fseek(file, header.e_shoff, SEEK_SET);
-	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
-	fseek( file, 0, SEEK_SET );
+	nbc = fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
+
+	// Semble inutile
+	//fseek( file, 0, SEEK_SET );
 	int i;
 	for(i = 0; i < header.e_shnum; i++){
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &ITERheader, header.e_shentsize, 1, file );
+		nbc = fread( &ITERheader, header.e_shentsize, 1, file );
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
+
 		if(strcmp(section, sectionNames[i]) == 0)
 			break;
 	}
@@ -220,7 +255,16 @@ void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char *
 		for(k=0;k<16;k++){
 			if(ITERheader.sh_size > i+k){
 				unsigned char mot;
-				fread(&mot, sizeof(mot),1, file);
+
+				nbc = fread(&mot, sizeof(mot),1, file);
+				if(nbc != 1){
+					if(feof(file)){
+						/* End of file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
+
 				if (isprint(mot))			
 					convert[k] = mot;
 				else
@@ -342,7 +386,15 @@ void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 		fprintf(stderr, "Fseek fail !\n");
 	}
 
-	fread(buffer, sectionHeader.sh_size, 1, file);
+	int nbc;
+	nbc = fread(buffer, sectionHeader.sh_size, 1, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
 }
 
@@ -500,24 +552,59 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	char * strtab;
 	int i,itab,ok=0;
         
-        fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+    fseek( file, 0, SEEK_SET );
+
+    int nbc;
+	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
 
 	//Affichage des symboles de .dynsym
 	fseek( file, 0, SEEK_SET );
         for(itab = 0; itab < header.e_shnum; itab++){
 		fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
-		fread( &strtab, header.e_shentsize, 1, file );
+		nbc = fread( &strtab, header.e_shentsize, 1, file );
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
+
 		if(strcmp(".dynstr", sectionNames[itab]) == 0)
 			break;
 	}
+
 	fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
+
         fseek( file, 0, SEEK_SET );
 	for(i = 0; i < header.e_shnum; i++){
+
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &dyn, header.e_shentsize, 1, file );
+		nbc = fread( &dyn, header.e_shentsize, 1, file );
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
+
 		if(strcmp(".dynsym", sectionNames[i]) == 0){
                         ok=1;
 			break;
@@ -528,11 +615,25 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             for ( i=0; i <header.e_shnum; i++ )
             {
                     fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-                    fread( &tmp, header.e_shentsize, 1, file );
+                    nbc = fread( &tmp, header.e_shentsize, 1, file );
+                    if(nbc != 1){
+						if(feof(file)){
+							/* End of file */
+						}else{
+							debug("Erreur de lecture.");
+						}
+					}
                     if (i == itab){
                             strtab = (char *)malloc(tmp.sh_size);
                             fseek( file, tmp.sh_offset, SEEK_SET);
-                            fread( strtab, tmp.sh_size, 1, file);
+                            nbc = fread( strtab, tmp.sh_size, 1, file);
+                            if(nbc != 1){
+								if(feof(file)){
+									/* End of file */
+								}else{
+									debug("Erreur de lecture.");
+								}
+							}
                             i=header.e_shnum+1;
                     }
             }
@@ -541,7 +642,14 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
             printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
             for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
-                    fread(&symbole, sizeof(symbole), 1, file);
+                    nbc = fread(&symbole, sizeof(symbole), 1, file);
+                    if(nbc != 1){
+						if(feof(file)){
+							/* End of file */
+						}else{
+							debug("Erreur de lecture.");
+						}
+					}
                     displaySymbole(symbole,strtab,i);
             }
             
@@ -551,7 +659,14 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
        fseek( file, 0, SEEK_SET );
 	for(i = 0; i < header.e_shnum; i++){
 		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &sym, header.e_shentsize, 1, file );
+		nbc = fread( &sym, header.e_shentsize, 1, file );
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
 		if(strcmp(".symtab", sectionNames[i]) == 0){
                         ok=1;
 			break;
@@ -561,7 +676,14 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             fseek( file, 0, SEEK_SET );
             for(itab = 0; itab < header.e_shnum; itab++){
                     fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
-                    fread( &strtab, header.e_shentsize, 1, file );
+                    nbc = fread( &strtab, header.e_shentsize, 1, file );
+                    if(nbc != 1){
+						if(feof(file)){
+							/* End of file */
+						}else{
+							debug("Erreur de lecture.");
+						}
+					}
                     if(strcmp(".strtab", sectionNames[itab]) == 0)
                             break;
             }
@@ -569,11 +691,25 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             for ( i=0; i <header.e_shnum; i++ )
             {
                     fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-                    fread( &tmp, header.e_shentsize, 1, file );
+                    nbc = fread( &tmp, header.e_shentsize, 1, file );
+                    if(nbc != 1){
+						if(feof(file)){
+							/* End of file */
+						}else{
+							debug("Erreur de lecture.");
+						}
+					}
                     if (i == itab){
                             strtab = (char *)malloc(tmp.sh_size);
                             fseek( file, tmp.sh_offset, SEEK_SET);
-                            fread( strtab, tmp.sh_size, 1, file);
+                            nbc = fread( strtab, tmp.sh_size, 1, file);
+                            if(nbc != 1){
+								if(feof(file)){
+									/* End of file */
+								}else{
+									debug("Erreur de lecture.");
+								}
+							}
                             i=header.e_shnum+1;
                     }
             }	
@@ -582,7 +718,14 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
             fseek(file, sym.sh_offset,SEEK_SET);	
             for(i=0; i < sym.sh_size; i+=sizeof(symbole)){
-                    fread(&symbole, sizeof(symbole), 1, file);
+                    nbc = fread(&symbole, sizeof(symbole), 1, file);
+                    if(nbc != 1){
+						if(feof(file)){
+							/* End of file */
+						}else{
+							debug("Erreur de lecture.");
+						}
+					}
                     displaySymbole(symbole,strtab,i);
             }
         }
@@ -594,13 +737,20 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 //Affiche les tables de réimplantation 
 void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 	printf("\nRelocation table:\n");
-	int i,j;
+	int i,j, nbc;
 	Elf32_Shdr sectionHeader;
 	Elf32_Rel relcel;
 	Elf32_Rela relacel;
 	for(i=0;i<header->e_shnum;i++){
 		fseek(file,(int)header->e_shoff+(i*sizeof(Elf32_Shdr)),SEEK_SET);	
-		fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
+		nbc = fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
+		if(nbc != 1){
+			if(feof(file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
+		}
 		if (sectionHeader.sh_type==SHT_REL){
 			printf("OK\n");
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
@@ -608,7 +758,14 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
 			printf("  Offset    Info      Type        Sym.\n");
 			for(j = 0; j < nbEnt;j++){
-				fread(&relcel,sizeof(Elf32_Rel),1,file);
+				nbc = fread(&relcel,sizeof(Elf32_Rel),1,file);
+				if(nbc != 1){
+					if(feof(file)){
+						/* End of file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
 				printf("%08x  %08x  %10d  %x\n",relcel.r_offset, relcel.r_info,ELF32_R_TYPE(relcel.r_info),ELF32_R_SYM(relcel.r_info));
  			}			
 			printf("\n");
@@ -619,7 +776,14 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", "NAME", nbEnt); 
 			printf("  Offset    Info      Type        Sym. + Addend\n");
 			for(j = 0; j < nbEnt;j++){
-				fread(&relacel,sizeof(Elf32_Rela),1,file);
+				nbc = fread(&relacel,sizeof(Elf32_Rela),1,file);
+				if(nbc != 1){
+					if(feof(file)){
+						/* End of file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
 				printf("%08x  %08x  %10d  %x + %d\n",relacel.r_offset, relacel.r_info,ELF32_R_TYPE(relacel.r_info),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
  			}			
 			printf("\n");
@@ -632,7 +796,7 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 int main(int argc, char* argv[]){
 	
 	/* Récupération des arguments */
-	int opt;
+	int opt, nbc;
 	
 	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, /*arg_use_dynamics=0,*/ arg_hexdump=0, arg_string_dump=0;
 	char * arg_section;
@@ -726,12 +890,26 @@ int main(int argc, char* argv[]){
 
 	/* ELF header */
 	Elf32_Ehdr header;
-	fread(&header, 1, sizeof(header), file);
+	nbc = fread(&header, 1, sizeof(header), file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
 	/* Section headers */
 	Elf32_Shdr sectionHeaders[header.e_shnum];
 	fseek(file, header.e_shoff, SEEK_SET);
-	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
+	nbc = fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
 	/* Section names */
 	char * sectionNames[header.e_shnum];
