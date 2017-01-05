@@ -1,12 +1,16 @@
 #include <elf.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
+#include <string.h>
+#include <assert.h>
+#include <unistd.h>
 #include <ctype.h>
 
+#include "display.h"
+
+
 void afficherHeader(Elf32_Ehdr header){
-
-
-		
 		if(header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F'){
 			printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
 			printf("Magique : ");
@@ -143,23 +147,13 @@ void afficherHeader(Elf32_Ehdr header){
 		}
 }
 
+
+
 // header de la section
-void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
-	Elf32_Shdr sectionHeader,ITERheader;
-	fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
-	char * STR_buffer=NULL;
-	int i;
-	for ( i=0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &sectionHeader, header.e_shentsize, 1, file );
-		if ((sectionHeader.sh_type == SHT_STRTAB) && (sectionHeader.sh_addr == 0x00000000)){
-			STR_buffer = (char *)malloc( sectionHeader.sh_size);
-			fseek( file, sectionHeader.sh_offset, SEEK_SET);
-			fread( STR_buffer, sectionHeader.sh_size, 1, file);
-			i=header.e_shnum+1;
-		}
-	}	
+void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectionNames[]){
+	Elf32_Shdr ITERheader;
+	
+        int i;
 	fseek(file, 0, SEEK_SET);
 	for ( i=0; i <= j; i++ )
 	{
@@ -168,7 +162,7 @@ void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 	}
 
 
-	printf("Affichage hexadécimal de la section « %s »\n", STR_buffer+ITERheader.sh_name);
+	printf("Affichage hexadécimal de la section « %s »\n", sectionNames[j]);
 	int ligne = ITERheader.sh_addr;	
 	fseek(file, ITERheader.sh_offset, SEEK_SET);
 	for(i=0;i < ITERheader.sh_size; i+=16){
@@ -194,13 +188,55 @@ void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 		printf(" | %s\n",convert);		
 		ligne += 16;	
 	}
-	free(STR_buffer);
-	fclose( file );
 }
 
-void afficherSectionHeader(Elf32_Shdr* sectionH, int i){
+void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char * sectionNames[]){
+	Elf32_Shdr ITERheader;
+	Elf32_Shdr sectionHeaders[header.e_shnum];
+	fseek(file, header.e_shoff, SEEK_SET);
+	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
+	fseek( file, 0, SEEK_SET );
+	int i;
+	for(i = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
+		if(strcmp(section, sectionNames[i]) == 0)
+			break;
+	}
+	printf("Affichage hexadécimal de la section « %s »\n", section);
+	int ligne = ITERheader.sh_addr;	
+	fseek(file, ITERheader.sh_offset, SEEK_SET);
+	for(i=0;i < ITERheader.sh_size; i+=16){
+		printf("Ox%08x : ",ligne);
+		int k;
+		char * convert;
+		convert = (char *) malloc(1);		
+		for(k=0;k<16;k++){
+			if(ITERheader.sh_size > i+k){
+				unsigned char mot;
+				fread(&mot, sizeof(mot),1, file);
+				if (isprint(mot))			
+					convert[k] = mot;
+				else
+					convert[k] = '.';							
+				if(k % 4 == 0)
+					printf(" %02x",mot);
+				else
+					printf("%02x",mot);
+				convert = realloc(convert, k+1);
+			}
+		}
+		printf(" | %s\n",convert);		
+		ligne += 16;	
+	}
+}
+
+void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
+        printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,0);
+        int i;
+        for(i=0; i < header.e_shnum; i++){
 	char* type;
-	switch(sectionH->sh_type){
+	switch(sectionH[i].sh_type){
 		case SHT_NULL :
 			type = malloc(4*sizeof(char));
 			type = "NULL";
@@ -270,7 +306,7 @@ void afficherSectionHeader(Elf32_Shdr* sectionH, int i){
 			break;
 	}
 	char flags;
-	switch(sectionH->sh_flags){
+	switch(sectionH[i].sh_flags){
 		case SHF_WRITE :
 			flags = 'W';
 			break;
@@ -288,38 +324,52 @@ void afficherSectionHeader(Elf32_Shdr* sectionH, int i){
 			break;
 	}
 
-	printf("[%d]\t%s\t%s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,"NAME",type, sectionH->sh_addr, sectionH->sh_offset, sectionH->sh_size, sectionH->sh_entsize, flags, sectionH->sh_link, sectionH->sh_info, sectionH->sh_addralign);
+	printf("[%d]\t%s\t%s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
+        }
 }
 
-void afficherSectionName(FILE * file, Elf32_Ehdr header){
-	Elf32_Shdr sectionHeader,ITERheader;
-	fseek( file, 0, SEEK_SET );
-	fread( &header , sizeof(Elf32_Ehdr), 1, file);
-	char * STR_buffer=NULL;
-	int i;
-	for ( i=0; i < header.e_shnum; i++  ){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &sectionHeader, header.e_shentsize, 1, file );
-		if ((sectionHeader.sh_type == SHT_STRTAB) && (sectionHeader.sh_addr == 0x00000000)){
-			STR_buffer = (char *)malloc( sectionHeader.sh_size);
-			fseek( file, sectionHeader.sh_offset, SEEK_SET);
-			fread( STR_buffer, sectionHeader.sh_size, 1, file);
-			i=header.e_shnum+1;
-		}
+void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
+
+	if(fseek(file, sectionHeader.sh_offset, SEEK_SET) != 0){
+		fprintf(stderr, "Fseek fail !\n");
 	}
+
+	fread(buffer, sectionHeader.sh_size, 1, file);
+
+}
+
+void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]){
+	/* On récupère la section des noms */
+	int size = sectionHeaders[header.e_shstrndx].sh_size;
+	char str[size];
 	
-	fseek(file, 0, SEEK_SET);
-	for ( i=0; i < header.e_shnum; i++ )
-	{
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		fread( &ITERheader, header.e_shentsize, 1, file );
-		printf("%d %d %s\n", i, ITERheader.sh_name, STR_buffer+ITERheader.sh_name);
-	}
+	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
 
-	free(STR_buffer);
-	fclose( file );
+	int i, j=0;
+	char tmp[1000]; // TODO set to section size
+
+	for (i=0; i<header.e_shnum; i++){
+		j=-1;
+		do{
+			j++;
+			tmp[j] = str[sectionHeaders[i].sh_name + j];
+		}while(str[sectionHeaders[i].sh_name + j] != '\0');
+		
+		sectionNames[i] = malloc(strlen(tmp));
+		strcpy(sectionNames[i], tmp);
+	}
 }
-void afficherSymbole(Elf32_Sym symbole, char * strtab, int i){
+
+
+void usage(char *name){
+	fprintf(stderr, "Usage:\n"
+		"%s [ options ] file\n\n"
+		"-h Prints file heders\n"
+		"-S Prints sections headers\n"
+		"-x <num> Hexa dump of section number <num>\n"
+		, name);
+}
+void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 	
 	char * type;		
 	switch(ELF32_ST_TYPE(symbole.st_info)){
@@ -430,13 +480,13 @@ void afficherSymbole(Elf32_Sym symbole, char * strtab, int i){
 	printf("%ld %08x %d %s %s %s %d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
 }
 
-void afficherTableSymbole(FILE * file){
+void displayTableSymbole(FILE * file){
 	
 	Elf32_Ehdr header;
 	Elf32_Shdr dyn, sym, tmp;
 	Elf32_Sym symbole;
 	char * strtab;
-	int idyn, isym, itab, itab2,i;
+	int idyn, isym, itab,i;
 	//Partie a modifier lorsque les fonctions des tableaux seront faites	
 	idyn = 4;
 	isym = 29;
@@ -468,7 +518,7 @@ void afficherTableSymbole(FILE * file){
 	fseek(file, sym.sh_offset,SEEK_SET);	
 	for(i=0; i < sym.sh_size; i+=sizeof(symbole)){
 		fread(&symbole, sizeof(symbole), 1, file);
-		afficherSymbole(symbole,strtab,i);
+		displaySymbole(symbole,strtab,i);
 	}
 	
 
@@ -502,12 +552,12 @@ void afficherTableSymbole(FILE * file){
 	printf("Num: Valeur Tail Type Lien Vis Ndx Nom\n");
 	for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
 		fread(&symbole, sizeof(symbole), 1, file);
-		afficherSymbole(symbole,strtab,i);
+		displaySymbole(symbole,strtab,i);
 	}
 	free(strtab);
 	
 }
-void afficherRelocTable(FILE* file, Elf32_Ehdr *header){
+void displayRelocTable(FILE* file, Elf32_Ehdr *header){
 	printf("\nRelocation table:\n");
 	int i,j;
 	Elf32_Shdr sectionHeader;
@@ -545,44 +595,17 @@ void afficherRelocTable(FILE* file, Elf32_Ehdr *header){
 }
 
 int main(int argc, char* argv[]){
-	if(argc==2){
-		Elf32_Ehdr header;
-		FILE* file = fopen(argv[1],"rb");
-		fread(&header,1,sizeof(header),file);
-
-		afficherHeader(header);
-		fseek(file,(int)header.e_shoff,SEEK_SET);
-		int i;
-		Elf32_Shdr sectionHeader;
-		printf("%d\n",header.e_shoff);
-		printf("[Nr]\tNom\tType\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n");
-		for(i=0;i<header.e_shnum;i++){
-			fread(&sectionHeader,1,sizeof(Elf32_Shdr),file);
-			afficherSectionHeader(&sectionHeader,i);
-		}
-
-		//afficherSectionContenu(header, 3, file);
-		//afficherSectionName(file, header);
-		afficherRelocTable(file,&header);
-	}
-	else{
-		printf("Ne donnez qu'un seul argument");
-	}
-
-}
-
-int main(int argc, char* argv[]){
 	
 	/* Récupération des arguments */
 	int opt;
-	char *option1, *option2;
+	//char *option1, *option2;
 	
 	char arg_header=0, arg_hexdump=0, arg_sectionsHeaders=0;
 	int arg_section=0;
 	FILE *file;
 
 	struct option longopts[] = {
-		{ "h", required_argument, NULL, 'h' },
+		{ "h", no_argument, NULL, 'h' },
 		{ "x", required_argument, NULL, 'x' },
 		{ "section-headers", no_argument, NULL, 'S' },
 		{ "help", no_argument, NULL, '?' },
@@ -620,14 +643,16 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	/* Lecture des en-têtes */
+	/* ELF header */
 	Elf32_Ehdr header;
 	fread(&header, 1, sizeof(header), file);
 
+	/* Section headers */
 	Elf32_Shdr sectionHeaders[header.e_shnum];
 	fseek(file, header.e_shoff, SEEK_SET);
 	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
 
+	/* Section names */
 	char * sectionNames[header.e_shnum];
 	getSectionNames(file, header, sectionHeaders, sectionNames);
 
@@ -637,13 +662,13 @@ int main(int argc, char* argv[]){
 		afficherHeader(header);	
 	}
 	if(arg_sectionsHeaders){
-		displaySectionHeaders(sectionHeaders, sectionNames, header.e_shnum);
+		displaySectionHeader(sectionHeaders, header, sectionNames);
 	}
 	if(arg_hexdump){
 		if(arg_section > header.e_shnum || arg_section < 0){
 			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
 		}else{
-			sectionHexDump(sectionHeaders[arg_section], file);
+                        displaySectionContentI(header, arg_section, file, sectionNames);
 		}
 	}
 	
@@ -653,3 +678,4 @@ int main(int argc, char* argv[]){
 
 	return 0;
 }
+
