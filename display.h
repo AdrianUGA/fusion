@@ -8,3 +8,5 @@ void usage(char *name);
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
 void displayTableSymbole(FILE * file,char * sectionNames[]);
 void displayRelocTable(FILE* file, Elf32_Ehdr *header);
+char isNumber(char *str);
+int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header);

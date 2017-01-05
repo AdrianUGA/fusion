@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <ctype.h>
 
 #include "display.h"
 #include "debug.h"
@@ -629,7 +630,8 @@ int main(int argc, char* argv[]){
 	int opt;
 	
 	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_use_dynamics=0, arg_hexdump=0, arg_string_dump=0;
-	int arg_section=0;
+	char * arg_section;
+	int num_section = -1;
 	FILE *file;
 
 	struct option longopts[] = {
@@ -686,11 +688,13 @@ int main(int argc, char* argv[]){
 			break;
 		case 'x':
 			arg_hexdump=1;
-			arg_section = atoi(optarg);
+			arg_section = malloc(strlen(optarg));
+			strcpy(arg_section, optarg);
 			break;
 		case 'p':
 			arg_string_dump=1;
-			arg_section = atoi(optarg);
+			arg_section = malloc(strlen(optarg));
+			strcpy(arg_section, optarg);
 			break;
 		case 'f':			
 			add_debug_to(optarg);
@@ -752,15 +756,21 @@ int main(int argc, char* argv[]){
 		printf("Option not available yet.\n");
 	}
 	if(arg_hexdump){
-		if(arg_section > header.e_shnum || arg_section < 0){
-			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
+		if(isNumber(arg_section)){
+			num_section = atoi(arg_section);
 		}else{
-            displaySectionContentI(header, arg_section, file, sectionNames);
+			num_section = getSectionNumber(arg_section, sectionNames, header);
+		}
+
+		if(num_section > header.e_shnum || num_section < 0){
+			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
+		}else{
+            displaySectionContentI(header, num_section, file, sectionNames);
 		}
 	}
 	if(arg_string_dump){
-		if(arg_section > header.e_shnum || arg_section < 0){
-			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
+		if(num_section > header.e_shnum || num_section < 0){
+			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
             printf("Option not available yet.\n");
 		}
@@ -773,3 +783,20 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
+char isNumber(char *str){
+	int i;
+	for(i=0; i<strlen(str); i++){
+		if(!isdigit(str[i]))
+			return 0;
+	}
+	return 1;
+}
+
+int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header){
+	int i;
+	for(i=0; i<header.e_shnum; i++){
+		if(strcmp(sectionNames[i], name) == 0)
+			return i;
+	}
+	return -1;
+}
