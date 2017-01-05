@@ -196,7 +196,7 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 	
 	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
 
-	int i, j=0, numName = 0;
+	int i, j=0;
 	char tmp[1000]; // TODO set to section size
 
 	for (i=0; i<header.e_shnum; i++){
@@ -204,11 +204,10 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 		do{
 			j++;
 			tmp[j] = str[sectionHeaders[i].sh_name + j];
-		}while(str[sectionHeaders[i].sh_name + j] == '\0');
+		}while(str[sectionHeaders[i].sh_name + j] != '\0');
 		
-		sectionNames[numName] = malloc(strlen(tmp));
-		strcpy(sectionNames[numName], tmp);
-		numName++;
+		sectionNames[i] = malloc(strlen(tmp));
+		strcpy(sectionNames[i], tmp);
 	}
 }
 
@@ -279,7 +278,7 @@ int main(int argc, char* argv[]){
 	Elf32_Shdr sectionHeaders[header.e_shnum];
 	fseek(file, header.e_shoff, SEEK_SET);
 	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
-	Elf32_Shdr test = sectionHeaders[28];
+	// Elf32_Shdr test = sectionHeaders[28];
 	// Elf32_Shdr test2;
 	// memcpy(&test, sectionHeaders+28, sizeof(Elf32_Shdr));
 	// memcpy(&test2, sectionHeaders+28, sizeof(Elf32_Shdr));
@@ -288,7 +287,6 @@ int main(int argc, char* argv[]){
 
 	char * sectionNames[header.e_shnum];
 	getSectionNames(file, header, sectionHeaders, sectionNames);
-	printf("%s\n", sectionNames[sectionHeaders[28].sh_name]);
 
 
 	/* Execution des fonctions demandées */
