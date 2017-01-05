@@ -240,12 +240,13 @@ void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char *
 
 //Affichage du contenu des headers des différentes sections
 void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
+		char flags[4];
         printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,0);
         printf("[Nr]\t%-15s\t%-10s\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n", "Nom", "Type");
 
         int i;
+		char* type;
         for(i=0; i < header.e_shnum; i++){
-	char* type;
 	switch(sectionH[i].sh_type){
 		case SHT_NULL :
 			type = malloc(4*sizeof(char));
@@ -315,26 +316,23 @@ void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectio
 			type ="NONDEF";
 			break;
 	}
-	char flags;
-	switch(sectionH[i].sh_flags){
-		case SHF_WRITE :
-			flags = 'W';
-			break;
-		case SHF_ALLOC :
-			flags = 'A';
-			break;
-		case SHF_EXECINSTR :
-			flags = 'E';
-			break;
-		case SHF_MASKPROC :
-			flags = 'M';
-			break;
-		default : 
-			flags = ' ';
-			break;
+	flags[0] = '\0';
+	if((sectionH[i].sh_flags & SHF_WRITE) == SHF_WRITE ){
+		strcat(flags,"W");
+	}
+	if((sectionH[i].sh_flags & SHF_ALLOC) == SHF_ALLOC ){
+		strcat(flags,"A");
 	}
 
-	printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
+	if((sectionH[i].sh_flags & SHF_EXECINSTR) == SHF_EXECINSTR ){
+		strcat(flags,"X");
+	}
+	if((sectionH[i].sh_flags & SHF_MASKPROC) == SHF_MASKPROC ){
+		strcat(flags,"M");
+	}
+
+
+	printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%s\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
         }
 }
 
