@@ -6,5 +6,5 @@ void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer);
 void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]);
 void usage(char *name);
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
-void displayTableSymbole(FILE * file);
+void displayTableSymbole(FILE * file,char * sectionNames[]);
 void displayRelocTable(FILE* file, Elf32_Ehdr *header);

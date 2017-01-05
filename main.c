@@ -147,8 +147,6 @@ void afficherHeader(Elf32_Ehdr header){
 		}
 }
 
-
-
 // header de la section
 void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectionNames[]){
 	Elf32_Shdr ITERheader;
@@ -480,7 +478,7 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 	printf("%ld %08x %d %s %s %s %d %s \n",i/sizeof(symbole),symbole.st_value,symbole.st_size,type,lien,   visibilite,symbole.st_shndx,strtab+symbole.st_name);
 }
 
-void displayTableSymbole(FILE * file){
+void displayTableSymbole(FILE * file, char * sectionNames[]){
 	
 	Elf32_Ehdr header;
 	Elf32_Shdr dyn, sym, tmp;
@@ -488,10 +486,25 @@ void displayTableSymbole(FILE * file){
 	char * strtab;
 	int idyn, isym, itab,i;
 	//Partie a modifier lorsque les fonctions des tableaux seront faites	
-	idyn = 4;
-	isym = 29;
-	itab = 30;
-	//Partie a modifier lorsque les fonctions des tableaux seront faites
+	fseek( file, 0, SEEK_SET );
+	for(isym = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
+		if(strcmp(".symtab", sectionNames[i]) == 0)
+			break;
+	}
+	for(idyn = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
+		if(strcmp(".dynsim", sectionNames[i]) == 0)
+			break;
+	}
+	for(itab = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
+		if(strcmp(".strtab", sectionNames[i]) == 0)
+			break;
+	}//Partie a modifier lorsque les fonctions des tableaux seront faites
 	fseek( file, 0, SEEK_SET );
 	fread( &header , sizeof(Elf32_Ehdr), 1, file);
 	
@@ -525,7 +538,12 @@ void displayTableSymbole(FILE * file){
 
 
 	//Affichage des symboles de .dynsym
-	itab = 5;	
+	for(itab = 0; i < header.e_shnum; i++){
+		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		fread( &ITERheader, header.e_shentsize, 1, file );
+		if(strcmp(".dynstr", sectionNames[i]) == 0)
+			break;
+	}	
 	fseek( file, 0, SEEK_SET );
 	fread( &header , sizeof(Elf32_Ehdr), 1, file);
 	fseek( file, 0, SEEK_SET );
