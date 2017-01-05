@@ -1,4 +1,4 @@
-void afficherHeader(Elf32_Ehdr header);
+void displayHeader(Elf32_Ehdr header);
 void displaySectionContentI(Elf32_Ehdr header, int i, FILE* file,  char * sectionNames[]);
 void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,  char * sectionNames[]);
 void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]);
@@ -11,3 +11,4 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr *sections, cha
 char isNumber(char *str);
 int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header);
 int isELF(Elf32_Ehdr header);
+char* getTypeRealoc(int type);
