@@ -570,3 +570,86 @@ int main(int argc, char* argv[]){
 	}
 
 }
+
+int main(int argc, char* argv[]){
+	
+	/* Récupération des arguments */
+	int opt;
+	char *option1, *option2;
+	
+	char arg_header=0, arg_hexdump=0, arg_sectionsHeaders=0;
+	int arg_section=0;
+	FILE *file;
+
+	struct option longopts[] = {
+		{ "h", required_argument, NULL, 'h' },
+		{ "x", required_argument, NULL, 'x' },
+		{ "section-headers", no_argument, NULL, 'S' },
+		{ "help", no_argument, NULL, '?' },
+		{ NULL, 0, NULL, 0 }
+	};
+
+	while ((opt = getopt_long(argc, argv, "h:x:S", longopts, NULL)) != -1) {
+		switch(opt) {
+		case 'h':
+			arg_header=1;
+			break;
+		case 'S':
+			arg_sectionsHeaders=1;
+			break;
+		case 'x':
+			arg_hexdump=1;
+			arg_section = atoi(optarg);
+			break;
+		default:
+			usage(argv[0]);
+			exit(1);
+		}
+	}
+	
+	/* Existence et ouverture du fichier */
+	if(optind < argc){
+		file = fopen(argv[optind++], "rb");
+       	if(!file){
+			fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", argv[optind]);
+			return 0;
+		}
+	}
+	else{
+		usage(argv[0]);
+		return 0;
+	}
+
+	/* Lecture des en-têtes */
+	Elf32_Ehdr header;
+	fread(&header, 1, sizeof(header), file);
+
+	Elf32_Shdr sectionHeaders[header.e_shnum];
+	fseek(file, header.e_shoff, SEEK_SET);
+	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
+
+	char * sectionNames[header.e_shnum];
+	getSectionNames(file, header, sectionHeaders, sectionNames);
+
+
+	/* Execution des fonctions demandées */
+	if(arg_header){
+		afficherHeader(header);	
+	}
+	if(arg_sectionsHeaders){
+		displaySectionHeaders(sectionHeaders, sectionNames, header.e_shnum);
+	}
+	if(arg_hexdump){
+		if(arg_section > header.e_shnum || arg_section < 0){
+			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
+		}else{
+			sectionHexDump(sectionHeaders[arg_section], file);
+		}
+	}
+	
+	fclose(file);
+	//free(sectionHeaders);
+	//free(sectionNames);
+
+	return 0;
+}

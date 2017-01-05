@@ -271,20 +271,16 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	/* Lecture des en-têtes */
+	/* ELF header */
 	Elf32_Ehdr header;
 	fread(&header, 1, sizeof(header), file);
 
+	/* Section headers */
 	Elf32_Shdr sectionHeaders[header.e_shnum];
 	fseek(file, header.e_shoff, SEEK_SET);
 	fread(sectionHeaders, header.e_shentsize, header.e_shnum, file);
-	// Elf32_Shdr test = sectionHeaders[28];
-	// Elf32_Shdr test2;
-	// memcpy(&test, sectionHeaders+28, sizeof(Elf32_Shdr));
-	// memcpy(&test2, sectionHeaders+28, sizeof(Elf32_Shdr));
 
-	// TODO
-
+	/* Section names */
 	char * sectionNames[header.e_shnum];
 	getSectionNames(file, header, sectionHeaders, sectionNames);
 
