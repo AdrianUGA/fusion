@@ -240,6 +240,8 @@ void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,char *
 //Affichage du contenu des headers des différentes sections
 void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
         printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,0);
+        printf("[Nr]\t%-15s\t%-10s\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n", "Nom", "Type");
+
         int i;
         for(i=0; i < header.e_shnum; i++){
 	char* type;
@@ -331,7 +333,7 @@ void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectio
 			break;
 	}
 
-	printf("[%d]\t%s\t%s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
+	printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%c\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
         }
 }
 
