@@ -1,0 +1,1 @@
+void concatSection(FILE * f1, FILE * f2/*,char * sectionNames1[],char * sectionNames2[]*/);

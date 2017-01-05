@@ -11,140 +11,141 @@
 #include "debug.h"
 
 //Affichage de l'header du fichier elf
-void displayHeader(Elf32_Ehdr header){
-	printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
-	printf("\tMagique : ");
-	int i;
-	for(i =0; i<16;i++){
-		printf(" %02x", header.e_ident[i]);
+void afficherHeader(Elf32_Ehdr header){
+		if(header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F'){
+			printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
+			printf("\tMagique : ");
+			int i;
+			for(i =0; i<16;i++){
+				printf(" %02x", header.e_ident[i]);
 
-	}
-	switch(header.e_ident[EI_CLASS]){
-		case 1: 
-			printf("\n\tClasse : ELF32 \n"); 
-			break;
-		case 2 : 
-			printf("\n\tClasse : ELF64 \n"); 
-			break;
-		default : 
-			printf("\n\tClasse : Invalide \n"); 
-			break;
-	}
-	switch(header.e_ident[EI_DATA]){
-		case 1: 
-			printf("\tDonnees : Complement à 2, Little Endian\n"); 
-			break;
-		case 2 : 
-			printf("\tDonnees : Complement à 2, Big Endian\n"); 
-			break;
-		default : 
-			printf("\tDonnees: Invalide\n"); 
-			break;
-	}
-	printf("\tVersion : %d\n",header.e_ident[EI_VERSION]);
-	printf("\tOS/ABI : %d\n", header.e_ident[EI_OSABI]);	// switch a faire
-	printf("\tVersion ABI: %d\n",header.e_ident[EI_ABIVERSION]);	
-	switch(header.e_type){
-		case ET_REL:
-			printf("\tType : RELOCABLE\n");
-			break;
-		case ET_EXEC:
-			printf("\tType : EXEC\n");
-			break;
-		case ET_DYN : 
-			printf("\tType : SHARED\n");
-			break;
-		case ET_CORE :
-			printf("\tType : CORE\n");
-			break;
-		case ET_LOPROC :
-			printf("\tType : LOPROC\n");
-			break;
-		case ET_HIPROC :
-			printf("\tType : HIPROC\n");
-			break;
-		case ET_NONE : 
-			printf("\tType : NOFILE\n");
-			break;
-		default: 	
-			break;
+			}
+			switch(header.e_ident[EI_CLASS]){
+				case 1: 
+					printf("\n\tClasse : ELF32 \n"); 
+					break;
+				case 2 : 
+					printf("\n\tClasse : ELF64 \n"); 
+					break;
+				default : 
+					printf("\n\tClasse : Invalide \n"); 
+					break;
+			}
+			switch(header.e_ident[EI_DATA]){
+				case 1: 
+					printf("\tDonnees : Complement à 2, Little Endian\n"); 
+					break;
+				case 2 : 
+					printf("\tDonnees : Complement à 2, Big Endian\n"); 
+					break;
+				default : 
+					printf("\tDonnees: Invalide\n"); 
+					break;
+			}
+			printf("\tVersion : %d\n",header.e_ident[EI_VERSION]);
+			printf("\tOS/ABI : %d\n", header.e_ident[EI_OSABI]);	// switch a faire
+			printf("\tVersion ABI: %d\n",header.e_ident[EI_ABIVERSION]);	
+			switch(header.e_type){
+				case ET_REL:
+					printf("\tType : RELOCABLE\n");
+					break;
+				case ET_EXEC:
+					printf("\tType : EXEC\n");
+					break;
+				case ET_DYN : 
+					printf("\tType : SHARED\n");
+					break;
+				case ET_CORE :
+					printf("\tType : CORE\n");
+					break;
+				case ET_LOPROC :
+					printf("\tType : LOPROC\n");
+					break;
+				case ET_HIPROC :
+					printf("\tType : HIPROC\n");
+					break;
+				case ET_NONE : 
+					printf("\tType : NOFILE\n");
+					break;
+				default: 	
+					break;
 
-	}
-	printf("\tMachine : ");
-	switch(header.e_machine){
-		case EM_NONE:         
-			printf("An unknown machine");
-			break;
-        		case EM_M32:         
-			printf("AT&T WE 32100");
-			break;
-       			case  EM_SPARC:      
-			printf("Sun Microsystems SPARC");
-			break;
-      			case   EM_386:          
-			printf("Intel 80386");
-			break;
-    	    		case  EM_68K:        
-			printf("Motorola 68000");
-			break;
-        		case EM_88K:         
-			printf("Motorola 88000");
-			break;
-         		case EM_860:          
-			printf("Intel 80860");
-			break;
-        		case EM_MIPS:         
-			printf("MIPS RS3000 (big-endian only)");
-			break;
-        		case EM_PARISC:       
-			printf("HP/PA");
-			break;
-		case EM_SPARC32PLUS:  
-			printf("SPARC with enhanced instruction set");
-			break;
-		case  EM_PPC:         
-			printf("PowerPC");
-			break;
-		case EM_PPC64:        
-			printf("PowerPC 64-bit");
-			break;
-		case EM_S390:         
-			printf("IBM S/390");
-			break;
-		case EM_ARM:         
-			printf("Advanced RISC Machines");
-			break;
-		case EM_SH:           
-			printf("Renesas SuperH");
-			break;
-		case EM_SPARCV9:      
-			printf("SPARC v9 64-bit");
-			break;
-		case EM_IA_64:        
-			printf("Intel Itanium");
-			break;
-		case EM_X86_64:       
-			printf("AMD x86-64");
-			break;
-		case EM_VAX:          
-			printf("DEC Vax");
-			break;
+			}
+			printf("\tMachine : ");
+			switch(header.e_machine){
+				case EM_NONE:         
+					printf("An unknown machine");
+					break;
+                		case EM_M32:         
+					printf("AT&T WE 32100");
+					break;
+               			case  EM_SPARC:      
+					printf("Sun Microsystems SPARC");
+					break;
+              			case   EM_386:          
+					printf("Intel 80386");
+					break;
+            	    		case  EM_68K:        
+					printf("Motorola 68000");
+					break;
+                		case EM_88K:         
+					printf("Motorola 88000");
+					break;
+                 		case EM_860:          
+					printf("Intel 80860");
+					break;
+                		case EM_MIPS:         
+					printf("MIPS RS3000 (big-endian only)");
+					break;
+                		case EM_PARISC:       
+					printf("HP/PA");
+					break;
+				case EM_SPARC32PLUS:  
+					printf("SPARC with enhanced instruction set");
+					break;
+				case  EM_PPC:         
+					printf("PowerPC");
+					break;
+				case EM_PPC64:        
+					printf("PowerPC 64-bit");
+					break;
+				case EM_S390:         
+					printf("IBM S/390");
+					break;
+				case EM_ARM:         
+					printf("Advanced RISC Machines");
+					break;
+				case EM_SH:           
+					printf("Renesas SuperH");
+					break;
+				case EM_SPARCV9:      
+					printf("SPARC v9 64-bit");
+					break;
+				case EM_IA_64:        
+					printf("Intel Itanium");
+					break;
+				case EM_X86_64:       
+					printf("AMD x86-64");
+					break;
+				case EM_VAX:          
+					printf("DEC Vax");
+					break;
 
-	}
-	printf("\n\tVersion: %x\n",header.e_version);
-	printf("\tAdresse du point d'entree 0x%x\n",header.e_entry);
-	printf("\tDébut des  en-têtes de programme: %x\n",header.e_phoff);
-	printf("\tDébuts des entêtes de sections: %d\n",header.e_shoff); //
-	printf("\tFlags : %x\n",header.e_flags);
-		
-	printf("\tTaille de cet entête : %d\n",header.e_ehsize);
-	printf("\tTaille de l'entête du programme : %d\n",header.e_phentsize);
-	printf("\tNombre d'entêtes du programme : %d\n",header.e_phnum);
-	printf("\tTaille des entêtes de section : %d\n",header.e_shentsize); //
-	printf("\tNombre d'entêtes de section : %d\n",header.e_shnum); //
-	printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",header.e_shstrndx);
+			}
+			printf("\n\tVersion: %x\n",header.e_version);
+			printf("\tAdresse du point d'entree 0x%x\n",header.e_entry);
+			printf("\tDébut des  en-têtes de programme: %x\n",header.e_phoff);
+			printf("\tDébuts des entêtes de sections: %d\n",header.e_shoff); //
+			printf("\tFlags : %x\n",header.e_flags);
+				
+			printf("\tTaille de cet entête : %d\n",header.e_ehsize);
+			printf("\tTaille de l'entête du programme : %d\n",header.e_phentsize);
+			printf("\tNombre d'entêtes du programme : %d\n",header.e_phnum);
+			printf("\tTaille des entêtes de section : %d\n",header.e_shentsize); //
+			printf("\tNombre d'entêtes de section : %d\n",header.e_shnum); //
+			printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",header.e_shstrndx);
 			
-		
+		}
 }
 
 //Affichage du contenu de la section avec pour parametre son idice
@@ -307,7 +308,47 @@ void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectio
         }
 }
 
+//Récupere le contenu d'une section
+void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 
+	if(fseek(file, sectionHeader.sh_offset, SEEK_SET) != 0){
+		fprintf(stderr, "Fseek fail !\n");
+	}
+
+	int nbc;
+	nbc = fread(buffer, sectionHeader.sh_size, 1, file);
+	if(nbc != 1){
+		if(feof(file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
+
+}
+
+//Récupère les noms des sections
+void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]){
+	/* On récupère la section des noms */
+	int size = sectionHeaders[header.e_shstrndx].sh_size;
+	char str[size];
+	
+	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
+
+	int i, j=0;
+	char tmp[1000]; // TODO set to section size
+
+	for (i=0; i<header.e_shnum; i++){
+		j=-1;
+		do{
+			j++;
+			tmp[j] = str[sectionHeaders[i].sh_name + j];
+		}while(str[sectionHeaders[i].sh_name + j] != '\0');
+		
+		sectionNames[i] = malloc(strlen(tmp));
+		strcpy(sectionNames[i], tmp);
+	}
+}
 
 //Aide pour les options 
 void usage(char *name){
@@ -622,7 +663,20 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	
 }
 
-
+char* getTypeRealoc(int type){
+	switch(type){
+		case R_ARM_ABS32:
+			return "R_ARM_ABS32";
+		case R_ARM_PLT32:
+			return "R_ARM_PLT32";
+		case R_ARM_CALL:
+			return "R_ARM_CALL";
+		case R_ARM_JUMP24:
+			return "R_ARM_JUMP24";
+		default:
+			return "Autre instruction";
+	}
+}
 
 //Affiche les tables de réimplantation 
 void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr* sections, char * sectionNames[]){
