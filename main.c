@@ -8,6 +8,7 @@
 #include <ctype.h>
 
 #include "display.h"
+#include "debug.h"
 
 
 void afficherHeader(Elf32_Ehdr header){
@@ -600,30 +601,74 @@ int main(int argc, char* argv[]){
 	int opt;
 	//char *option1, *option2;
 	
-	char arg_header=0, arg_hexdump=0, arg_sectionsHeaders=0;
+	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_use_dynamics=0, arg_hexdump=0, arg_string_dump=0;
 	int arg_section=0;
 	FILE *file;
 
 	struct option longopts[] = {
-		{ "h", no_argument, NULL, 'h' },
-		{ "x", required_argument, NULL, 'x' },
+		{ "all", no_argument, NULL, 'a' },
+		{ "file-header", no_argument, NULL, 'h' },
+		{ "segments", no_argument, NULL, 'l' },
 		{ "section-headers", no_argument, NULL, 'S' },
+		{ "sections", no_argument, NULL, 'S' },
+		{ "headers", no_argument, NULL, 'e' },
+		{ "syms", no_argument, NULL, 's' },
+		{ "symbols", no_argument, NULL, 's' },
+		{ "dyn-syms", no_argument, NULL, 'y' },
+		{ "relocs", no_argument, NULL, 'r' },
+		{ "use-dynamic", no_argument, NULL, 'D' },
+		{ "hex-dump", required_argument, NULL, 'x' },
+		{ "string-dump", required_argument, NULL, 'p' },
+
+		{ "debug-file", required_argument, NULL, 'f' },
 		{ "help", no_argument, NULL, '?' },
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((opt = getopt_long(argc, argv, "h:x:S", longopts, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "ahlSesyrDx:p:fx?", longopts, NULL)) != -1) {
 		switch(opt) {
 		case 'h':
-			arg_header=1;
+			arg_elf_header=1;
+			break;
+		case 'l':
+			arg_program_headers=1;
 			break;
 		case 'S':
-			arg_sectionsHeaders=1;
+			arg_section_headers=1;
+			break;
+		case 'a':
+		case 'e':
+			arg_elf_header=1;
+			arg_program_headers=1;
+			arg_section_headers=1;
+			break;
+		case 's':
+			arg_symbols=1;
+			break;
+		case 'y':
+			arg_dyn_syms=1;
+			break;
+		case 'n':
+			arg_notes=1;
+			break;
+		case 'r':
+			arg_relocs=1;
+			break;
+		case 'D':
+			arg_use_dynamics=1;
 			break;
 		case 'x':
 			arg_hexdump=1;
 			arg_section = atoi(optarg);
 			break;
+		case 'p':
+			arg_string_dump=1;
+			arg_section = atoi(optarg);
+			break;
+		case 'f':			
+			add_debug_to(optarg);
+			break;
+		case '?':
 		default:
 			usage(argv[0]);
 			exit(1);
@@ -658,20 +703,42 @@ int main(int argc, char* argv[]){
 
 
 	/* Execution des fonctions demandées */
-	if(arg_header){
+	if(arg_elf_header){
 		afficherHeader(header);	
 	}
-	if(arg_sectionsHeaders){
+	if(arg_program_headers){
+		printf("Option not available yet.\n");
+	}
+	if(arg_section_headers){
 		displaySectionHeader(sectionHeaders, header, sectionNames);
+	}
+	if(arg_symbols){
+		printf("Option not available yet.\n");
+	}
+	if(arg_dyn_syms){
+		printf("Option not available yet.\n");
+	}
+	if(arg_notes){
+		printf("Option not available yet.\n");
+	}
+	if(arg_relocs){
+		printf("Option not available yet.\n");
 	}
 	if(arg_hexdump){
 		if(arg_section > header.e_shnum || arg_section < 0){
 			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
 		}else{
-                        displaySectionContentI(header, arg_section, file, sectionNames);
+            displaySectionContentI(header, arg_section, file, sectionNames);
 		}
 	}
-	
+	if(arg_string_dump){
+		if(arg_section > header.e_shnum || arg_section < 0){
+			fprintf(stderr, "Numéro de section invalide : %d\n", arg_section);
+		}else{
+            printf("Option not available yet.\n");
+		}
+	}
+
 	fclose(file);
 	//free(sectionHeaders);
 	//free(sectionNames);

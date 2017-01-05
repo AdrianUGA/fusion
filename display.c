@@ -633,7 +633,7 @@ int main(int argc, char* argv[]){
 	FILE *file;
 
 	struct option longopts[] = {
-		{ "h", required_argument, NULL, 'h' },
+		{ "h", no_argument, NULL, 'h' },
 		{ "x", required_argument, NULL, 'x' },
 		{ "section-headers", no_argument, NULL, 'S' },
 		{ "help", no_argument, NULL, '?' },
