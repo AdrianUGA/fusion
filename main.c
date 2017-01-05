@@ -143,12 +143,6 @@ void afficherHeader(Elf32_Ehdr header){
 		}
 }
 
-void afficherSection(Elf32_Shdr header){
-
-	
-
-}
-
 // header de la section
 void afficherSectionContenu(Elf32_Ehdr header, int j, FILE* file){
 	Elf32_Shdr sectionHeader,ITERheader;
