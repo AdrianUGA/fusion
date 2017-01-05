@@ -10,3 +10,4 @@ void displayTableSymbole(FILE * file,char * sectionNames[]);
 void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr *sections, char * sectionNames[]);
 char isNumber(char *str);
 int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header);
+int isELF(Elf32_Ehdr header);
