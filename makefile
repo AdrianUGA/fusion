@@ -22,8 +22,6 @@ all: clear dep $(BINS)
 main: $(main_O)
 phase2: $(phase2_O)
 
-main:
-	$(LD) -o main 
 
 
 

@@ -148,43 +148,24 @@ void displayHeader(elf_t *elf){
 
 //Affichage du contenu de la section avec pour parametre son idice
 void displaySectionContent(elf_t *elf, int sectionNumber){
-	Elf32_Shdr ITERheader;
-	int nbc;
-
-    int i;
-	fseek(elf->file, 0, SEEK_SET);
-	for ( i=0; i <= sectionNumber; i++ ){
-		fseek( elf->file, elf->header.e_shoff+(elf->header.e_shentsize*i), SEEK_SET);
-		nbc = fread( &ITERheader, elf->header.e_shentsize, 1, elf->file );
-		if(nbc != 1){
-			if(feof(elf->file)){
-				/* End of file */
-			}else{
-				debug("Erreur de lecture.");
-			}
-		}
-	}
-
+	Elf32_Shdr *sectionHeader = &(elf->sectionHeaders[sectionNumber]);
 
 	printf("Affichage hexadécimal de la section « %s »\n", elf->sectionNames[sectionNumber]);
-	int ligne = ITERheader.sh_addr;	
-	fseek(elf->file, ITERheader.sh_offset, SEEK_SET);
-	for(i=0;i < ITERheader.sh_size; i+=16){
+	int ligne = sectionHeader->sh_addr;
+
+	char sectionContent[sectionHeader->sh_size];
+	getSectionContent(elf, sectionNumber, sectionContent);
+	int cursor = 0, i, k;
+	unsigned char mot;
+	char *convert;
+
+	for(i=0;i < sectionHeader->sh_size; i+=16){
 		printf("  Ox%08x",ligne);
-		int k, nbc;
-		char * convert;
 		convert = (char *) malloc(sizeof(char));		
 		for(k=0;k<16;k++){
-			if(ITERheader.sh_size > i+k){
-				unsigned char mot;
-				nbc = fread(&mot, sizeof(mot),1, elf->file);
-				if(nbc != 1){
-					if(feof(elf->file)){
-						/* End of file */
-					}else{
-						debug("Erreur de lecture.");
-					}
-				}
+			if(sectionHeader->sh_size > i+k){
+				memcpy(&mot, sectionContent + cursor, sizeof(unsigned char));
+				cursor += sizeof(unsigned char);
 
 				if (isprint(mot))			
 					convert[k] = mot;
