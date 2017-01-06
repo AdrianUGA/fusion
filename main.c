@@ -70,12 +70,12 @@ int main(int argc, char* argv[]){
 			break;
 		case 'x':
 			arg_hexdump=1;
-			arg_section = malloc(strlen(optarg));
+			arg_section = malloc(strlen(optarg) * sizeof(char));
 			strcpy(arg_section, optarg);
 			break;
 		case 'p':
 			arg_string_dump=1;
-			arg_section = malloc(strlen(optarg));
+			arg_section = malloc(strlen(optarg) * sizeof(char));
 			strcpy(arg_section, optarg);
 			break;
 		case 'f':			
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	/* Existence et ouverture du fichier */
 	char *filename;
 	if(optind < argc){
-		filename = malloc(strlen(argv[optind]));
+		filename = malloc(strlen(argv[optind]) *  sizeof(char));
 		strcpy(filename, argv[optind]);
 		optind++;
 		elf.file = fopen(filename, "rb");
@@ -135,8 +135,7 @@ int main(int argc, char* argv[]){
 	}
 
 	/* Section names */
-	elf.sectionNames = malloc(elf.header.e_shnum);
-	//char *sectionNames[elf.header.e_shnum];
+	elf.sectionNames = malloc(elf.header.e_shnum*sizeof(char*));
 	getSectionNames(elf.file, elf.header, elf.sectionHeaders, elf.sectionNames);
 
 
@@ -190,4 +189,17 @@ int main(int argc, char* argv[]){
 
 
 	return 0;
+}
+
+
+//Aide pour les options 
+void usage(char *name){
+	fprintf(stderr, "Usage:\n"
+		"%s [ options ] file\n\n"
+		"-h Prints file headers\n"
+		"-S Prints sections headers\n"
+		"-s Prints symbols table\n"
+		"-r Prints relocation table\n"
+		"-x <num> Hexa dump of section number <num>\n"
+		, name);
 }

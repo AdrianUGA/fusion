@@ -67,26 +67,24 @@ void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 }
 
 //Récupère les noms des sections
-void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]){
+void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char **sectionNames){
 	/* On récupère la section des noms */
 	int size = sectionHeaders[header.e_shstrndx].sh_size;
 	char str[size];
-	
+
 	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
 
-	int i, j=0;
-	char tmp[1000]; // TODO set to section size
+	int i, j;
 
 	for (i=0; i<header.e_shnum; i++){
+		sectionNames[i] = malloc(sizeof(char));
 		j=-1;
 		do{
 			j++;
-			tmp[j] = str[sectionHeaders[i].sh_name + j];
-		}while(str[sectionHeaders[i].sh_name + j] != '\0');
+			sectionNames[i] = realloc(sectionNames[i], (j+2)*sizeof(char));
+			sectionNames[i][j] = str[sectionHeaders[i].sh_name + j];
+		}while(sectionNames[i][j] != '\0');
 		
-		sectionNames[i] = malloc(strlen(tmp));
-		strcpy(sectionNames[i], tmp);
-		printf("%s\n", sectionNames[i]);
 	}
 
 }

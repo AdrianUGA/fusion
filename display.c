@@ -174,7 +174,7 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 		printf("  Ox%08x",ligne);
 		int k, nbc;
 		char * convert;
-		convert = (char *) malloc(1);		
+		convert = (char *) malloc(sizeof(char));		
 		for(k=0;k<16;k++){
 			if(ITERheader.sh_size > i+k){
 				unsigned char mot;
@@ -210,7 +210,7 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 
 
 //Affichage du contenu des headers des différentes sections
-void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
+void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char **sectionNames){
 		char flags[4];
         printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,header.e_shoff);
         printf("[Nr]\t%-15s\t%-10s\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n", "Nom", "Type");
@@ -309,17 +309,7 @@ void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectio
 
 
 
-//Aide pour les options 
-void usage(char *name){
-	fprintf(stderr, "Usage:\n"
-		"%s [ options ] file\n\n"
-		"-h Prints file headers\n"
-		"-S Prints sections headers\n"
-		"-s Prints symbols table\n"
-		"-r Prints relocation table\n"
-		"-x <num> Hexa dump of section number <num>\n"
-		, name);
-}
+
 
 //Affiche un symbole
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
@@ -512,7 +502,7 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 						}
 					}
                     if (i == itab){
-                            strtab = (char *)malloc(tmp.sh_size);
+                            strtab = (char *)malloc(tmp.sh_size * sizeof(char));
                             fseek( file, tmp.sh_offset, SEEK_SET);
                             nbc = fread( strtab, tmp.sh_size, 1, file);
                             if(nbc != 1){
@@ -588,7 +578,7 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 						}
 					}
                     if (i == itab){
-                            strtab = (char *)malloc(tmp.sh_size);
+                            strtab = (char *)malloc(tmp.sh_size * sizeof(char));
                             fseek( file, tmp.sh_offset, SEEK_SET);
                             nbc = fread( strtab, tmp.sh_size, 1, file);
                             if(nbc != 1){

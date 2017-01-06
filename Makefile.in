@@ -102,7 +102,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_main_OBJECTS = main.$(OBJEXT) debug.$(OBJEXT)
+am_main_OBJECTS = main.$(OBJEXT) debug.$(OBJEXT) elf.$(OBJEXT) \
+	display.$(OBJEXT)
 main_OBJECTS = $(am_main_OBJECTS)
 main_LDADD = $(LDADD)
 am_phase2_OBJECTS = phase2.$(OBJEXT) debug.$(OBJEXT)
@@ -323,11 +324,11 @@ AM_CFLAGS = -Wall -Werror -g -D DEBUG -D WARNING
 # Warning, if uncommented, issuing calls to debug functions during options
 # parsing might result in debug flag incorrectly set to 0 for some files
 #AM_CFLAGS+=-D CACHE_DEBUG_FLAG
-SUBDIRS = . Examples_fusion
+SUBDIRS = .
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 #Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
-main_SOURCES = main.c debug.c
+main_SOURCES = main.c debug.c elf.c display.c
 phase2_SOURCES = phase2.c debug.c
 all: all-recursive
 
@@ -424,6 +425,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/display.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phase2.Po@am__quote@
 
