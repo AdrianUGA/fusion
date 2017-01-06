@@ -5,112 +5,118 @@
 #include "display.h"
 #include <string.h>
 
-void concatHeader(FILE * f1, FILE * f2, FILE * f3,Elf32_Ehdr * newHeader, Elf32_Ehdr * header){ 
-    newHeader->e_shnum = newHeader->e_shnum + header->e_shnum;
-    newHeader->e_phnum = newHeader->e_phnum + header->e_phnum;
-  //  printf("Magique : %x %c%c%c %d et %d\n",newHeader->e_ident[0],newHeader->e_ident[1],newHeader->e_ident[2],newHeader->e_ident[3] , newHeader->e_shnum,header->e_shnum);
-    fseek(f3,0,SEEK_SET);
-    fwrite(newHeader, sizeof(Elf32_Ehdr),1,f3);
-}
-
-/*Demander pour les attributs sh_link, sh_addr, sh_addralign, fonctionnement lors de la fusion*/
-/*void concatSectionHeader(Elf32_Ehdr * newHeader, Elf32_Ehdr * header, Elf32_Ehdr * tmp, char * sectionNames1[],char * sectionNames2[],Elf32_Shdr sectionHeaders1[], Elf32_Shdr sectionHeaders2[], FILE * f3){
-    int passe[header->e_shnum];
-    int i,j,res=0;
-    fseek(f3,sizeof(newHeader),SEEK_SET);
-    for(i=0; i < newHeader->e_shnum;i++){
-        if(sectionHeaders1[i].sh_type == SHT_PROGBITS){
-            for(j=0; j<header->e_shnum; j++){
-                if(strcmp(sectionNames1[i],sectionNames2[j]) == 0 && sectionHeaders2[j].sh_type == SHT_PROGBITS){
-                    sectionHeaders1[i].sh_size += sectionHeaders2[j].sh_size;
-                    //Compare entsize
-                    if(sectionHeaders1[i].sh_entsize < sectionHeaders2[j].sh_entsize){
-                        sectionHeaders1[i].sh_entsize = sectionHeaders2[j].sh_entsize;
-                    }
-                    int k;
-                    //Maj des offset des sections suivant la section courante du fichier 1
-                    for(k=0; k<newHeader->e_phnum; k++){
-                        if(sectionHeaders1[k].sh_offset >= sectionHeaders1[i].sh_offset)
-                            sectionHeaders1[k].sh_offset += sectionHeaders2[j].sh_size;
-                    }
-                    //Maj des flags
-                    sectionHeaders1[i].sh_flags |= sectionHeaders2[j].sh_flags;
-                    //Ecriture de l'header de section dans f3
-                    fwrite(&sectionHeaders1[i], sizeof(sectionHeaders1[i]),1,f3);
-                    passe[j] = -1;
-                    res++;
-                } else if(passe[j] != -1){
-                    passe[j] = 0;
-                    
-                }
-            }
-        } else {
-            //Ecriture de l'header de section dans f3
-            fwrite(&sectionHeaders1[i], sizeof(sectionHeaders1[i]),1,f3);
+  void concatHeader(FILE * f1, FILE * f2, FILE * f3,Elf32_Ehdr * newHeader, Elf32_Ehdr * header){ 
+            newHeader->e_shnum = newHeader->e_shnum + header->e_shnum;
+            newHeader->e_phnum = newHeader->e_phnum + header->e_phnum;
+        //  printf("Magique : %x %c%c%c %d et %d\n",newHeader->e_ident[0],newHeader->e_ident[1],newHeader->e_ident[2],newHeader->e_ident[3] , newHeader->e_shnum,header->e_shnum);
+            fseek(f3,0,SEEK_SET);
+            fwrite(newHeader, sizeof(Elf32_Ehdr),1,f3);
         }
-    }
-    for(i=0; i< header->e_shnum; i++){
-        if(passe[i] != -1){
-            //Maj de tous les offset
-            for(j=0; j<newHeader->e_shnum; j++){
-                if(sectionHeaders1[j].sh_offset >= sectionHeaders2[i].sh_offset)
-                    sectionHeaders1[j].sh_offset += sectionHeaders2[i].sh_size;
-            }
-            for(j=0; j<header->e_shnum; j++){
-                if(sectionHeaders2[j].sh_offset >= sectionHeaders2[i].sh_offset)
-                    sectionHeaders2[j].sh_offset += sectionHeaders2[i].sh_size;
-            }
-            
-        }
-        fwrite(&sectionHeaders2[i], sizeof(sectionHeaders2[i]),1,f3);
-    }
-    Elf32_Ehdr * tmp;
-    fseek(f3,0,SEEK_SET);
-    fread(&tmp,sizeof(Elf32_Ehdr),1,f3);
-    tmp->e_shnum -= res;
-}*/
 
-Elf32_Shdr * getSectionHeader(Elf32_Ehdr * header1, Elf32_Ehdr * header2, Elf32_Shdr sectionHeaders1[], Elf32_Shdr sectionHeaders2[], char * sectionNames1[], char * sectionNames2[],char** resChar ,int * size ){
-        Elf32_Shdr * res;
-        res = (Elf32_Shdr *)malloc(sizeof(Elf32_Shdr)*header1->e_shnum);
-        int i,l=1;
-        *size = 0;
-        for(i=0; i<header1->e_shnum; i++){
-            res[i] = sectionHeaders1[i];
-            *size=*size+1;
-            resChar[i] = (char *) malloc(sizeof(sectionNames1[i]));
-            resChar[i] = sectionNames1[i];
 
-        }
-        for(i=0; i<header2->e_shnum;i++){
-            if(sectionHeaders2[i].sh_type != SHT_PROGBITS){
-                res = realloc(res,l);
-                res[header1->e_shnum+(l-1)] = sectionHeaders2[i];
-                resChar[header1->e_shnum+(l-1)] = (char *) malloc(sizeof(sectionNames1[i]));
-                resChar[header1->e_shnum+(l-1)] = sectionNames2[i];
-                l++;
-                *size=*size+1;
-            } else {
-                int j, modif=1;
-                for(j=0; j<header1->e_shnum;j++){
-                    if(sectionNames1[j] == sectionNames2[i] && sectionHeaders1[j].sh_type == SHT_PROGBITS){
-                        modif = 0;
-                    }
-                }
-                if(modif){
-                    
-                    res = realloc(res,l);
-                    res[header1->e_shnum+(l-1)] = sectionHeaders2[i];
-                    res[header1->e_shnum+(l-1)] = sectionHeaders2[i];
-                    resChar[header1->e_shnum+(l-1)] = (char *) malloc(sizeof(sectionNames1[i]));
-                     resChar[header1->e_shnum+(l-1)] = sectionNames2[i];
+         Elf32_Shdr * getSection(FILE * f1, FILE * f2,Elf32_Ehdr * header1, Elf32_Ehdr * header2, Elf32_Shdr sectionHeaders1[], Elf32_Shdr sectionHeaders2[], char * sectionNames1[], char * sectionNames2[],char** resChar , char ** content, int * size ){
+                Elf32_Shdr * res;
+                res = (Elf32_Shdr *)malloc(sizeof(Elf32_Shdr)*header1->e_shnum);
+                int i,l=1;
+                *size = 0;
+                for(i=0; i<header1->e_shnum; i++){
+                    res[i] = sectionHeaders1[i];
                     *size=*size+1;
-                    l++;
+                    resChar[i] = (char *) malloc(sizeof(sectionNames1[i]));
+                    resChar[i] = sectionNames1[i];
+                    content[i] = (char *)malloc(res[i].sh_size);
+                    getSectionContent(f1, res[i], content[i]);
+                    //Pas de MaJ
+
                 }
-            }
+                for(i=1; i<header2->e_shnum;i++){
+                    if(sectionHeaders2[i].sh_type != SHT_PROGBITS && sectionHeaders2[i].sh_type != SHT_STRTAB && sectionHeaders2[i].sh_type != SHT_SYMTAB){
+                        res = realloc(res,l);
+                        res[header1->e_shnum+(l-1)] = sectionHeaders2[i];
+                        //MaJ sur les sh_name
+                        res[header1->e_shnum+(l-1)].sh_name += header1->e_shnum;
+                        //MaJ sur les offset
+                        int k;
+                        for(k=0; k<(*size+1);k++){
+                            if(res[k].sh_offset > res[header1->e_shnum+(l-1)].sh_offset){
+                                res[k].sh_offset += res[header1->e_shnum+(l-1)].sh_size;
+                            }
+                        }
+                        
+                        printf("On insère %s a l'indice %d\n", sectionNames2[i], header1->e_shnum+(l-1));
+                        resChar[header1->e_shnum+(l-1)] = sectionNames2[i];
+                        
+                        content[header1->e_shnum+(l-1)] = (char *)malloc(res[header1->e_shnum+(l-1)].sh_size);
+                        getSectionContent(f2, res[header1->e_shnum+(l-1)], content[header1->e_shnum+(l-1)]);
+                        
+                        l++;
+                        *size=*size+1;
+                    }
+                }
+                for(i=1; i<header2->e_shnum;i++){
+                    if(!(sectionHeaders2[i].sh_type != SHT_PROGBITS && sectionHeaders2[i].sh_type != SHT_STRTAB && sectionHeaders2[i].sh_type != SHT_SYMTAB)) {
+                        int j, modif=1;
+                        for(j=0; j<header1->e_shnum && modif;j++){
+                            if(strcmp(sectionNames1[j],sectionNames2[i]) == 0 && ( sectionHeaders1[j].sh_type == SHT_PROGBITS || sectionHeaders1[j].sh_type == SHT_SYMTAB || sectionHeaders1[j].sh_type == SHT_STRTAB )){
+                                modif = 0;
+                                //MaJ sur les sh_size
+                                res[j].sh_size += sectionHeaders2[i].sh_size;
+                                //MaJ sur les offset
+                                int k;
+                                for(k=0; k<(*size);k++){
+                                    if(res[k].sh_offset > sectionHeaders2[i].sh_offset){
+                                        res[k].sh_offset += sectionHeaders2[i].sh_size;
+                                    }
+                                }
+                                printf("fusion : %s\n",sectionNames2[i]);
+                                
+                            }
+                        }
+                        if(modif){
+                            res = realloc(res,l);
+                            res[header1->e_shnum+(l-1)] = sectionHeaders2[i];
+                            
+                            //MaJ sur les sh_name
+                            res[header1->e_shnum+(l-1)].sh_name += header1->e_shnum;
+                            //MaJ sur les offset
+                            int k;
+                            for(k=0; k<(*size+1);k++){
+                                if(res[k].sh_offset > res[header1->e_shnum+(l-1)].sh_offset){
+                                    res[k].sh_offset += res[header1->e_shnum+(l-1)].sh_size;
+                                }
+                            }
+                            
+                            printf("On insère2 %s a l'indice %d\n",sectionNames2[i], header1->e_shnum+(l-1));
+                            resChar[header1->e_shnum+(l-1)] = sectionNames2[i];
+                            
+                            content[header1->e_shnum+(l-1)] = (char *)malloc(res[header1->e_shnum+(l-1)].sh_size);
+                            getSectionContent(f2, res[header1->e_shnum+(l-1)], content[header1->e_shnum+(l-1)]);
+                            
+                            *size=*size+1;
+                            l++;
+                        }
+                    }
+                }
+                for(i=1; i<header2->e_shnum;i++){
+                    if(!(sectionHeaders2[i].sh_type != SHT_PROGBITS && sectionHeaders2[i].sh_type != SHT_STRTAB && sectionHeaders2[i].sh_type != SHT_SYMTAB)) {
+                        int j;
+                        for(j=0; j<header1->e_shnum;j++){
+                            if(strcmp(sectionNames1[j],sectionNames2[i]) == 0 && ( sectionHeaders1[j].sh_type == SHT_PROGBITS || sectionHeaders1[j].sh_type == SHT_SYMTAB || sectionHeaders1[j].sh_type == SHT_STRTAB )){
+                                char * tmp = (char *)malloc(sectionHeaders2[i].sh_size+sizeof(content[j]));
+                                tmp = content[j];
+                                char * tmp2 = (char *)malloc(sectionHeaders2[i].sh_size);
+                                getSectionContent(f2, sectionHeaders2[i], tmp2);
+                                tmp = strcat(tmp,tmp2);
+                                content[j] = (char *)malloc(sizeof(tmp));
+                                content[j] = tmp;
+                             //   printf("%x %x\n",tmp,tmp2);
+                                //free(tmp); free(tmp2);
+                            }
+                        }
+                    }
+                }
+                return res;
         }
-        return res;
-}
 /*void concatSection(FILE * f1, FILE * f2, FILE * f3, char * sectionNames1[],char * sectionNames2[],Elf32_Shdr sectionHeaders1[], Elf32_Shdr sectionHeaders2[],Elf32_Ehdr * newHeader, Elf32_Ehdr * header){
     //Concatener les sections
     int i;
