@@ -1,33 +1,47 @@
+BINS=main
+main_O=elf.o display.o main.o debug.o
+phase2_O=fusion.o elf.o display.o debug.o
+
+
 CC=gcc
 LD=gcc
 CFLAGS=-Wall -Werror -g
 INCLUDES=
-BIN=main
 LINKS=elf.o debug.o display.o
-
 
 SOURCES=$(wildcard *.c)
 DEP=$(patsubst %.c, %.dep, $(wildcard *.c))
 
-
 -include $(DEPS)
 
-.PHONY: default #Not a file to look for
+#Not a file to look for
+.PHONY: default all clean dep clear
 default: all
+all: clear dep $(BINS)
 
-.PHONY: all
-all: $(BIN)
+main: $(main_O)
+phase2: $(phase2_O)
+
+
+
+	# @for B in $(BINS); \
+ #        do \
+ #            @echo $(LD) -o $B $B.o $($B_O) || exit $$?; \
+ #        done
+
+	 #$(foreach B, $(BINS), $(LD) -o $B $B.o $($B_O) $(LINKS); )
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< $(INCLUDES)
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
-$(BIN): $(BIN).o $(LINKS)
-	$(LD) -o $@ $^
+# $(BINS): $(BINS).o $(LINKS)
+# 	$(LD) -o $@ $^
 
-.PHONY: clean
 clean:
-	rm -f *.o $(BIN) *.dep
+	rm -f *.o $(BINS) *.dep
 %.dep: %.c
 	gcc -MM $< > $@
 dep: $(DEP)
+clear:
+	clear
 
