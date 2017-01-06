@@ -22,12 +22,16 @@ all: clear dep $(BINS)
 main: $(main_O)
 phase2: $(phase2_O)
 
+main:
+	$(LD) -o main 
+
 
 
 	# @for B in $(BINS); \
  #        do \
  #            @echo $(LD) -o $B $B.o $($B_O) || exit $$?; \
  #        done
+ 
 
 	 #$(foreach B, $(BINS), $(LD) -o $B $B.o $($B_O) $(LINKS); )
 
