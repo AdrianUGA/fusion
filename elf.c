@@ -88,3 +88,22 @@ void getSectionNames(elf_t *elf){
 	}
 
 }
+
+/* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
+Elf32_Sym* getTableSymbole(elf_t *elf, int* taille){	
+	int numSymtab = getSectionNumber(elf, ".symtab");
+
+	Elf32_Shdr sectionHeaders[elf->header.e_shnum];
+	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
+	fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
+
+	Elf32_Shdr headerSymtab = elf->sectionHeaders[numSymtab];
+	Elf32_Sym* res = (Elf32_Sym*) malloc(headerSymtab.sh_size);
+
+	fseek(elf->file, headerSymtab.sh_offset, SEEK_SET);
+	fread(res, headerSymtab.sh_size, 1, elf->file);
+
+	*taille = headerSymtab.sh_size / sizeof(Elf32_Sym);
+
+	return res;
+}

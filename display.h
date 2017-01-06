@@ -6,6 +6,7 @@
 		Elf32_Shdr *sectionHeaders;
 		FILE *file;
 		char **sectionNames;
+		Elf32_Sym* symTable;
 	}elf_t;
 
 	void displayHeader(elf_t *elf);
@@ -20,5 +21,6 @@
 	int isELF(Elf32_Ehdr header);
 	char* getTypeRealoc(int type);
 	char isNumber(char *str);
+	Elf32_Sym* getTableSymbole(elf_t *elf, int* taille);
 
 #endif // __DISPLAY_H__
