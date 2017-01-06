@@ -144,8 +144,6 @@ void displayHeader(elf_t *elf){
 	printf("\tTaille des entêtes de section : %d\n",elf->header.e_shentsize); //
 	printf("\tNombre d'entêtes de section : %d\n",elf->header.e_shnum); //
 	printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",elf->header.e_shstrndx);
-			
-		}
 }
 
 //Affichage du contenu de la section avec pour parametre son idice
@@ -318,50 +316,6 @@ void displaySectionHeaders(elf_t *elf){
 			elf->sectionHeaders[i].sh_addralign);
     }
 }
-
-//Récupere le contenu d'une section
-void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
-
-	if(fseek(file, sectionHeader.sh_offset, SEEK_SET) != 0){
-		fprintf(stderr, "Fseek fail !\n");
-	}
-
-	int nbc;
-	nbc = fread(buffer, sectionHeader.sh_size, 1, file);
-	if(nbc != 1){
-		if(feof(file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-}
-
-//Récupère les noms des sections
-void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char * sectionNames[]){
-	/* On récupère la section des noms */
-	int size = sectionHeaders[header.e_shstrndx].sh_size;
-	char str[size];
-	
-	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
-
-	int i, j=0;
-	char tmp[1000]; // TODO set to section size
-
-	for (i=0; i<header.e_shnum; i++){
-		j=-1;
-		do{
-			j++;
-			tmp[j] = str[sectionHeaders[i].sh_name + j];
-		}while(str[sectionHeaders[i].sh_name + j] != '\0');
-		
-		sectionNames[i] = malloc(strlen(tmp));
-		strcpy(sectionNames[i], tmp);
-	}
-}
-
-
 
 //Affiche un symbole
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
@@ -664,20 +618,6 @@ void displayTableSymbole(elf_t *elf){
 	
 }
 
-char* getTypeRealoc(int type){
-	switch(type){
-		case R_ARM_ABS32:
-			return "R_ARM_ABS32";
-		case R_ARM_PLT32:
-			return "R_ARM_PLT32";
-		case R_ARM_CALL:
-			return "R_ARM_CALL";
-		case R_ARM_JUMP24:
-			return "R_ARM_JUMP24";
-		default:
-			return "Autre instruction";
-	}
-}
 
 //Affiche les tables de réimplantation 
 void displayRelocTable(elf_t *elf){
