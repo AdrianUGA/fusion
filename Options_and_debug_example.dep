@@ -1,1 +1,0 @@
-Options_and_debug_example.o: Options_and_debug_example.c debug.h

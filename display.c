@@ -11,155 +11,155 @@
 #include "debug.h"
 
 //Affichage de l'header du fichier elf
-void afficherHeader(Elf32_Ehdr header){
-		if(header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F'){
-			printf("En-tête : %c%c%c\n", header.e_ident[1],header.e_ident[2],header.e_ident[3]);
-			printf("\tMagique : ");
-			int i;
-			for(i =0; i<16;i++){
-				printf(" %02x", header.e_ident[i]);
 
-			}
-			switch(header.e_ident[EI_CLASS]){
-				case 1: 
-					printf("\n\tClasse : ELF32 \n"); 
-					break;
-				case 2 : 
-					printf("\n\tClasse : ELF64 \n"); 
-					break;
-				default : 
-					printf("\n\tClasse : Invalide \n"); 
-					break;
-			}
-			switch(header.e_ident[EI_DATA]){
-				case 1: 
-					printf("\tDonnees : Complement à 2, Little Endian\n"); 
-					break;
-				case 2 : 
-					printf("\tDonnees : Complement à 2, Big Endian\n"); 
-					break;
-				default : 
-					printf("\tDonnees: Invalide\n"); 
-					break;
-			}
-			printf("\tVersion : %d\n",header.e_ident[EI_VERSION]);
-			printf("\tOS/ABI : %d\n", header.e_ident[EI_OSABI]);	// switch a faire
-			printf("\tVersion ABI: %d\n",header.e_ident[EI_ABIVERSION]);	
-			switch(header.e_type){
-				case ET_REL:
-					printf("\tType : RELOCABLE\n");
-					break;
-				case ET_EXEC:
-					printf("\tType : EXEC\n");
-					break;
-				case ET_DYN : 
-					printf("\tType : SHARED\n");
-					break;
-				case ET_CORE :
-					printf("\tType : CORE\n");
-					break;
-				case ET_LOPROC :
-					printf("\tType : LOPROC\n");
-					break;
-				case ET_HIPROC :
-					printf("\tType : HIPROC\n");
-					break;
-				case ET_NONE : 
-					printf("\tType : NOFILE\n");
-					break;
-				default: 	
-					break;
+void displayHeader(elf_t *elf){
+	printf("En-tête : %c%c%c\n", elf->header.e_ident[1],elf->header.e_ident[2],elf->header.e_ident[3]);
+	printf("\tMagique : ");
+	int i;
+	for(i =0; i<16;i++){
+		printf(" %02x", elf->header.e_ident[i]);
 
-			}
-			printf("\tMachine : ");
-			switch(header.e_machine){
-				case EM_NONE:         
-					printf("An unknown machine");
-					break;
-                		case EM_M32:         
-					printf("AT&T WE 32100");
-					break;
-               			case  EM_SPARC:      
-					printf("Sun Microsystems SPARC");
-					break;
-              			case   EM_386:          
-					printf("Intel 80386");
-					break;
-            	    		case  EM_68K:        
-					printf("Motorola 68000");
-					break;
-                		case EM_88K:         
-					printf("Motorola 88000");
-					break;
-                 		case EM_860:          
-					printf("Intel 80860");
-					break;
-                		case EM_MIPS:         
-					printf("MIPS RS3000 (big-endian only)");
-					break;
-                		case EM_PARISC:       
-					printf("HP/PA");
-					break;
-				case EM_SPARC32PLUS:  
-					printf("SPARC with enhanced instruction set");
-					break;
-				case  EM_PPC:         
-					printf("PowerPC");
-					break;
-				case EM_PPC64:        
-					printf("PowerPC 64-bit");
-					break;
-				case EM_S390:         
-					printf("IBM S/390");
-					break;
-				case EM_ARM:         
-					printf("Advanced RISC Machines");
-					break;
-				case EM_SH:           
-					printf("Renesas SuperH");
-					break;
-				case EM_SPARCV9:      
-					printf("SPARC v9 64-bit");
-					break;
-				case EM_IA_64:        
-					printf("Intel Itanium");
-					break;
-				case EM_X86_64:       
-					printf("AMD x86-64");
-					break;
-				case EM_VAX:          
-					printf("DEC Vax");
-					break;
+	}
+	switch(elf->header.e_ident[EI_CLASS]){
+		case 1: 
+			printf("\n\tClasse : ELF32 \n"); 
+			break;
+		case 2 : 
+			printf("\n\tClasse : ELF64 \n"); 
+			break;
+		default : 
+			printf("\n\tClasse : Invalide \n"); 
+			break;
+	}
+	switch(elf->header.e_ident[EI_DATA]){
+		case 1: 
+			printf("\tDonnees : Complement à 2, Little Endian\n"); 
+			break;
+		case 2 : 
+			printf("\tDonnees : Complement à 2, Big Endian\n"); 
+			break;
+		default : 
+			printf("\tDonnees: Invalide\n"); 
+			break;
+	}
+	printf("\tVersion : %d\n",elf->header.e_ident[EI_VERSION]);
+	printf("\tOS/ABI : %d\n", elf->header.e_ident[EI_OSABI]);	// switch a faire
+	printf("\tVersion ABI: %d\n",elf->header.e_ident[EI_ABIVERSION]);	
+	switch(elf->header.e_type){
+		case ET_REL:
+			printf("\tType : RELOCABLE\n");
+			break;
+		case ET_EXEC:
+			printf("\tType : EXEC\n");
+			break;
+		case ET_DYN : 
+			printf("\tType : SHARED\n");
+			break;
+		case ET_CORE :
+			printf("\tType : CORE\n");
+			break;
+		case ET_LOPROC :
+			printf("\tType : LOPROC\n");
+			break;
+		case ET_HIPROC :
+			printf("\tType : HIPROC\n");
+			break;
+		case ET_NONE : 
+			printf("\tType : NOFILE\n");
+			break;
+		default: 	
+			break;
 
-			}
-			printf("\n\tVersion: %x\n",header.e_version);
-			printf("\tAdresse du point d'entree 0x%x\n",header.e_entry);
-			printf("\tDébut des  en-têtes de programme: %x\n",header.e_phoff);
-			printf("\tDébuts des entêtes de sections: %d\n",header.e_shoff); //
-			printf("\tFlags : %x\n",header.e_flags);
-				
-			printf("\tTaille de cet entête : %d\n",header.e_ehsize);
-			printf("\tTaille de l'entête du programme : %d\n",header.e_phentsize);
-			printf("\tNombre d'entêtes du programme : %d\n",header.e_phnum);
-			printf("\tTaille des entêtes de section : %d\n",header.e_shentsize); //
-			printf("\tNombre d'entêtes de section : %d\n",header.e_shnum); //
-			printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",header.e_shstrndx);
+	}
+	printf("\tMachine : ");
+	switch(elf->header.e_machine){
+		case EM_NONE:         
+			printf("An unknown machine");
+			break;
+        		case EM_M32:         
+			printf("AT&T WE 32100");
+			break;
+       			case  EM_SPARC:      
+			printf("Sun Microsystems SPARC");
+			break;
+      			case   EM_386:          
+			printf("Intel 80386");
+			break;
+    	    		case  EM_68K:        
+			printf("Motorola 68000");
+			break;
+        		case EM_88K:         
+			printf("Motorola 88000");
+			break;
+         		case EM_860:          
+			printf("Intel 80860");
+			break;
+        		case EM_MIPS:         
+			printf("MIPS RS3000 (big-endian only)");
+			break;
+        		case EM_PARISC:       
+			printf("HP/PA");
+			break;
+		case EM_SPARC32PLUS:  
+			printf("SPARC with enhanced instruction set");
+			break;
+		case  EM_PPC:         
+			printf("PowerPC");
+			break;
+		case EM_PPC64:        
+			printf("PowerPC 64-bit");
+			break;
+		case EM_S390:         
+			printf("IBM S/390");
+			break;
+		case EM_ARM:         
+			printf("Advanced RISC Machines");
+			break;
+		case EM_SH:           
+			printf("Renesas SuperH");
+			break;
+		case EM_SPARCV9:      
+			printf("SPARC v9 64-bit");
+			break;
+		case EM_IA_64:        
+			printf("Intel Itanium");
+			break;
+		case EM_X86_64:       
+			printf("AMD x86-64");
+			break;
+		case EM_VAX:          
+			printf("DEC Vax");
+			break;
+
+	}
+	printf("\n\tVersion: %x\n",elf->header.e_version);
+	printf("\tAdresse du point d'entree 0x%x\n",elf->header.e_entry);
+	printf("\tDébut des  en-têtes de programme: %x\n",elf->header.e_phoff);
+	printf("\tDébuts des entêtes de sections: %d\n",elf->header.e_shoff); //
+	printf("\tFlags : %x\n",elf->header.e_flags);
+		
+	printf("\tTaille de cet entête : %d\n",elf->header.e_ehsize);
+	printf("\tTaille de l'entête du programme : %d\n",elf->header.e_phentsize);
+	printf("\tNombre d'entêtes du programme : %d\n",elf->header.e_phnum);
+	printf("\tTaille des entêtes de section : %d\n",elf->header.e_shentsize); //
+	printf("\tNombre d'entêtes de section : %d\n",elf->header.e_shnum); //
+	printf("\tTable d'indexes des chaînes d'entête de sections : %d\n",elf->header.e_shstrndx);
 			
 		}
 }
 
 //Affichage du contenu de la section avec pour parametre son idice
-void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectionNames[]){
+void displaySectionContent(elf_t *elf, int sectionNumber){
 	Elf32_Shdr ITERheader;
 	int nbc;
 
     int i;
-	fseek(file, 0, SEEK_SET);
-	for ( i=0; i <= j; i++ ){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		nbc = fread( &ITERheader, header.e_shentsize, 1, file );
+	fseek(elf->file, 0, SEEK_SET);
+	for ( i=0; i <= sectionNumber; i++ ){
+		fseek( elf->file, elf->header.e_shoff+(elf->header.e_shentsize*i), SEEK_SET);
+		nbc = fread( &ITERheader, elf->header.e_shentsize, 1, elf->file );
 		if(nbc != 1){
-			if(feof(file)){
+			if(feof(elf->file)){
 				/* End of file */
 			}else{
 				debug("Erreur de lecture.");
@@ -168,20 +168,20 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 	}
 
 
-	printf("Affichage hexadécimal de la section « %s »\n", sectionNames[j]);
+	printf("Affichage hexadécimal de la section « %s »\n", elf->sectionNames[sectionNumber]);
 	int ligne = ITERheader.sh_addr;	
-	fseek(file, ITERheader.sh_offset, SEEK_SET);
+	fseek(elf->file, ITERheader.sh_offset, SEEK_SET);
 	for(i=0;i < ITERheader.sh_size; i+=16){
 		printf("  Ox%08x",ligne);
 		int k, nbc;
 		char * convert;
-		convert = (char *) malloc(1);		
+		convert = (char *) malloc(sizeof(char));		
 		for(k=0;k<16;k++){
 			if(ITERheader.sh_size > i+k){
 				unsigned char mot;
-				nbc = fread(&mot, sizeof(mot),1, file);
+				nbc = fread(&mot, sizeof(mot),1, elf->file);
 				if(nbc != 1){
-					if(feof(file)){
+					if(feof(elf->file)){
 						/* End of file */
 					}else{
 						debug("Erreur de lecture.");
@@ -211,101 +211,112 @@ void displaySectionContentI(Elf32_Ehdr header, int j, FILE* file,  char * sectio
 
 
 //Affichage du contenu des headers des différentes sections
-void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char * sectionNames[]){
+void displaySectionHeaders(elf_t *elf){
 		char flags[4];
-        printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",header.e_shnum,header.e_shoff);
+        printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x\n",elf->header.e_shnum,elf->header.e_shoff);
         printf("[Nr]\t%-15s\t%-10s\tAdr\t\tDecala.\t\tTaille\tES\tFan\tLN\tInf\tAl\n", "Nom", "Type");
 
         int i;
 		char* type;
-        for(i=0; i < header.e_shnum; i++){
-	switch(sectionH[i].sh_type){
-		case SHT_NULL :
-			type = malloc(4*sizeof(char));
-			type = "NULL";
-			break;
-		case SHT_PROGBITS :
-			type = malloc(8*sizeof(char));
-			type ="PROGBITS";
-			break;
-		case SHT_SYMTAB :
-			type = malloc(6*sizeof(char));
-			type = "SYMTAB";
-			break;
-		case SHT_STRTAB :
-			type = malloc(6*sizeof(char));
-			type = "STRTAB";
-			break;
-		case SHT_RELA :
-			type = malloc(4*sizeof(char));
-			 type ="RELA";
-			break;
-		case SHT_HASH :
-			type = malloc(4*sizeof(char));
-			type ="HASH";
-			break;
-		case SHT_DYNAMIC :
-			type = malloc(7*sizeof(char));
-			type ="DYNAMIC";
-			break;
-		case SHT_NOTE :
-			type = malloc(4*sizeof(char));
-			type ="NOTE";
-			break;
-		case SHT_NOBITS :
-			type = malloc(6*sizeof(char));
-			type ="NOBITS";
-			break;
-		case SHT_REL :
-			type = malloc(3*sizeof(char));
-			type ="REL";
-			break;
-		case SHT_SHLIB :
-			 type ="SHLIB";
-			break;
-		case SHT_DYNSYM :
-			type = malloc(6*sizeof(char));
-			type ="DYNSYM";
-			break;
-		case SHT_LOPROC :
-			type = malloc(6*sizeof(char));
-			type ="LOPROC";
-			break;
-		case SHT_HIPROC :
-			type = malloc(6*sizeof(char));
-			type ="HIPROC";
-			break;
-		case SHT_LOUSER :
-			type = malloc(6*sizeof(char));
-			type ="LOUSER";
-			break;
-		case SHT_HIUSER :
-			type = malloc(6*sizeof(char));
-			type ="HIUSER";
-			break;
-		default : 
-			type = malloc(6*sizeof(char));
-			type ="NONDEF";
-			break;
-	}
-	flags[0] = '\0';
-	if((sectionH[i].sh_flags & SHF_WRITE) == SHF_WRITE ){
-		strcat(flags,"W");
-	}
-	if((sectionH[i].sh_flags & SHF_ALLOC) == SHF_ALLOC ){
-		strcat(flags,"A");
-	}
+        for(i=0; i < elf->header.e_shnum; i++){
+		switch(elf->sectionHeaders[i].sh_type){
+			case SHT_NULL :
+				type = malloc(4*sizeof(char));
+				type = "NULL";
+				break;
+			case SHT_PROGBITS :
+				type = malloc(8*sizeof(char));
+				type ="PROGBITS";
+				break;
+			case SHT_SYMTAB :
+				type = malloc(6*sizeof(char));
+				type = "SYMTAB";
+				break;
+			case SHT_STRTAB :
+				type = malloc(6*sizeof(char));
+				type = "STRTAB";
+				break;
+			case SHT_RELA :
+				type = malloc(4*sizeof(char));
+				 type ="RELA";
+				break;
+			case SHT_HASH :
+				type = malloc(4*sizeof(char));
+				type ="HASH";
+				break;
+			case SHT_DYNAMIC :
+				type = malloc(7*sizeof(char));
+				type ="DYNAMIC";
+				break;
+			case SHT_NOTE :
+				type = malloc(4*sizeof(char));
+				type ="NOTE";
+				break;
+			case SHT_NOBITS :
+				type = malloc(6*sizeof(char));
+				type ="NOBITS";
+				break;
+			case SHT_REL :
+				type = malloc(3*sizeof(char));
+				type ="REL";
+				break;
+			case SHT_SHLIB :
+				 type ="SHLIB";
+				break;
+			case SHT_DYNSYM :
+				type = malloc(6*sizeof(char));
+				type ="DYNSYM";
+				break;
+			case SHT_LOPROC :
+				type = malloc(6*sizeof(char));
+				type ="LOPROC";
+				break;
+			case SHT_HIPROC :
+				type = malloc(6*sizeof(char));
+				type ="HIPROC";
+				break;
+			case SHT_LOUSER :
+				type = malloc(6*sizeof(char));
+				type ="LOUSER";
+				break;
+			case SHT_HIUSER :
+				type = malloc(6*sizeof(char));
+				type ="HIUSER";
+				break;
+			default : 
+				type = malloc(6*sizeof(char));
+				type ="NONDEF";
+				break;
+		}
+		flags[0] = '\0';
+		if((elf->sectionHeaders[i].sh_flags & SHF_WRITE) == SHF_WRITE ){
+			strcat(flags,"W");
+		}
+		if((elf->sectionHeaders[i].sh_flags & SHF_ALLOC) == SHF_ALLOC ){
+			strcat(flags,"A");
+		}
 
-	if((sectionH[i].sh_flags & SHF_EXECINSTR) == SHF_EXECINSTR ){
-		strcat(flags,"X");
-	}
-	if((sectionH[i].sh_flags & SHF_MASKPROC) == SHF_MASKPROC ){
-		strcat(flags,"M");
-	}
+		if((elf->sectionHeaders[i].sh_flags & SHF_EXECINSTR) == SHF_EXECINSTR ){
+			strcat(flags,"X");
+		}
+		if((elf->sectionHeaders[i].sh_flags & SHF_MASKPROC) == SHF_MASKPROC ){
+			strcat(flags,"M");
+		}
 
 
-	printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%s\t%d\t%d\t%d\n",i,sectionNames[i],type, sectionH[i].sh_addr, sectionH[i].sh_offset, sectionH[i].sh_size, sectionH[i].sh_entsize, flags, sectionH[i].sh_link, sectionH[i].sh_info, sectionH[i].sh_addralign);
-        }
+		printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%s\t%d\t%d\t%d\n",
+			i,
+			elf->sectionNames[i],
+			type,
+			elf->sectionHeaders[i].sh_addr,
+			elf->sectionHeaders[i].sh_offset,
+			elf->sectionHeaders[i].sh_size,
+			elf->sectionHeaders[i].sh_entsize,
+			flags,
+			elf->sectionHeaders[i].sh_link,
+			elf->sectionHeaders[i].sh_info,
+			elf->sectionHeaders[i].sh_addralign);
+    }
 }
 
 //Récupere le contenu d'une section
@@ -350,17 +361,7 @@ void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[]
 	}
 }
 
-//Aide pour les options 
-void usage(char *name){
-	fprintf(stderr, "Usage:\n"
-		"%s [ options ] file\n\n"
-		"-h Prints file headers\n"
-		"-S Prints sections headers\n"
-		"-s Prints symbols table\n"
-		"-r Prints relocation table\n"
-		"-x <num> Hexa dump of section number <num>\n"
-		, name);
-}
+
 
 //Affiche un symbole
 void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
@@ -475,7 +476,7 @@ void displaySymbole(Elf32_Sym symbole, char * strtab, int i){
 }
 
 //Affiche les tables de symboles
-void displayTableSymbole(FILE * file, char * sectionNames[]){
+void displayTableSymbole(elf_t *elf){
 	
 	Elf32_Ehdr header;
 	Elf32_Shdr dyn, sym,tmp;
@@ -483,13 +484,13 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 	char * strtab;
 	int i,itab,ok=0;
         
-    fseek( file, 0, SEEK_SET );
+    fseek( elf->file, 0, SEEK_SET );
 
     int nbc;
-	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, elf->file);
 	if(nbc != 1){
-		if(feof(file)){
-			/* End of file */
+		if(feof(elf->file)){
+			/* End of elf->file */
 		}else{
 			debug("Erreur de lecture.");
 		}
@@ -497,68 +498,68 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
 
 
 	//Affichage des symboles de .dynsym
-	fseek( file, 0, SEEK_SET );
+	fseek( elf->file, 0, SEEK_SET );
         for(itab = 0; itab < header.e_shnum; itab++){
-		fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
-		nbc = fread( &strtab, header.e_shentsize, 1, file );
+		fseek( elf->file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
+		nbc = fread( &strtab, header.e_shentsize, 1, elf->file );
 		if(nbc != 1){
-			if(feof(file)){
-				/* End of file */
+			if(feof(elf->file)){
+				/* End of elf->file */
 			}else{
 				debug("Erreur de lecture.");
 			}
 		}
 
-		if(strcmp(".dynstr", sectionNames[itab]) == 0)
+		if(strcmp(".dynstr", elf->sectionNames[itab]) == 0)
 			break;
 	}
-	fseek( file, 0, SEEK_SET );
-	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, file);
+	fseek( elf->file, 0, SEEK_SET );
+	nbc = fread( &header , sizeof(Elf32_Ehdr), 1, elf->file);
 	if(nbc != 1){
-		if(feof(file)){
-			/* End of file */
+		if(feof(elf->file)){
+			/* End of elf->file */
 		}else{
 			debug("Erreur de lecture.");
 		}
 	}
 
-        fseek( file, 0, SEEK_SET );
+        fseek( elf->file, 0, SEEK_SET );
 	for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		nbc = fread( &dyn, header.e_shentsize, 1, file );
+		fseek( elf->file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		nbc = fread( &dyn, header.e_shentsize, 1, elf->file );
 		if(nbc != 1){
-			if(feof(file)){
-				/* End of file */
+			if(feof(elf->file)){
+				/* End of elf->file */
 			}else{
 				debug("Erreur de lecture.");
 			}
 		}
 
-		if(strcmp(".dynsym", sectionNames[i]) == 0){
+		if(strcmp(".dynsym", elf->sectionNames[i]) == 0){
                         ok=1;
 			break;
                 }
 	}
 	if(ok){
-            fseek( file, 0, SEEK_SET );
+            fseek( elf->file, 0, SEEK_SET );
             for ( i=0; i <header.e_shnum; i++ )
             {
-                    fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-                    nbc = fread( &tmp, header.e_shentsize, 1, file );
+                    fseek( elf->file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+                    nbc = fread( &tmp, header.e_shentsize, 1, elf->file );
                     if(nbc != 1){
-						if(feof(file)){
-							/* End of file */
+						if(feof(elf->file)){
+							/* End of elf->file */
 						}else{
 							debug("Erreur de lecture.");
 						}
 					}
                     if (i == itab){
-                            strtab = (char *)malloc(tmp.sh_size);
-                            fseek( file, tmp.sh_offset, SEEK_SET);
-                            nbc = fread( strtab, tmp.sh_size, 1, file);
+                            strtab = (char *)malloc(tmp.sh_size * sizeof(char));
+                            fseek( elf->file, tmp.sh_offset, SEEK_SET);
+                            nbc = fread( strtab, tmp.sh_size, 1, elf->file);
                             if(nbc != 1){
-								if(feof(file)){
-									/* End of file */
+								if(feof(elf->file)){
+									/* End of elf->file */
 								}else{
 									debug("Erreur de lecture.");
 								}
@@ -566,15 +567,15 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
                             i=header.e_shnum+1;
                     }
             }
-            fseek( file, 0, SEEK_SET );
-            fseek(file, dyn.sh_offset,SEEK_SET);
+            fseek( elf->file, 0, SEEK_SET );
+            fseek(elf->file, dyn.sh_offset,SEEK_SET);
             printf("Table de symboles « .dynsym » contient %ld entrées:\n",dyn.sh_size/sizeof(symbole));
             printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
             for(i=0; i < dyn.sh_size; i+=sizeof(symbole)){
-                    nbc = fread(&symbole, sizeof(symbole), 1, file);
+                    nbc = fread(&symbole, sizeof(symbole), 1, elf->file);
                     if(nbc != 1){
-						if(feof(file)){
-							/* End of file */
+						if(feof(elf->file)){
+							/* End of elf->file */
 						}else{
 							debug("Erreur de lecture.");
 						}
@@ -585,56 +586,56 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
         }
         ok=0;
 	// Affichage des symboles de .symtab
-       fseek( file, 0, SEEK_SET );
+       fseek( elf->file, 0, SEEK_SET );
 	for(i = 0; i < header.e_shnum; i++){
-		fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-		nbc = fread( &sym, header.e_shentsize, 1, file );
+		fseek( elf->file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+		nbc = fread( &sym, header.e_shentsize, 1, elf->file );
 		if(nbc != 1){
-			if(feof(file)){
-				/* End of file */
+			if(feof(elf->file)){
+				/* End of elf->file */
 			}else{
 				debug("Erreur de lecture.");
 			}
 		}
-		if(strcmp(".symtab", sectionNames[i]) == 0){
+		if(strcmp(".symtab", elf->sectionNames[i]) == 0){
                         ok=1;
 			break;
                 }
 	}
         if(ok){
-            fseek( file, 0, SEEK_SET );
+            fseek( elf->file, 0, SEEK_SET );
             for(itab = 0; itab < header.e_shnum; itab++){
-                    fseek( file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
-                    nbc = fread( &strtab, header.e_shentsize, 1, file );
+                    fseek( elf->file, header.e_shoff+(header.e_shentsize*itab), SEEK_SET);
+                    nbc = fread( &strtab, header.e_shentsize, 1, elf->file );
                     if(nbc != 1){
-						if(feof(file)){
-							/* End of file */
+						if(feof(elf->file)){
+							/* End of elf->file */
 						}else{
 							debug("Erreur de lecture.");
 						}
 					}
-                    if(strcmp(".strtab", sectionNames[itab]) == 0)
+                    if(strcmp(".strtab", elf->sectionNames[itab]) == 0)
                             break;
             }
-            fseek( file, 0, SEEK_SET );
+            fseek( elf->file, 0, SEEK_SET );
             for ( i=0; i <header.e_shnum; i++ )
             {
-                    fseek( file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
-                    nbc = fread( &tmp, header.e_shentsize, 1, file );
+                    fseek( elf->file, header.e_shoff+(header.e_shentsize*i), SEEK_SET);
+                    nbc = fread( &tmp, header.e_shentsize, 1, elf->file );
                     if(nbc != 1){
-						if(feof(file)){
-							/* End of file */
+						if(feof(elf->file)){
+							/* End of elf->file */
 						}else{
 							debug("Erreur de lecture.");
 						}
 					}
                     if (i == itab){
-                            strtab = (char *)malloc(tmp.sh_size);
-                            fseek( file, tmp.sh_offset, SEEK_SET);
-                            nbc = fread( strtab, tmp.sh_size, 1, file);
+                            strtab = (char *)malloc(tmp.sh_size * sizeof(char));
+                            fseek( elf->file, tmp.sh_offset, SEEK_SET);
+                            nbc = fread( strtab, tmp.sh_size, 1, elf->file);
                             if(nbc != 1){
-								if(feof(file)){
-									/* End of file */
+								if(feof(elf->file)){
+									/* End of elf->file */
 								}else{
 									debug("Erreur de lecture.");
 								}
@@ -645,11 +646,11 @@ void displayTableSymbole(FILE * file, char * sectionNames[]){
             printf("\n\n");
             printf("Table de symboles « .symtab » contient %ld entrées:\n",sym.sh_size/sizeof(symbole));
             printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
-            fseek(file, sym.sh_offset,SEEK_SET);	
+            fseek(elf->file, sym.sh_offset,SEEK_SET);	
             for(i=0; i < sym.sh_size; i+=sizeof(symbole)){
-                    nbc = fread(&symbole, sizeof(symbole), 1, file);
+                    nbc = fread(&symbole, sizeof(symbole), 1, elf->file);
                     if(nbc != 1){
-						if(feof(file)){
+						if(feof(elf->file)){
 							/* End of file */
 						}else{
 							debug("Erreur de lecture.");
@@ -679,27 +680,27 @@ char* getTypeRealoc(int type){
 }
 
 //Affiche les tables de réimplantation 
-void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr* sections, char * sectionNames[]){
+void displayRelocTable(elf_t *elf){
 	printf("********************\n");
 	printf("* Relocation table *\n");
 	printf("********************\n");
 	int i,j,nbc;
 	Elf32_Rel relcel;
 	Elf32_Rela relacel;
-	for(i=0;i<header->e_shnum;i++){
-		Elf32_Shdr sectionHeader = sections[i];
+	for(i=0;i<elf->header.e_shnum;i++){
+		Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
-			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", sectionNames[i], nbEnt); 
+			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", elf->sectionNames[i], nbEnt); 
 			printf("---------------------------------------------------------\n"); 
 			printf(" Offset     Info         Type            Sym.\n");
 			printf("---------------------------------------------------------\n"); 
 			for(j = 0; j < nbEnt;j++){
-				nbc = fread(&relcel,sizeof(Elf32_Rel),1,file);
+				nbc = fread(&relcel,sizeof(Elf32_Rel),1,elf->file);
 				if(nbc != 1){
-					if(feof(file)){
-						/* End of file */
+					if(feof(elf->file)){
+						/* End of elf->file */
 					}else{
 						debug("Erreur de lecture.");
 					}
@@ -710,16 +711,16 @@ void displayRelocTable(FILE* file, Elf32_Ehdr *header, Elf32_Shdr* sections, cha
 			printf("\n");
 		} else if (sectionHeader.sh_type==SHT_RELA){
 			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
-			fseek(file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", sectionNames[i], nbEnt); 
+			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
+			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", elf->sectionNames[i], nbEnt); 
 			printf("---------------------------------------------------------\n"); 
 			printf(" Offset     Info         Type             Sym. + Addend\n");
 			printf("---------------------------------------------------------\n"); 
 			for(j = 0; j < nbEnt;j++){
-				nbc = fread(&relacel,sizeof(Elf32_Rela),1,file);
+				nbc = fread(&relacel,sizeof(Elf32_Rela),1,elf->file);
 				if(nbc != 1){
-					if(feof(file)){
-						/* End of file */
+					if(feof(elf->file)){
+						/* End of elf->file */
 					}else{
 						debug("Erreur de lecture.");
 					}

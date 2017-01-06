@@ -11,7 +11,7 @@ AM_CFLAGS+=-D WARNING
 
 
 SUBDIRS=
-SUBDIRS+=. Examples_fusion
+SUBDIRS+=.
 
 bin_PROGRAMS=
 bin_PROGRAMS+=main phase2
@@ -21,7 +21,7 @@ COMMON=debug.h debug.c util.h util.c
 
 EXTRA_DIST=filtre.pl
 #Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
-main_SOURCES=main.c debug.c
+main_SOURCES=main.c debug.c elf.c display.c
 phase2_SOURCES=phase2.c debug.c
 
 EXTRA_DIST+=
