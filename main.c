@@ -10,6 +10,8 @@
 #include "display.h"
 #include "debug.h"
 
+void usage(char *name);
+
 int main(int argc, char* argv[]){
 	
 	/* Récupération des arguments */
@@ -136,21 +138,21 @@ int main(int argc, char* argv[]){
 
 	/* Section names */
 	elf.sectionNames = malloc(elf.header.e_shnum*sizeof(char*));
-	getSectionNames(elf.file, elf.header, elf.sectionHeaders, elf.sectionNames);
+	getSectionNames(&elf);
 
 
 	/* Execution des fonctions demandées */
 	if(arg_elf_header){
-		displayHeader(elf.header);	
+		displayHeader(&elf);	
 	}
 	if(arg_program_headers){
 		printf("Option not available yet.\n");
 	}
 	if(arg_section_headers){
-		displaySectionHeader(elf.sectionHeaders, elf.header, elf.sectionNames);
+		displaySectionHeaders(&elf);
 	}
 	if(arg_symbols){
-		displayTableSymbole(elf.file, elf.sectionNames);
+		displayTableSymbole(&elf);
 	}
 	if(arg_dyn_syms){
 		printf("Option not available yet.\n");
@@ -159,19 +161,19 @@ int main(int argc, char* argv[]){
 		printf("Option not available yet.\n");
 	}
 	if(arg_relocs){
-		displayRelocTable(elf.file, elf.header, elf.sectionHeaders, elf.sectionNames);
+		displayRelocTable(&elf);
 	}
 	if(arg_hexdump){
 		if(isNumber(arg_section)){
 			num_section = atoi(arg_section);
 		}else{
-			num_section = getSectionNumber(arg_section, elf.sectionNames, elf.header);
+			num_section = getSectionNumber(&elf, arg_section);
 		}
 
 		if(num_section > elf.header.e_shnum || num_section < 0){
 			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
-            displaySectionContentI(elf.header, num_section, elf.file, elf.sectionNames);
+            displaySectionContent(&elf, num_section);
 		}
 	}
 	if(arg_string_dump){

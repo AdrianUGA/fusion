@@ -1,20 +1,24 @@
-void displayHeader(Elf32_Ehdr header);
-void displaySectionContentI(Elf32_Ehdr header, int i, FILE* file,  char **sectionNames);
-void displaySectionContentC(Elf32_Ehdr header, char * section, FILE* file,  char **sectionNames);
-void displaySectionHeader(Elf32_Shdr* sectionH, Elf32_Ehdr header, char **sectionNames);
-void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer);
-void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char **sectionNames);
-void usage(char *name);
-void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
-void displayTableSymbole(FILE * file,char **sectionNames);
-void displayRelocTable(FILE* file, Elf32_Ehdr header, Elf32_Shdr *sections, char **sectionNames);
-char isNumber(char *str);
-int getSectionNumber(char *name, char **sectionNames, Elf32_Ehdr header);
-int isELF(Elf32_Ehdr header);
-char* getTypeRealoc(int type);
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
+
 typedef struct{
 	Elf32_Ehdr header;
 	Elf32_Shdr *sectionHeaders;
 	FILE *file;
 	char **sectionNames;
 }elf_t;
+
+void displayHeader(elf_t *elf);
+void displaySectionContent(elf_t *elf, int sectionNumber);
+void displaySectionHeaders(elf_t *elf);
+void getSectionContent(elf_t *elf, int sectionNumber, char *buffer);
+void getSectionNames(elf_t *elf);
+void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
+void displayTableSymbole(elf_t *elf);
+void displayRelocTable(elf_t *elf);
+int getSectionNumber(elf_t *elf, char *name);
+int isELF(Elf32_Ehdr header);
+char* getTypeRealoc(int type);
+char isNumber(char *str);
+
+#endif // __DISPLAY_H__

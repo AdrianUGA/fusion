@@ -19,10 +19,10 @@ char isNumber(char *str){
 	return 1;
 }
 
-int getSectionNumber(char *name, char *sectionNames[], Elf32_Ehdr header){
+int getSectionNumber(elf_t *elf, char *name){
 	int i;
-	for(i=0; i<header.e_shnum; i++){
-		if(strcmp(sectionNames[i], name) == 0)
+	for(i=0; i<elf->header.e_shnum; i++){
+		if(strcmp(elf->sectionNames[i], name) == 0)
 			return i;
 	}
 	return -1;
@@ -48,16 +48,16 @@ char* getTypeRealoc(int type){
 }
 
 //Récupere le contenu d'une section
-void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
+void getSectionContent(elf_t *elf, int sectionNumber, char *buffer){
 
-	if(fseek(file, sectionHeader.sh_offset, SEEK_SET) != 0){
+	if(fseek(elf->file, elf->sectionHeaders[sectionNumber].sh_offset, SEEK_SET) != 0){
 		fprintf(stderr, "Fseek fail !\n");
 	}
 
 	int nbc;
-	nbc = fread(buffer, sectionHeader.sh_size, 1, file);
+	nbc = fread(buffer, elf->sectionHeaders[sectionNumber].sh_size, 1, elf->file);
 	if(nbc != 1){
-		if(feof(file)){
+		if(feof(elf->file)){
 			/* End of file */
 		}else{
 			debug("Erreur de lecture.");
@@ -67,23 +67,23 @@ void getSectionContent(FILE *file, Elf32_Shdr sectionHeader, char *buffer){
 }
 
 //Récupère les noms des sections
-void getSectionNames(FILE * file, Elf32_Ehdr header, Elf32_Shdr sectionHeaders[], char **sectionNames){
+void getSectionNames(elf_t *elf){
 	/* On récupère la section des noms */
-	int size = sectionHeaders[header.e_shstrndx].sh_size;
+	int size = elf->sectionHeaders[elf->header.e_shstrndx].sh_size;
 	char str[size];
 
-	getSectionContent(file, sectionHeaders[header.e_shstrndx], str);
+	getSectionContent(elf, elf->header.e_shstrndx, str);
 
 	int i, j;
 
-	for (i=0; i<header.e_shnum; i++){
-		sectionNames[i] = malloc(sizeof(char));
+	for (i=0; i<elf->header.e_shnum; i++){
+		elf->sectionNames[i] = malloc(sizeof(char));
 		j=-1;
 		do{
 			j++;
-			sectionNames[i] = realloc(sectionNames[i], (j+2)*sizeof(char));
-			sectionNames[i][j] = str[sectionHeaders[i].sh_name + j];
-		}while(sectionNames[i][j] != '\0');
+			elf->sectionNames[i] = realloc(elf->sectionNames[i], (j+2)*sizeof(char));
+			elf->sectionNames[i][j] = str[elf->sectionHeaders[i].sh_name + j];
+		}while(elf->sectionNames[i][j] != '\0');
 		
 	}
 
