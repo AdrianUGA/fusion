@@ -20,8 +20,7 @@ char isNumber(char *str){
 	return 1;
 }
 
-void readElf(elf_t *elf, int offset, int size, char *buffer){
-	buffer = malloc(sizeof(char) * size);
+void readElf(elf_t *elf, int offset, int size, void *buffer){
 	buffer = memcpy(buffer, elf->fileContent + offset, size);
 }
 
@@ -38,35 +37,42 @@ int isElf(elf_t *elf){
 	return (elf->header.e_ident[0]== 0x7f && elf->header.e_ident[1]=='E' && elf->header.e_ident[2]=='L' && elf->header.e_ident[3]== 'F');
 }
 
-void initElf(elf_t *elf, char *filename){
+int initElf(elf_t *elf, char *filename){
 
 	/* Existence et ouverture du fichier */
-	elf->filename = malloc(strlen(filename) *  sizeof(char));
-	strcpy(elf->filename, filename);
-	elf->file = fopen(elf->filename, "rb");
-
+	elf->filename = malloc(strlen(filename) * sizeof(char));
+	elf->filename = strcpy(elf->filename, filename);
+	printf("elf->filename : %s\n", elf->filename);
+	
+	elf->file = fopen(filename, "rb"); 
+   	if(!elf->file){
+		fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", elf->filename);
+		return -1;
+	}
+	
 	fseek(elf->file, 0L, SEEK_END);
 	elf->fileSize = ftell(elf->file);
+	rewind(elf->file);
+
 	elf->fileContent = malloc(sizeof(char) * elf->fileSize);
 	int nbc = fread(elf->fileContent, elf->fileSize, 1, elf->file);
 
 	if(nbc != 1){
 		fprintf(stderr, "Erreur de lecture : %s\n", elf->filename);
-	}
-
-   	if(!elf->file){
-		fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", elf->filename);
-		return;
+		return -1;
 	}
 
 	getElfHeader(elf);
+	printf("Coucou\n");
+
 	if(!(isElf(elf))){
 		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", elf->filename);
-		return;
+		return -1;
 	}
 	getSectionsHeaders(elf);
 	getSectionsContent(elf);
 	getSectionNames(elf);
+	return 1;
 }
 
 char* getTypeRealoc(int type){
@@ -89,12 +95,13 @@ void getSectionsContent(elf_t *elf){
 	int i;
 	elf->sectionContents = malloc(sizeof(char *)*elf->header.e_shnum);
 	for(i=0; i<elf->header.e_shnum; i++){
+		elf->sectionContents[i] = malloc(sizeof(char) * elf->sectionHeaders[i].sh_size);
 		readElf(elf, elf->sectionHeaders[i].sh_offset, elf->sectionHeaders[i].sh_size, elf->sectionContents[i]);
 	}
 }
 
 void getElfHeader(elf_t *elf){
-	readElf(elf, 0, sizeof(elf->header), (char*)&(elf->header));
+	readElf(elf, 0, sizeof(Elf32_Ehdr), (&(elf->header)));
 }
 
 void getSectionsHeaders(elf_t *elf){
@@ -133,6 +140,7 @@ void getSectionNames(elf_t *elf){
 /* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
 void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
+	elf->symTable = malloc(sizeof(Elf32_Sym) * elf->sectionHeaders[numSymtab].sh_size);
 	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, (char*)elf->symTable);
 	elf->symboleNumber = elf->sectionHeaders[numSymtab].sh_size / sizeof(Elf32_Sym);
 }

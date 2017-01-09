@@ -93,7 +93,9 @@ int main(int argc, char* argv[]){
 
 	/* Chargement du fichier dans la structure elf_t */
 	if(optind < argc){
-		initElf(&elf, argv[optind]);
+		if(initElf(&elf, argv[optind]) < 0){
+			return -1;
+		}
 		optind++;
 	}
 	else{

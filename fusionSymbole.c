@@ -36,8 +36,10 @@ int main(int argc, char * argv[]){
 
 
     elf1.file = fopen(filename1, "rb");
-    elf2.file = fopen(filename2, "rb");
-    elf3.file = fopen(filename3, "wb+");
+		if ( strcmp(filename2, "") !0 && strcmp(filename2, "")){ 
+    	elf2.file = fopen(filename2, "rb");
+    	elf3.file = fopen(filename3, "wb+");
+		}
 
 
     /* ELF header */

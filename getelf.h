@@ -10,19 +10,20 @@ typedef struct{
 	FILE *file;
 	char **sectionNames;
 	char **sectionContents;
-	Elf32_Sym* symTable;
+	Elf32_Sym *symTable;
 	int symboleNumber;
 }elf_t;
 
 int isElf(elf_t *elf);
 void getSectionsContent(elf_t *elf);
-void initElf(elf_t *elf, char *filename);
+int initElf(elf_t *elf, char *filename);
 void getSectionNames(elf_t *elf);
 void getSectionsHeaders(elf_t *elf);
 void getElfHeader(elf_t *elf);
 int getSectionNumber(elf_t *elf, char *name);
 char* getTypeRealoc(int type);
 void getTableSymbole(elf_t *elf);
+void readElf(elf_t *elf, int offset, int size, void *buffer);
 
 char isNumber(char *str);
 
