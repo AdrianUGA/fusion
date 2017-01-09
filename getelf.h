@@ -3,6 +3,8 @@
 
 typedef struct{
 	char *filename;
+	char *fileContent;
+	int fileSize;
 	Elf32_Ehdr header;
 	Elf32_Shdr *sectionHeaders;
 	FILE *file;

@@ -20,6 +20,11 @@ char isNumber(char *str){
 	return 1;
 }
 
+void readElf(elf_t *elf, int offset, int size, char *buffer){
+	buffer = malloc(sizeof(char) * size);
+	buffer = memcpy(buffer, elf->fileContent + offset, size);
+}
+
 int getSectionNumber(elf_t *elf, char *name){
 	int i;
 	for(i=0; i<elf->header.e_shnum; i++){
@@ -39,13 +44,26 @@ void initElf(elf_t *elf, char *filename){
 	elf->filename = malloc(strlen(filename) *  sizeof(char));
 	strcpy(elf->filename, filename);
 	elf->file = fopen(elf->filename, "rb");
-   	
+
+	fseek(elf->file, 0L, SEEK_END);
+	elf->fileSize = ftell(elf->file);
+	elf->fileContent = malloc(sizeof(char) * elf->fileSize);
+	int nbc = fread(elf->fileContent, elf->fileSize, 1, elf->file);
+
+	if(nbc != 1){
+		fprintf(stderr, "Erreur de lecture : %s\n", elf->filename);
+	}
+
    	if(!elf->file){
 		fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", elf->filename);
 		return;
 	}
 
 	getElfHeader(elf);
+	if(!(isElf(elf))){
+		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", elf->filename);
+		return;
+	}
 	getSectionsHeaders(elf);
 	getSectionsContent(elf);
 	getSectionNames(elf);
@@ -68,42 +86,15 @@ char* getTypeRealoc(int type){
 
 //Récupere le contenu d'une section
 void getSectionsContent(elf_t *elf){
-
 	int i;
-	int nbc;
 	elf->sectionContents = malloc(sizeof(char *)*elf->header.e_shnum);
 	for(i=0; i<elf->header.e_shnum; i++){
-		if(fseek(elf->file, elf->sectionHeaders[i].sh_offset, SEEK_SET) != 0){
-			fprintf(stderr, "Fseek fail !\n");
-		}
-		
-		elf->sectionContents[i] = malloc(sizeof(char)*elf->sectionHeaders[i].sh_size);
-		nbc = fread(elf->sectionContents[i], elf->sectionHeaders[i].sh_size, 1, elf->file);
-
-		if(nbc != 1){
-			if(feof(elf->file)){
-				/* End of file */
-			}else{
-				debug("Erreur de lecture.");
-			}
-		}
+		readElf(elf, elf->sectionHeaders[i].sh_offset, elf->sectionHeaders[i].sh_size, elf->sectionContents[i]);
 	}
 }
 
 void getElfHeader(elf_t *elf){
-	int nbc = fread(&(elf->header), 1, sizeof(elf->header), elf->file);
-	if(nbc != 1){
-		if(feof(elf->file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-	if(!(isElf(elf))){
-		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", elf->filename);
-		return;
-	}
+	readElf(elf, 0, sizeof(elf->header), (char*)&(elf->header));
 }
 
 void getSectionsHeaders(elf_t *elf){
@@ -142,30 +133,6 @@ void getSectionNames(elf_t *elf){
 /* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
 void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
-
-	//Elf32_Shdr sectionHeaders[elf->header.e_shnum];
-	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
-	int nbc = fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
-	if(nbc != 1){
-		if(feof(elf->file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-	Elf32_Shdr headerSymtab = elf->sectionHeaders[numSymtab];
-	elf->symTable = (Elf32_Sym*) malloc(headerSymtab.sh_size);
-
-	fseek(elf->file, headerSymtab.sh_offset, SEEK_SET);
-	nbc = fread(elf->symTable, headerSymtab.sh_size, 1, elf->file);
-	if(nbc != 1){
-		if(feof(elf->file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-	elf->symboleNumber = headerSymtab.sh_size / sizeof(Elf32_Sym);
+	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, (char*)elf->symTable);
+	elf->symboleNumber = elf->sectionHeaders[numSymtab].sh_size / sizeof(Elf32_Sym);
 }
