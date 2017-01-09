@@ -32,20 +32,20 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content){ //FILE * f1, F
                 for(i=1; i<f2.header.e_shnum;i++){
                     if(f2.sectionHeaders[i].sh_type != SHT_PROGBITS && f2.sectionHeaders[i].sh_type != SHT_STRTAB && f2.sectionHeaders[i].sh_type != SHT_SYMTAB){
                         
-                        res = realloc(res,l);
+                        res = realloc(res,size+l);
                         printf("test1\n");
                         res[f1.header.e_shnum+(l-1)] = f2.sectionHeaders[i];
                         //MaJ sur les sh_name
-                        res[f1.header.e_shnum+(l-1)].sh_name += f1.header.e_shnum;
+                        /*res[f1.header.e_shnum+(l-1)].sh_name += f1.header.e_shnum;
                         //MaJ sur les offset
                         int k;
                         for(k=0; k<(size+1);k++){
                             if(res[k].sh_offset > res[f1.header.e_shnum+(l-1)].sh_offset){
                                 res[k].sh_offset += res[f1.header.e_shnum+(l-1)].sh_size;
                             }
-                        }
+                        }*/
                         
-                        printf("On insère %s a l'indice %d\n", f2.sectionNames[i], f1.header.e_shnum+(l-1));
+                        printf("On insère %s a l'indice %d son type est : %d\n", f2.sectionNames[i], f1.header.e_shnum+(l-1),res[f1.header.e_shnum+(l-1)].sh_type);
                         resChar[f1.header.e_shnum+(l-1)] = f2.sectionNames[i];
                         content[f1.header.e_shnum+(l-1)] = malloc(sizeof(char)*res[f1.header.e_shnum+(l-1)].sh_size);
                         getSectionContent(&f2,i,content[f1.header.e_shnum+(l-1)]);
@@ -57,22 +57,26 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content){ //FILE * f1, F
                             if(strcmp(f1.sectionNames[j],f1.sectionNames[i]) == 0 && ( f1.sectionHeaders[j].sh_type == SHT_PROGBITS || f1.sectionHeaders[j].sh_type == SHT_SYMTAB || f1.sectionHeaders[j].sh_type == SHT_STRTAB )){
                                 modif = 0;
                                 //MaJ sur les sh_size
-                                res[j].sh_size += f2.sectionHeaders[i].sh_size;
+                                /*res[j].sh_size += f2.sectionHeaders[i].sh_size;
                                 //MaJ sur les offset
                                 int k;
                                 for(k=0; k<size;k++){
                                     if(res[k].sh_offset > f2.sectionHeaders[i].sh_offset){
                                         res[k].sh_offset += f2.sectionHeaders[i].sh_size;
                                     }
-                                }
+                                }*/
                                 printf("fusion : %s\n",f2.sectionNames[i]);
+                                if(f2.sectionHeaders[i].sh_type == SHT_PROGBITS){
+//                                     char * tmp = malloc(sizeof(char)*f2.sectionHeaders[i].sh_size);
+//                                     free(tmp);
+                                }
                             }
                         }
                         if(modif){
                 printf("test 2\n");
-                            res = realloc(res,l);
+                            res = realloc(res,size+l);
                             res[f1.header.e_shnum+(l-1)] = f2.sectionHeaders[i];
-                            
+                            /*
                             //MaJ sur les sh_name
                             res[f1.header.e_shnum+(l-1)].sh_name += f1.header.e_shnum;
                             //MaJ sur les offset
@@ -82,7 +86,7 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content){ //FILE * f1, F
                                     res[k].sh_offset += res[f1.header.e_shnum+(l-1)].sh_size;
                                 }
                             }
-                            
+                            */
                             printf("On insère2 %s a l'indice %d\n",f2.sectionNames[i], f1.header.e_shnum+(l-1));
                             resChar[f1.header.e_shnum+(l-1)] = f2.sectionNames[i];
                             content[f1.header.e_shnum+(l-1)] = malloc(sizeof(char)*res[f1.header.e_shnum+(l-1)].sh_size);
@@ -153,7 +157,6 @@ int main(int argc, char * argv[]){
 	elf_t fichier1;
 	elf_t fichier2;
     
-    
     //header, tab header et tab name pour f1
     Elf32_Ehdr newHeader;
     fread(&newHeader, 1, sizeof(newHeader), f1);
@@ -163,6 +166,8 @@ int main(int argc, char * argv[]){
     fichier1.header = newHeader;
     fichier1.file = f1;
     fichier1.sectionHeaders=sectionHeaders1;
+    printf("test\n");
+    fichier1.sectionNames = malloc(sizeof(char *)*fichier1.header.e_shnum);
     getSectionNames(&fichier1);
     printf("file 1\n");    
     
