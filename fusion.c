@@ -155,7 +155,8 @@ Elf32_Shdr * getSectionHeader(Elf32_Ehdr * header1, Elf32_Ehdr * header2, Elf32_
 
 
 
-int main(int argc, char * argv[]){
+int main(int argc, char * argv[])
+{
     FILE * f1;
     FILE * f2;
     FILE * f3;

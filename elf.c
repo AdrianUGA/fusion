@@ -93,7 +93,7 @@ void getSectionNames(elf_t *elf){
 Elf32_Sym* getTableSymbole(elf_t *elf, int* taille){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
 
-	Elf32_Shdr sectionHeaders[elf->header.e_shnum];
+	//Elf32_Shdr sectionHeaders[elf->header.e_shnum];
 	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
 	fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
 
