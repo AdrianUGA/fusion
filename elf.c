@@ -21,6 +21,7 @@ char isNumber(char *str){
 }
 
 void readElf(elf_t *elf, int offset, int size, void *buffer){
+
 	buffer = memcpy(buffer, elf->fileContent + offset, size);
 }
 
@@ -106,21 +107,12 @@ void getElfHeader(elf_t *elf){
 
 void getSectionsHeaders(elf_t *elf){
 	elf->sectionHeaders = malloc(elf->header.e_shnum * sizeof(Elf32_Shdr));
-	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
-	int nbc = fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
-	if(nbc != 1){
-		if(feof(elf->file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
+	readElf(elf, elf->header.e_shoff, elf->header.e_shentsize * elf->header.e_shnum, elf->sectionHeaders);
 }
 
 //Récupère les noms des sections
 void getSectionNames(elf_t *elf){
 	elf->sectionNames = malloc(elf->header.e_shnum*sizeof(char*));
-
 
 	int i, j;
 
@@ -132,9 +124,7 @@ void getSectionNames(elf_t *elf){
 			elf->sectionNames[i] = realloc(elf->sectionNames[i], (j+2)*sizeof(char));
 			elf->sectionNames[i][j] = elf->sectionContents[elf->header.e_shstrndx][elf->sectionHeaders[i].sh_name + j];
 		}while(elf->sectionNames[i][j] != '\0');
-		
 	}
-
 }
 
 /* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
