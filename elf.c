@@ -48,31 +48,34 @@ char* getTypeRealoc(int type){
 }
 
 //Récupere le contenu d'une section
-void getSectionContent(elf_t *elf, int sectionNumber, char *buffer){
+void getSectionsContent(elf_t *elf){
 
-	if(fseek(elf->file, elf->sectionHeaders[sectionNumber].sh_offset, SEEK_SET) != 0){
-		fprintf(stderr, "Fseek fail !\n");
-	}
-
+	int i;
 	int nbc;
-	nbc = fread(buffer, elf->sectionHeaders[sectionNumber].sh_size, 1, elf->file);
-	if(nbc != 1){
-		if(feof(elf->file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
+	elf->sectionContents = malloc(sizeof(char *)*elf->header.e_shnum);
+	for(i=0; i<elf->header.e_shnum; i++){
+		if(fseek(elf->file, elf->sectionHeaders[i].sh_offset, SEEK_SET) != 0){
+			fprintf(stderr, "Fseek fail !\n");
+		}
+		
+		elf->sectionContents[i] = malloc(sizeof(char)*elf->sectionHeaders[i].sh_size);
+		nbc = fread(elf->sectionContents[i], elf->sectionHeaders[i].sh_size, 1, elf->file);
+
+		if(nbc != 1){
+			if(feof(elf->file)){
+				/* End of file */
+			}else{
+				debug("Erreur de lecture.");
+			}
 		}
 	}
+
+
 
 }
 
 //Récupère les noms des sections
 void getSectionNames(elf_t *elf){
-	/* On récupère la section des noms */
-	int size = elf->sectionHeaders[elf->header.e_shstrndx].sh_size;
-	char str[size];
-
-	getSectionContent(elf, elf->header.e_shstrndx, str);
 
 	int i, j;
 
@@ -82,7 +85,7 @@ void getSectionNames(elf_t *elf){
 		do{
 			j++;
 			elf->sectionNames[i] = realloc(elf->sectionNames[i], (j+2)*sizeof(char));
-			elf->sectionNames[i][j] = str[elf->sectionHeaders[i].sh_name + j];
+			elf->sectionNames[i][j] = elf->sectionContents[elf->header.e_shstrndx][elf->sectionHeaders[i].sh_name + j];
 		}while(elf->sectionNames[i][j] != '\0');
 		
 	}
@@ -90,20 +93,34 @@ void getSectionNames(elf_t *elf){
 }
 
 /* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
-Elf32_Sym* getTableSymbole(elf_t *elf, int* taille){	
+Elf32_Sym* getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
 
 	//Elf32_Shdr sectionHeaders[elf->header.e_shnum];
 	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
-	fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
+	int nbc = fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
+	if(nbc != 1){
+		if(feof(elf->file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
 	Elf32_Shdr headerSymtab = elf->sectionHeaders[numSymtab];
 	Elf32_Sym* res = (Elf32_Sym*) malloc(headerSymtab.sh_size);
 
 	fseek(elf->file, headerSymtab.sh_offset, SEEK_SET);
-	fread(res, headerSymtab.sh_size, 1, elf->file);
+	nbc = fread(res, headerSymtab.sh_size, 1, elf->file);
+	if(nbc != 1){
+		if(feof(elf->file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
-	*taille = headerSymtab.sh_size / sizeof(Elf32_Sym);
+	elf->symboleNumber = headerSymtab.sh_size / sizeof(Elf32_Sym);
 
 	return res;
 }

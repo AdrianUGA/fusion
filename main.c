@@ -136,6 +136,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+
+	/* Sections content */
+	
+	getSectionsContent(&elf);
+	
+
+
 	/* Section names */
 	elf.sectionNames = malloc(elf.header.e_shnum*sizeof(char*));
 	getSectionNames(&elf);

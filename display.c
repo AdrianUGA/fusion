@@ -153,8 +153,8 @@ void displaySectionContent(elf_t *elf, int sectionNumber){
 	printf("Affichage hexadécimal de la section « %s »\n", elf->sectionNames[sectionNumber]);
 	int ligne = sectionHeader->sh_addr;
 
-	char sectionContent[sectionHeader->sh_size];
-	getSectionContent(elf, sectionNumber, sectionContent);
+	// char sectionContent[sectionHeader->sh_size];
+	// getSectionContent(elf, sectionNumber, sectionContent);
 	int cursor = 0, i, k;
 	unsigned char mot;
 	char *convert;
@@ -164,7 +164,7 @@ void displaySectionContent(elf_t *elf, int sectionNumber){
 		convert = (char *) malloc(sizeof(char));		
 		for(k=0;k<16;k++){
 			if(sectionHeader->sh_size > i+k){
-				memcpy(&mot, sectionContent + cursor, sizeof(unsigned char));
+				memcpy(&mot, elf->sectionContents[sectionNumber] + cursor, sizeof(unsigned char));
 				cursor += sizeof(unsigned char);
 
 				if (isprint(mot))			

@@ -11,7 +11,7 @@ LINKS=elf.o debug.o display.o
 # BINS=$(shell grep  -Plz  'int\s*main\s*\(.*?\)\s*{' *.c | cut -d '.' -f 1)
 BINS=main phase2
 sources=$(wildcard *.c)
-cources_o = $(firstword $(subst :, ,$1))
+#cources_o = $(firstword $(subst :, ,$1))
 DEP=$(patsubst %.c, %.dep, $(wildcard *.c))
 
 -include $(DEP)
@@ -27,15 +27,11 @@ binarize = $(1): $($(1)_O)
 default: all 
 
 
-all: clear dep main
+all: clear dep $(BINS)
 
-# main: $(main_O)
-#phase2: $(phase2_O)
+main: $(main_O)
+phase2: $(phase2_O)
 
-test1=main:elf.o display.o main.o debug.o
-test2=phase2:fusion.o elf.o display.o debug.o phase2.o
-$(eval $(test1))
-$(eval $(test2))
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
