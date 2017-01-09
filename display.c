@@ -9,6 +9,7 @@
 
 #include "display.h"
 #include "debug.h"
+#include "getelf.h"
 
 //Affichage de l'header du fichier elf
 

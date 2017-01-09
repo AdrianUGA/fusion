@@ -8,6 +8,7 @@
 #include <ctype.h>
 
 #include "display.h"
+#include "getelf.h"
 #include "debug.h"
 
 char isNumber(char *str){
@@ -28,8 +29,26 @@ int getSectionNumber(elf_t *elf, char *name){
 	return -1;
 }
 
-int isELF(Elf32_Ehdr header){
-	return (header.e_ident[0]== 0x7f && header.e_ident[1]=='E' && header.e_ident[2]=='L' && header.e_ident[3]== 'F');
+int isElf(elf_t *elf){
+	return (elf->header.e_ident[0]== 0x7f && elf->header.e_ident[1]=='E' && elf->header.e_ident[2]=='L' && elf->header.e_ident[3]== 'F');
+}
+
+void initElf(elf_t *elf, char *filename){
+
+	/* Existence et ouverture du fichier */
+	elf->filename = malloc(strlen(filename) *  sizeof(char));
+	strcpy(elf->filename, filename);
+	elf->file = fopen(elf->filename, "rb");
+   	
+   	if(!elf->file){
+		fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", elf->filename);
+		return;
+	}
+
+	getElfHeader(elf);
+	getSectionsHeaders(elf);
+	getSectionsContent(elf);
+	getSectionNames(elf);
 }
 
 char* getTypeRealoc(int type){
@@ -69,13 +88,41 @@ void getSectionsContent(elf_t *elf){
 			}
 		}
 	}
+}
 
+void getElfHeader(elf_t *elf){
+	int nbc = fread(&(elf->header), 1, sizeof(elf->header), elf->file);
+	if(nbc != 1){
+		if(feof(elf->file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 
+	if(!(isElf(elf))){
+		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", elf->filename);
+		return;
+	}
+}
 
+void getSectionsHeaders(elf_t *elf){
+	elf->sectionHeaders = malloc(elf->header.e_shnum * sizeof(Elf32_Shdr));
+	fseek(elf->file, elf->header.e_shoff, SEEK_SET);
+	int nbc = fread(elf->sectionHeaders, elf->header.e_shentsize, elf->header.e_shnum, elf->file);
+	if(nbc != 1){
+		if(feof(elf->file)){
+			/* End of file */
+		}else{
+			debug("Erreur de lecture.");
+		}
+	}
 }
 
 //Récupère les noms des sections
 void getSectionNames(elf_t *elf){
+	elf->sectionNames = malloc(elf->header.e_shnum*sizeof(char*));
+
 
 	int i, j;
 
@@ -93,7 +140,7 @@ void getSectionNames(elf_t *elf){
 }
 
 /* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
-Elf32_Sym* getTableSymbole(elf_t *elf){	
+void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
 
 	//Elf32_Shdr sectionHeaders[elf->header.e_shnum];
@@ -108,10 +155,10 @@ Elf32_Sym* getTableSymbole(elf_t *elf){
 	}
 
 	Elf32_Shdr headerSymtab = elf->sectionHeaders[numSymtab];
-	Elf32_Sym* res = (Elf32_Sym*) malloc(headerSymtab.sh_size);
+	elf->symTable = (Elf32_Sym*) malloc(headerSymtab.sh_size);
 
 	fseek(elf->file, headerSymtab.sh_offset, SEEK_SET);
-	nbc = fread(res, headerSymtab.sh_size, 1, elf->file);
+	nbc = fread(elf->symTable, headerSymtab.sh_size, 1, elf->file);
 	if(nbc != 1){
 		if(feof(elf->file)){
 			/* End of file */
@@ -121,6 +168,4 @@ Elf32_Sym* getTableSymbole(elf_t *elf){
 	}
 
 	elf->symboleNumber = headerSymtab.sh_size / sizeof(Elf32_Sym);
-
-	return res;
 }

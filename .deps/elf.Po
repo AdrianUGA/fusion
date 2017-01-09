@@ -39,7 +39,7 @@ elf.o: elf.c /usr/include/stdc-predef.h /usr/include/elf.h \
  /usr/include/x86_64-linux-gnu/bits/environments.h \
  /usr/include/x86_64-linux-gnu/bits/confname.h \
  /usr/include/x86_64-linux-gnu/bits/unistd.h /usr/include/ctype.h \
- display.h debug.h
+ display.h getelf.h debug.h
 
 /usr/include/stdc-predef.h:
 
@@ -154,5 +154,7 @@ elf.o: elf.c /usr/include/stdc-predef.h /usr/include/elf.h \
 /usr/include/ctype.h:
 
 display.h:
+
+getelf.h:
 
 debug.h:
