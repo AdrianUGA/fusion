@@ -105,15 +105,18 @@ int main(int argc, char* argv[]){
 	/* Execution des fonctions demandées */
 	if(arg_elf_header){
 		displayHeader(&elf);	
+		printf("\n");
 	}
 	if(arg_program_headers){
 		printf("Option not available yet.\n");
 	}
 	if(arg_section_headers){
 		displaySectionHeaders(&elf);
+		printf("\n");
 	}
 	if(arg_symbols){
 		displayTableSymbole(&elf);
+		printf("\n");
 	}
 	if(arg_dyn_syms){
 		printf("Option not available yet.\n");
@@ -123,6 +126,7 @@ int main(int argc, char* argv[]){
 	}
 	if(arg_relocs){
 		displayRelocTable(&elf);
+		printf("\n");
 	}
 	if(arg_hexdump){
 		if(isNumber(arg_section)){
@@ -135,6 +139,7 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
             displaySectionContent(&elf, num_section);
+            printf("\n");
 		}
 	}
 	if(arg_string_dump){
@@ -142,6 +147,7 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
             printf("Option not available yet.\n");
+            printf("\n");
 		}
 	}
 
