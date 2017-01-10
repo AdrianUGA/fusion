@@ -35,7 +35,9 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
     }
     int k;
     for(i=1; i<f2.header.e_shnum;i++){
-        if(f2.sectionHeaders[i].sh_type != SHT_PROGBITS && f2.sectionHeaders[i].sh_type != SHT_STRTAB && f2.sectionHeaders[i].sh_type != SHT_SYMTAB){
+        /*Le temps de voire avec les profs ce qu'on en fait*/
+        if(f2.sectionHeaders[i].sh_type == SHT_NOBITS || f2.sectionHeaders[i].sh_type == SHT_ARM_ATTRIBUTES);
+        else if(f2.sectionHeaders[i].sh_type != SHT_PROGBITS && f2.sectionHeaders[i].sh_type != SHT_STRTAB && f2.sectionHeaders[i].sh_type != SHT_SYMTAB && f1.sectionHeaders[i].sh_type != SHT_REL){
                                 
             memcpy(&f3->sectionHeaders[size], &f2.sectionHeaders[i], sizeof(Elf32_Shdr));
             //maj sh_name
@@ -43,7 +45,6 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
             
             f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
             memcpy(f3->sectionNames[size], f2.sectionNames[i],sizeof(char)*strlen(f2.sectionNames[i]));
-            printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
             
              content[size] = (char *)malloc(f3->sectionHeaders[size].sh_size);
              getSectionContent(&f2,i,content[size]);
@@ -53,13 +54,12 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
         } else {
             int j, modif=1;
             for(j=0; j<f1.header.e_shnum && modif;j++){
-                if(strcmp(f1.sectionNames[j],f2.sectionNames[i]) == 0 && ( f1.sectionHeaders[j].sh_type == SHT_PROGBITS || f1.sectionHeaders[j].sh_type == SHT_SYMTAB || f1.sectionHeaders[j].sh_type == SHT_STRTAB )){
+                if(strcmp(f1.sectionNames[j],f2.sectionNames[i]) == 0 && ( f1.sectionHeaders[j].sh_type == SHT_PROGBITS || f1.sectionHeaders[j].sh_type == SHT_SYMTAB || f1.sectionHeaders[j].sh_type == SHT_STRTAB || f1.sectionHeaders[j].sh_type == SHT_REL)){
                     modif = 0;
                     symb[j] = i;
                                         
                     //maj size
                     f3->sectionHeaders[j].sh_size += f2.sectionHeaders[i].sh_size;
-                    printf("%s fusionné | %s | %s\n",f3->sectionNames[j],f3->sectionNames[0],f3->sectionNames[1]);
                     
                     if(f3->sectionHeaders[j].sh_type == SHT_PROGBITS || f3->sectionHeaders[j].sh_type == SHT_STRTAB){
                         int taille = f1.sectionHeaders[j].sh_size;
@@ -87,26 +87,15 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                 
                 f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
                 memcpy(f3->sectionNames[size], f2.sectionNames[i], sizeof(char)*strlen(f2.sectionNames[i]));
-               
-                printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
                                     
                 content[size] = malloc(f3->sectionHeaders[size].sh_size);
-                printf("Avant bug : %s \n",f3->sectionNames[0]);
                 getSectionContent(&f2,i,content[size]);
-                printf("Après bug : %s \n",f3->sectionNames[0]);
                 size++;
                 
             }
         }
     }
     f3->header.e_shnum = size;
-    /*for(i=0; i< size; i++)
-        printf("%x\n", content[i]);
-    for(i=0; i< size; i++){
-        char * test = malloc(f1.sectionHeaders[i].sh_size);
-        getSectionContent(&f1, i, test);
-        printf("%x\n", test);
-    }*/
 }
 
 
@@ -148,8 +137,6 @@ int main(int argc, char * argv[]){
     getSectionNames(&fichier2);
     printf("file 2\n");
     
-    printf("\n\n\n");
-    
     elf_t * fichier3;
     fichier3 = malloc(sizeof(elf_t));
     fichier3->file = f3;
@@ -165,9 +152,8 @@ int main(int argc, char * argv[]){
             
             
     displayHeader(fichier3);
-            
+    printf("\n\n");
     displaySectionHeaders(fichier3);
     
-    printf("\n\n\n");
     printf("fini\n");
 }
