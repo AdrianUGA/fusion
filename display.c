@@ -408,7 +408,8 @@ void displaySymbole(elf_t *elf, Elf32_Sym symbole, int symtabNum, int i){
 			lien=NULL;
 		break;
 	}
-	printf("%3d: %08x %3d %8s %8s %8s %5d %s \n",i,symbole.st_value,symbole.st_size,type,lien,visibilite,symbole.st_shndx,elf->sectionContents[symtabNum]+symbole.st_name);
+
+	printf("%3d : %08x %3d %8s %8s %8s %5d %s \n",i,symbole.st_value,symbole.st_size,type,lien,visibilite,symbole.st_shndx,elf->sectionContents[symtabNum]+symbole.st_name);
 }
 
 //Affiche les tables de symboles
@@ -419,7 +420,7 @@ void displayTableSymbole(elf_t *elf){
 	int symtabNum = getSectionNumber(elf, ".symtab");
        printf("\n\n");
        printf("Table de symboles « .symtab » contient %ld entrées:\n",elf->sectionHeaders[symtabNum].sh_size/sizeof(Elf32_Sym));
-       printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
+       printf("Num : Valeur  Tail  Type       Lien    Vis       Ndx    Nom\n");
        for(i=0; i < elf->symboleNumber; i++){
            displaySymbole(elf, elf->symTable[i],symtabNum,i);
        }
@@ -454,26 +455,6 @@ void displayRelocTable(elf_t *elf){
 					}
 				}
 				printf("%08x  %08x  %17s  %6d\n",relcel.r_offset, relcel.r_info,getTypeRealoc(ELF32_R_TYPE(relcel.r_info)),ELF32_R_SYM(relcel.r_info));
- 			}			
-			printf("---------------------------------------------------------\n"); 
-			printf("\n");
-		} else if (sectionHeader.sh_type==SHT_RELA){
-			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
-			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", elf->sectionNames[i], nbEnt); 
-			printf("---------------------------------------------------------\n"); 
-			printf(" Offset     Info         Type             Sym. + Addend\n");
-			printf("---------------------------------------------------------\n"); 
-			for(j = 0; j < nbEnt;j++){
-				nbc = fread(&relacel,sizeof(Elf32_Rela),1,elf->file);
-				if(nbc != 1){
-					if(feof(elf->file)){
-						/* End of elf->file */
-					}else{
-						debug("Erreur de lecture.");
-					}
-				}
-				printf("%08x  %08x  %17s  %6d + %d\n",relacel.r_offset, relacel.r_info,getTypeRealoc(ELF32_R_TYPE(relacel.r_info)),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
  			}			
 			printf("---------------------------------------------------------\n"); 
 			printf("\n");
