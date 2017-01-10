@@ -12,22 +12,22 @@ void getHeader(elf_t f1, elf_t f2, elf_t * f3){
     f3->header = newHeader;
 }
 
-                
+    
 
 void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
-    content = malloc(sizeof(char *)*f3->header.e_shnum);
+    content = malloc(sizeof(char *)*(f1.header.e_shnum + f2.header.e_shnum));
     f3->sectionNames = (char **)malloc(sizeof(char *)*(f1.header.e_shnum + f2.header.e_shnum));
     f3->sectionHeaders = malloc(sizeof(Elf32_Shdr)*(f1.header.e_shnum + f2.header.e_shnum));
     int i,z;
     int size = 0;
     for(i=0; i<f1.header.e_shnum; i++){
         symb[i] = -1;
-        memcpy(&f3->sectionHeaders[i], &f1.sectionHeaders[i], sizeof(Elf32_Shdr));
         size++;
+        memcpy(&f3->sectionHeaders[i], &f1.sectionHeaders[i], sizeof(Elf32_Shdr));
+        
                             
         f3->sectionNames[i] = (char *) malloc(sizeof(char)*strlen(f1.sectionNames[i]));
         memcpy(f3->sectionNames[i], f1.sectionNames[i],sizeof(char)*strlen(f1.sectionNames[i]));
-        printf("Table %s insérée\n",f3->sectionNames[i]);
         
         content[i] = malloc(f3->sectionHeaders[i].sh_size);
         getSectionContent(&f1,i,content[i]);
@@ -58,6 +58,7 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                     symb[j] = i;
                                         
                     //maj size
+                    f3->sectionHeaders[j].sh_size += f2.sectionHeaders[i].sh_size;
                     printf("%s fusionné | %s | %s\n",f3->sectionNames[j],f3->sectionNames[0],f3->sectionNames[1]);
                     
                     if(f3->sectionHeaders[j].sh_type == SHT_PROGBITS || f3->sectionHeaders[j].sh_type == SHT_STRTAB){
@@ -90,8 +91,9 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                 printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
                                     
                 content[size] = malloc(f3->sectionHeaders[size].sh_size);
+                printf("Avant bug : %s \n",f3->sectionNames[0]);
                 getSectionContent(&f2,i,content[size]);
-                                    
+                printf("Après bug : %s \n",f3->sectionNames[0]);
                 size++;
                 
             }
@@ -162,9 +164,9 @@ int main(int argc, char * argv[]){
             
             
             
-//     displayHeader(fichier3);
+    displayHeader(fichier3);
             
-//        displaySectionHeaders(fichier3);
+    displaySectionHeaders(fichier3);
     
     printf("\n\n\n");
     printf("fini\n");
