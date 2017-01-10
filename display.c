@@ -417,12 +417,13 @@ void displayTableSymbole(elf_t *elf){
 	
 	int i;
 	// Affichage des symboles de .symtab
-	int symtabNum = getSectionNumber(elf, ".symtab");
+	int strtabNum = getSectionNumber(elf, ".strtab");
+
        printf("\n\n");
-       printf("Table de symboles « .symtab » contient %ld entrées:\n",elf->sectionHeaders[symtabNum].sh_size/sizeof(Elf32_Sym));
+       printf("Table de symboles « .symtab » contient %d entrées:\n",elf->symboleNumber);
        printf("Num : Valeur  Tail  Type       Lien    Vis       Ndx    Nom\n");
        for(i=0; i < elf->symboleNumber; i++){
-           displaySymbole(elf, elf->symTable[i],symtabNum,i);
+           displaySymbole(elf, elf->symTable[i],strtabNum,i);
        }
      
 }
@@ -435,7 +436,6 @@ void displayRelocTable(elf_t *elf){
 	printf("********************\n");
 	int i,j,nbc;
 	Elf32_Rel relcel;
-	Elf32_Rela relacel;
 	for(i=0;i<elf->header.e_shnum;i++){
 		Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
