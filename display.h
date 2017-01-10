@@ -19,7 +19,7 @@
 	void displayHeader(elf_t *elf);
 	void displaySectionContent(elf_t *elf, int sectionNumber);
 	void displaySectionHeaders(elf_t *elf);
-	void displaySymbole(Elf32_Sym symbole, char * strtab, int i);
+	void displaySymbole(elf_t *elf, Elf32_Sym symbole, int symtabNum, int i);
 	void displayTableSymbole(elf_t *elf);
 	void displayRelocTable(elf_t *elf);
 

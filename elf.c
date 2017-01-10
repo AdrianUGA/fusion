@@ -21,7 +21,6 @@ char isNumber(char *str){
 }
 
 void readElf(elf_t *elf, int offset, int size, void *buffer){
-
 	buffer = memcpy(buffer, elf->fileContent + offset, size);
 }
 
@@ -43,7 +42,6 @@ int initElf(elf_t *elf, char *filename){
 	/* Existence et ouverture du fichier */
 	elf->filename = malloc(strlen(filename) * sizeof(char));
 	elf->filename = strcpy(elf->filename, filename);
-	printf("elf->filename : %s\n", elf->filename);
 	
 	elf->file = fopen(filename, "rb"); 
    	if(!elf->file){
@@ -64,7 +62,6 @@ int initElf(elf_t *elf, char *filename){
 	}
 
 	getElfHeader(elf);
-	printf("Coucou\n");
 
 	if(!(isElf(elf))){
 		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", elf->filename);
@@ -73,6 +70,7 @@ int initElf(elf_t *elf, char *filename){
 	getSectionsHeaders(elf);
 	getSectionsContent(elf);
 	getSectionNames(elf);
+	getTableSymbole(elf);
 	return 1;
 }
 
@@ -115,7 +113,6 @@ void getSectionNames(elf_t *elf){
 	elf->sectionNames = malloc(elf->header.e_shnum*sizeof(char*));
 
 	int i, j;
-
 	for (i=0; i<elf->header.e_shnum; i++){
 		elf->sectionNames[i] = malloc(sizeof(char));
 		j=-1;
@@ -131,6 +128,6 @@ void getSectionNames(elf_t *elf){
 void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
 	elf->symTable = malloc(sizeof(Elf32_Sym) * elf->sectionHeaders[numSymtab].sh_size);
-	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, (char*)elf->symTable);
+	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, elf->symTable);
 	elf->symboleNumber = elf->sectionHeaders[numSymtab].sh_size / sizeof(Elf32_Sym);
 }
