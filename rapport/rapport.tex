@@ -1,0 +1,84 @@
+\documentclass[10pt,twoside]{article}   %% Standard LaTeX.
+\usepackage{url}             %% Supports formating URLs.
+%% \usepackage{graphicx}        %% Enable for eps figures
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+\title{Lecture et fusion de fichiers ELF}           %% For first page
+\author{Adrian Amaglio\\Mohamed-Karim Boussedra\\Benjamin Gontard\\Maxence Grand\\Quentin Rozand}
+\date{\today}
+\maketitle
+\tableofcontents
+
+\begin{abstract}
+  Here goes my ABSTRACT.
+\end{abstract}
+
+\section*{Introduction}\label{sec-intro}
+  Here go my INTRODUCTION and ROADMAP.
+
+\section{Executables produits}
+	L'executable phase1 comprend toutes les fonctionnalités d'affichage du fichier ELF. Il s'utilise de la meme manière que le programme readelf \cite{readelf}:\\
+	$phase1 [-sShr] [-x <num|nom>] <fichier>$\\
+	$-s$ Affiche la table des symboles\\
+	$-S$ Affiche la table des en-tetes de sections.\\
+	$-h$ Affiche l'en-tete ELF.\\
+	$-x <num|nom>$ Affiche Le contenu de la section \it{num} nommée \it{nom} en hexadécimal et en ASCII lorsque c'est possible.\\
+	$-r$ Affiche la table des réallocations.\\
+	Toutes ces options s'appliquent au fichier passé en dernier paramètre.
+
+	L'executable phase2 prend trois noms de fichiers en paramètre. Il fusionnera les deux premier dans le troisième.
+
+\section{Structure du code}
+	\begin{description}
+	\item [\bf{getelf.h}] Structure elf\_t réprésentant un fichier ELF en mémoire.
+	\item [\bf{getelf.c}] Fonctions de lecture d'un fichier ELF et de remplissage de la structure elf\_t.
+	\item [\bf{display.c}] Affichage d'informations contenues dans une structure elf\_t.
+	\item [\bf{phase1.c}] Lecture d'un fichier ELF avec les fonctions de getelf.c et appel des fonctions de display.c en fonction des arguments.
+	\item [\bf{fusionelf.c}] fusion de structures elf\_t.
+	\item [\bf{writeelf.c}] Écriture d'un fichier ELF à partir d'une structure elf\_t.
+	\item [\bf{phase2.c}] Lecture de deux fichiers ELF avec les fonctions de getelf.c, fusion avec fusionelf.c et écriture d'un fichier résultat avec writeelf.
+	\end{description}
+
+
+\section{Fonctionalités implémentées et manquantes}
+	Toutes ces fonctionnalités concernent l'affichage et la fusion.
+	\subsection{Implémentées}
+		\begin{itemize}
+			\item Table des symboles
+			\item Table des en-tetes de sections,
+			\item En-tete elf
+			\item Contenu d'une section
+			\item Table des réallocations
+		\end{itemize}
+	\subsection{Manquantes}
+		\begin{itemize}
+			\item Section des symboles dynamiques
+			\item Sections unwind
+			\item Sections de notes
+			\item En-tetes de programmes
+		\end{itemize}
+
+\section{Bogues}
+	Le fichier fusionné final, une fois compilé, n'est pas executable.
+
+
+\section{Tests effectués}
+	Un script bash effectue automatiquement une série de tests et écrit le résultat dans des fichiers textes.
+
+\section{Journal de bord}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{readelf}
+\url{https://linux.die.net/man/1/readelf}
+
+% \bibitem{flanders}
+%  H. Flanders,  {\it Manual for\/ {\rm Monthly} Authors}, Amer. Math.
+% Monthly {\bf 78} (1971), 1--10.
+
+\end{thebibliography}
+
+\end{document}
