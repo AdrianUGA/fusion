@@ -605,52 +605,25 @@ void displayRelocTable(elf_t *elf){
 	printf("********************\n");
 	printf("* Relocation table *\n");
 	printf("********************\n");
-	int i,j,nbc;
-	Elf32_Rel relcel;
-	Elf32_Rela relacel;
-	for(i=0;i<elf->header.e_shnum;i++){
-		Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
-		if (sectionHeader.sh_type==SHT_REL){
-			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
-			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", elf->sectionNames[i], nbEnt); 
-			printf("---------------------------------------------------------\n"); 
-			printf(" Offset     Info         Type            Sym.\n");
-			printf("---------------------------------------------------------\n"); 
-			for(j = 0; j < nbEnt;j++){
-				nbc = fread(&relcel,sizeof(Elf32_Rel),1,elf->file);
-				if(nbc != 1){
-					if(feof(elf->file)){
-						/* End of elf->file */
-					}else{
-						debug("Erreur de lecture.");
-					}
-				}
-				printf("%08x  %08x  %17s  %6d\n",relcel.r_offset, relcel.r_info,getTypeRealoc(ELF32_R_TYPE(relcel.r_info)),ELF32_R_SYM(relcel.r_info));
- 			}			
-			printf("---------------------------------------------------------\n"); 
-			printf("\n");
-		} else if (sectionHeader.sh_type==SHT_RELA){
-			int nbEnt = sectionHeader.sh_size / sectionHeader.sh_entsize;
-			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
-			printf("Relocation section %s at offset 0x3e0 contains %d entries:\n", elf->sectionNames[i], nbEnt); 
-			printf("---------------------------------------------------------\n"); 
-			printf(" Offset     Info         Type             Sym. + Addend\n");
-			printf("---------------------------------------------------------\n"); 
-			for(j = 0; j < nbEnt;j++){
-				nbc = fread(&relacel,sizeof(Elf32_Rela),1,elf->file);
-				if(nbc != 1){
-					if(feof(elf->file)){
-						/* End of elf->file */
-					}else{
-						debug("Erreur de lecture.");
-					}
-				}
-				printf("%08x  %08x  %17s  %6d + %d\n",relacel.r_offset, relacel.r_info,getTypeRealoc(ELF32_R_TYPE(relacel.r_info)),ELF32_R_SYM(relacel.r_info),relacel.r_addend);
- 			}			
-			printf("---------------------------------------------------------\n"); 
-			printf("\n");
-		}
-		
-	}
+	int j;
+	for(j = 0; j < elf->header.e_shnum && elf->sectionHeaders[j].sh_type != SHT_REL;j++);
+	
+	int offset, info, value;
+	printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[j], elf->sectionHeaders[j].sh_offset, elf->tailleRelocTable);
+	printf("-------------------------------------------------------------\n"); 
+	printf(" Offset     Info         Type            Sym. Value    	 Sym.\n");
+	printf("-------------------------------------------------------------\n"); 
+
+	for(j = 0; j < elf->tailleRelocTable;j++){
+		offset = elf->relTable[j].r_offset;
+		info = elf->relTable[j].r_info;
+		value = elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_value;
+		if(ELF32_ST_TYPE(elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_info) != STT_SECTION){
+			printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(elf->relTable[j].r_info)), value, elf->strtab+elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_name);
+		} else {
+			printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(elf->relTable[j].r_info)), value, elf->sectionNames[elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_shndx]);	
+		}		
+	}			 
+	printf("-------------------------------------------------------------\n"); 
+	printf("\n"); 
 }

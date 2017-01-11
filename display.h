@@ -7,6 +7,10 @@
 		FILE *file;
 		char **sectionNames;
 		Elf32_Sym* symTable;
+		int symboleNumber;
+		char* strtab;
+		Elf32_Rel* relTable;
+		int tailleRelocTable;
 	}elf_t;
 
 	void displayHeader(elf_t *elf);
@@ -21,6 +25,7 @@
 	int isELF(Elf32_Ehdr header);
 	char* getTypeRealoc(int type);
 	char isNumber(char *str);
-	Elf32_Sym* getTableSymbole(elf_t *elf, int* taille);
+	void getTableSymbole(elf_t *elf);
+	void getRelocTable(elf_t *elf);
 
 #endif // __DISPLAY_H__

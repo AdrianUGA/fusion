@@ -140,6 +140,19 @@ int main(int argc, char* argv[]){
 	elf.sectionNames = malloc(elf.header.e_shnum*sizeof(char*));
 	getSectionNames(&elf);
 
+	/* Récupération de la strtab*/
+    int numSymSec = getSectionNumber(&elf, ".strtab");
+
+    int size = elf.sectionHeaders[numSymSec].sh_size;
+    char strtab[size];
+    getSectionContent(&elf, numSymSec, strtab);
+    elf.strtab = strtab;
+
+	/* Table de réalcation */
+
+	getRelocTable(&elf);
+
+	getTableSymbole(&elf);
 
 	/* Execution des fonctions demandées */
 	if(arg_elf_header){

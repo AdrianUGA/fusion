@@ -42,7 +42,12 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
     }
     int k;
     for(i=1; i<f2.header.e_shnum;i++){
-        if(f2.sectionHeaders[i].sh_type == SHT_ARM_ATTRIBUTES || f2.sectionHeaders[i].sh_type == SHT_NOBITS);
+        if(f2.sectionHeaders[i].sh_type == SHT_ARM_ATTRIBUTES);
+        else if(f2.sectionHeaders[i].sh_type == SHT_NOBITS && strcmp(".bss", f2.sectionNames[i]) == 0) {
+            k = getSectionNumber(&f1, ".bss");
+            f3->sectionHeaders[k].sh_size += f2.sectionHeaders[i].sh_size;
+            symb[k]=i;
+        }
         else if(f2.sectionHeaders[i].sh_type != SHT_PROGBITS && f2.sectionHeaders[i].sh_type != SHT_STRTAB && f2.sectionHeaders[i].sh_type != SHT_SYMTAB && f1.sectionHeaders[i].sh_type != SHT_REL){
                                 
             memcpy(&f3->sectionHeaders[size], &f2.sectionHeaders[i], sizeof(Elf32_Shdr));
@@ -51,17 +56,17 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
             
             f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
             memcpy(f3->sectionNames[size], f2.sectionNames[i],sizeof(char)*strlen(f2.sectionNames[i]));
-            printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
+            //printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
             
              content[size] = (char *)malloc(f3->sectionHeaders[size].sh_size);
              getSectionContent(&f2,i,content[size]);
              int k;
             for(k=0; k<f3->sectionHeaders[size].sh_size;k++){
                 unsigned char c = content[size][k];
-                printf("%x", c);
+                //printf("%x", c);
             }
-            printf("\n");
-        printf("\n");
+            //printf("\n");
+        //printf("\n");
             size++;
         } else {
             int j, modif=1;
@@ -72,7 +77,7 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                                         
                     //maj size
                     f3->sectionHeaders[j].sh_size += f2.sectionHeaders[i].sh_size;
-                    printf("%s fusionné | %s | %s\n",f3->sectionNames[j],f3->sectionNames[0],f3->sectionNames[1]);
+                    //printf("%s fusionné | %s | %s\n",f3->sectionNames[j],f3->sectionNames[0],f3->sectionNames[1]);
                     
                     if(f3->sectionHeaders[j].sh_type == SHT_PROGBITS || f3->sectionHeaders[j].sh_type == SHT_STRTAB){
                         int taille = f1.sectionHeaders[j].sh_size;
@@ -90,7 +95,7 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                         free(tmp);
                         free(tmp2);
                        
-                        printf("\n");
+                        //printf("\n");
                                 }
                 }
             }
@@ -103,12 +108,12 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                 f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
                 memcpy(f3->sectionNames[size], f2.sectionNames[i], sizeof(char)*strlen(f2.sectionNames[i]));
                
-                printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
+                //printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
                                     
                 content[size] = malloc(f3->sectionHeaders[size].sh_size);
-                printf("Avant bug : %s \n",f3->sectionNames[0]);
+                //printf("Avant bug : %s \n",f3->sectionNames[0]);
                 getSectionContent(&f2,i,content[size]);
-                printf("Après bug : %s \n",f3->sectionNames[0]);
+                //printf("Après bug : %s \n",f3->sectionNames[0]);
                 int k;
            
                 size++;
@@ -130,9 +135,14 @@ int getIndice(int* tab, int val, int taille){
     return res;
 }
 
-void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int taille1, int taille2, int* secFusion, int* newSymtabIdx){
-    int i,j, trouve;
-    int idx = taille1;
+void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int* newSymtabIdx1, int* newSymtabIdx2){
+    int i,j, trouve, idxGlob, tmp, k, idxFin, name;
+    int idx = 0;
+    int taille1 = elf1->symboleNumber;
+    int taille2 = elf2->symboleNumber;
+
+
+    printf("%d %d \n", taille1, taille2);
 
     /* Nouvelle table d'index de la table des symboles. Le symbole d'indice i du fichier 2 a l'indice newSymtabIdx[i] dans le fichier 3 */
     //newSymtabIdx = malloc((taille2)*sizeof(int));
@@ -148,84 +158,118 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int taille1, int 
     newSymtab = (Elf32_Sym*) malloc(sizeof(Elf32_Sym)*taille1+sizeof(Elf32_Sym)*taille2);
     newStrtab = (char*) malloc(strtabTaille1+strtabTaille2);
 
-    /* Copie de la table de symboles et strtab du premier fichier dans les nouvelles données */
+    /* Concaténation des strtab et ajout dans le nouvel elf */
     memcpy(newStrtab, elf1->strtab, strtabTaille1);
     memcpy(newStrtab+strtabTaille1, elf2->strtab, strtabTaille2);
-    memcpy(newSymtab, elf1->symTable, taille1*sizeof(Elf32_Sym));
+    //memcpy(newSymtab, elf1->symTable, taille1*sizeof(Elf32_Sym));
 
-    for(i=0;i<taille2;i++){
-        if(ELF32_ST_BIND(elf2->symTable[i].st_info) == STB_GLOBAL ){
-            trouve = 0;
-            for(j=0;j<taille1;j++){
-                //On trouve deux symboles de nom identique
-                if(strcmp(elf1->strtab+elf1->symTable[j].st_name, elf2->strtab+elf2->symTable[i].st_name) == 0){
-                    //Si les deux sont définis
-                    if(elf1->symTable[j].st_shndx != SHN_UNDEF && elf2->symTable[i].st_shndx != SHN_UNDEF){
-                        //printf("Erreur survenue, fin du programme \n");
-                        debug("Erreur survenue, fin du programme \n");
-                    }
-                    //Si un seul est défini, on le garde
-                    else if(elf1->symTable[j].st_shndx == SHN_UNDEF && elf2->symTable[i].st_shndx != SHN_UNDEF){
-                        newSymtab[j] = elf2->symTable[i];
-                        newSymtab[j].st_name = elf1->symTable[j].st_name;
-                        trouve = 1;
-                        int tmp = getIndice(secFusion, elf2->symTable[i].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
-                        //printf("TMP : %d\n", tmp);
-                        if (tmp){
-                            //printf("%08x %08x\n", newSymtab[j].st_value, elf1->sectionHeaders[j].sh_size);
-                            newSymtab[j].st_value += elf1->sectionHeaders[tmp].sh_size;
-                        }
-                    }
-                    else if(elf1->symTable[j].st_shndx != SHN_UNDEF && elf2->symTable[i].st_shndx == SHN_UNDEF){
-                        trouve = 1;
-                    }
-                    newSymtabIdx[i]=j;
-                } 
-            }
-            if(trouve == 0){
-                //printf("%d\n", idx);
-                newSymtab[idx] = elf2->symTable[i];
-                newSymtab[idx].st_name = strtabTaille1 + elf2->symTable[i].st_name;
-                int tmp = getIndice(secFusion, elf2->symTable[i].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
-                if (tmp != -1){
-                    newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
-                }
-                newSymtabIdx[i]=idx;
-                idx++;
-            } 
+    /* Ajout des symboles locaux du fichier 1 dans la table des symboles du nouvel elf */
+    for(i = 0; i<taille1 && ELF32_ST_BIND(elf1->symTable[i].st_info) != STB_GLOBAL; i++){
+        newSymtab[idx] = elf1->symTable[i];
+        //printf("%s\n", elf1->strtab+elf1->symTable[i].st_name);
+        idx++;
+        newSymtabIdx1[i]=idx;
+    }
+    //printf("%d\n", i);
+
+    /* Ajout des symboles locaux du fichier 2 dans la table des symboles du nouvel elf */
+    for(j = 0; j<taille2 && ELF32_ST_BIND(elf2->symTable[j].st_info) != STB_GLOBAL; j++){
+        newSymtab[idx] = elf2->symTable[j];
+        newSymtab[idx].st_name += strtabTaille1;
+        if(ELF32_ST_TYPE(newSymtab[idx].st_info) == STT_SECTION){
+            newSymtab[idx].st_shndx = getSectionNumber(elf3, elf2->sectionNames[newSymtab[idx].st_shndx]);
         }
-        else if(ELF32_ST_BIND(elf2->symTable[i].st_info) == STB_LOCAL){
-            //printf("%d\n", idx);
-            newSymtab[idx] = elf2->symTable[i];
-            newSymtab[idx].st_name = strtabTaille1 + elf2->symTable[i].st_name;
-            int tmp = getIndice(secFusion, elf2->symTable[i].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
-            if (tmp){
-                newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
+        tmp = getIndice(secFusion, elf2->symTable[j].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
+        if (tmp != -1){
+            printf("maj: %d  old: %d   new: %d\n", idx, newSymtab[idx].st_value, newSymtab[idx].st_value+elf1->sectionHeaders[tmp].sh_size);
+            newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
+        }
+        newSymtabIdx2[j]=idx;
+        idx++;
+    }
+
+    idxGlob = idx;
+    //printf("On démarre : %d %d\n", idxGlob, j);
+
+    /* Ajout des symboles globaux du fichier 1 dans la table des symboles du nouvel elf */
+    for(i; i< taille1; i++){
+        newSymtab[idx] = elf1->symTable[i];
+        newSymtabIdx1[i]=idx;
+        idx++;
+    }
+
+    idxFin = idx;
+    /* Ajout et correction des symboles du fichier 2 dans la table des symboles du nouvel elf */
+    /* Parcours des symboles globaux du fichier 2 */
+    for (j; j < taille2; j++){
+        trouve = 0;
+        /* Parcours des symboles globaux du fichier 1 (déjà ajoutés dans le nouvel elf) */
+        for(i = idxGlob; i < idxFin; i++){
+            /* Si les 2 symboles ont le même nom */
+            printf("%d: %s    %d: %s\n", i, newStrtab+newSymtab[i].st_name, j, elf2->strtab+elf2->symTable[j].st_name);
+            if(strcmp(newStrtab+newSymtab[i].st_name, elf2->strtab+elf2->symTable[j].st_name) == 0){
+                /* S'ils sont tous les 2 définis, echec de la fusion */
+                if(newSymtab[i].st_shndx != SHN_UNDEF && elf2->symTable[j].st_shndx != SHN_UNDEF){
+                    fprintf(stderr, "Erreur survenue, fin du programme \n");
+                    exit(1);
+                }
+                /* Si les 2 symboles ont le même nom, si celui du fichier 2 est défini et pas celui du fichier 1, on corrige avec les valeurs du fichier 2 */
+                else if(newSymtab[i].st_shndx == SHN_UNDEF && elf2->symTable[j].st_shndx != SHN_UNDEF){
+                    printf("blabla\n");
+                    name = newSymtab[i].st_name;
+                    newSymtab[i] = elf2->symTable[j];
+                    newSymtab[i].st_name = name;
+                    trouve = 1;
+                }
+                /* Si les 2 symboles ont le même nom, si celui du fichier 1 est défini et pas celui du fichier 2, on garde les valeurs du fichier 1 */
+                else if(newSymtab[j].st_shndx != SHN_UNDEF && elf2->symTable[i].st_shndx == SHN_UNDEF){
+                    printf("bloblo\n");
+                    trouve = 1;
+                }
+                newSymtabIdx2[j]=i;
             }
-            newSymtabIdx[i]=idx;
+        }
+        /* Si aucun symbole du fichier 1 n'a le même nom, on ajoute le symbole du fichier 2 à la suite */
+        if(trouve == 0){
+            printf("Pas trouvé\n");
+            newSymtab[idx] = elf2->symTable[j];
+            newSymtab[idx].st_name = strtabTaille1 + elf2->symTable[j].st_name;
+            if(ELF32_ST_TYPE(newSymtab[idx].st_info) == STT_SECTION){
+                newSymtab[idx].st_shndx = getSectionNumber(elf3, elf2->sectionNames[newSymtab[idx].st_shndx]);
+            }
+            tmp = getIndice(secFusion, elf2->symTable[i].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
+            printf("name: %s    value: %08x\n", newStrtab+newSymtab[idx].st_name, newSymtab[i].st_value);
+            if (tmp != -1){
+                newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
+                printf("maj2: %d\n", idx);
+            }
+            printf("name: %s    value: %08x\n", newStrtab+newSymtab[idx].st_name, newSymtab[i].st_value);
+            newSymtabIdx2[j]=idx;
             idx++;
         }
     }
 
-    /*
-    for (i=0; i < taille2; i++){
-        printf("[%d] %d \n", i, newSymtabIdx[i]);
-    } 
-    */
-
-    elf3->sectionHeaders[getSectionNumber(elf3, ".strtab")].sh_size = (idx)*sizeof(Elf32_Sym);
+    elf3->sectionHeaders[getSectionNumber(elf3, ".symtab")].sh_size = (idx)*sizeof(Elf32_Sym);
+    elf3->sectionHeaders[getSectionNumber(elf3, ".strtab")].sh_size = strtabTaille3;
     elf3->symTable = malloc((idx)*sizeof(Elf32_Sym));
     memcpy(elf3->symTable, newSymtab, (idx)*sizeof(Elf32_Sym));
     //printf("Fin\n");
     elf3->strtab = newStrtab;
     printf("IDX %d\n", idx);
     elf3->symboleNumber = idx;
+    elf3->sectionHeaders[getSectionNumber(elf3, ".symtab")].sh_info = idxGlob;
+
+    /*
+    for(i=0; i<taille2; i++){
+        printf("[%d]%d\n", i, newSymtabIdx2[i]);
+    }
+    */
 }
 
-void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int* newSymtabIdx){
+void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int* newSymtabIdx1, int* newSymtabIdx2){
     
-    displayRelocTable(elf1);
-    displayRelocTable(elf2);
+    //displayRelocTable(elf1);
+    //displayRelocTable(elf2);
 
     /* Calcul des taille des table de réalocations en octets */
     int taille1 = elf1->tailleRelocTable*sizeof(Elf32_Rel);
@@ -241,15 +285,18 @@ void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int
     int i, j, k;
     for(i = 0; i < elf1->tailleRelocTable; i++){
         newRelocTab[i] = elf1->relTable[i];
+        newRelocTab[i].r_info = ELF32_R_INFO(newSymtabIdx1[ELF32_R_SYM(newRelocTab[i].r_info)], ELF32_R_TYPE(newRelocTab[i].r_info));
     } 
 
     for(j = 0; j < elf2->tailleRelocTable; j++) {
         newRelocTab[i] = elf2->relTable[j];
-        newRelocTab[i].r_info = ELF32_R_INFO(newSymtabIdx[ELF32_R_SYM(newRelocTab[i].r_info)], ELF32_R_TYPE(newRelocTab[i].r_info));
+        //printf("%d --- %d \n",ELF32_R_SYM(newRelocTab[i].r_info), newSymtabIdx[ELF32_R_SYM(newRelocTab[i].r_info)]);
+        //printf("\n\n\nIDX SYMBOLE: %d    SYMBOLE: %s\n", newSymtabIdx[ELF32_R_SYM(newRelocTab[i].r_info)], elf3->strtab+elf3->symTable[newSymtabIdx[ELF32_R_SYM(newRelocTab[i].r_info)]].st_name);
+        newRelocTab[i].r_info = ELF32_R_INFO(newSymtabIdx2[ELF32_R_SYM(newRelocTab[i].r_info)], ELF32_R_TYPE(newRelocTab[i].r_info));
 
 
         int tmp = getIndice(secFusion, elf2->symTable[j].st_shndx, elf1->header.e_shnum); /* Numéro de la section fusionnée */
-        printf("section: %d %d\n", elf2->symTable[j].st_shndx, tmp);
+        //printf("section: %d %d\n", elf2->symTable[j].st_shndx, tmp);
         if (tmp != -1){
             newRelocTab[i].r_offset += elf1->sectionHeaders[tmp].sh_size;
         }
@@ -261,7 +308,7 @@ void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int
     memcpy(elf3->relTable, newRelocTab, (elf1->tailleRelocTable+elf2->tailleRelocTable)*sizeof(Elf32_Rel));
     elf3->tailleRelocTable = elf1->tailleRelocTable+elf2->tailleRelocTable;
 
-    displayRelocTable(elf3);
+    //displayRelocTable(elf3);
 }
 
 void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
@@ -291,7 +338,8 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
     char *content[elf1.header.e_shnum+elf2.header.e_shnum];
     int symb[elf1.header.e_shnum];
-    int newSymtabIdx[elf2.symboleNumber];
+    int newSymtabIdx1[elf1.symboleNumber];
+    int newSymtabIdx2[elf2.symboleNumber];
 
     printf("Récupération des strtab OK\n");
 
@@ -299,19 +347,14 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     getHeader(elf1, elf2, elf3);    
     getSection(elf1, elf2, elf3, content, symb);
 
-    displaySectionHeaders(elf3);
+    //displaySectionHeaders(elf3);
 
-    fusionTableSymbole(&elf1, &elf2, elf3, elf1.symboleNumber, elf2.symboleNumber, symb, newSymtabIdx);
+    fusionTableSymbole(&elf1, &elf2, elf3, symb, newSymtabIdx1, newSymtabIdx2);
 
     /* Initialisation de l'offset après les section headers */
     int current_offset = sizeof(Elf32_Ehdr)+sizeof(Elf32_Shdr)*elf3->header.e_shnum;
-    printf("OFFSET %d\n", current_offset);
 
-    for(i=0; i<elf3->symboleNumber; i++){
-        printf("%d: %s\n", i, elf3->strtab + elf3->symTable[i].st_name);
-    }
-
-    fusionRelocTable(&elf1, &elf2, elf3, symb, newSymtabIdx);
+    fusionRelocTable(&elf1, &elf2, elf3, symb, newSymtabIdx1, newSymtabIdx2);
 
     int k1 = getSectionNumber(elf3, ".symtab");
     int k2 = getSectionNumber(elf3, ".rel.text");
@@ -331,7 +374,6 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
     /* Section headers */
     for(i = 0; i < elf3->header.e_shnum; i++){
-        printf("SEEK_CUR: %d     OFFSET: %d \n", SEEK_CUR, current_offset);
         elf3->sectionHeaders[i].sh_offset = current_offset;
         current_offset  += elf3->sectionHeaders[i].sh_size;
         fwrite(&(elf3->sectionHeaders[i]), sizeof(Elf32_Shdr), 1, elf3->file);
@@ -349,9 +391,9 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
              int k;
             for(k=0; k<elf3->sectionHeaders[i].sh_size;k++){
                 unsigned char c = content[i][k];
-                printf("%x", c);
+                //printf("%x", c);
             }
-            printf("\n");
+            //printf("\n");
             fwrite(content[i], elf3->sectionHeaders[i].sh_size, 1, elf3->file);
         }
         else
