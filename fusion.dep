@@ -1,1 +1,0 @@
-fusion.o: fusion.c fusion.h display.h

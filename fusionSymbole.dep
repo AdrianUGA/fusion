@@ -1,1 +1,0 @@
-fusionSymbole.o: fusionSymbole.c display.h debug.h
