@@ -299,8 +299,7 @@ void displaySectionHeaders(elf_t *elf){
     }
 }
 
-//Affiche un symbole
-void displaySymbole(elf_t *elf, Elf32_Sym symbole, int symtabNum, int i){
+void displaySymbole(Elf32_Sym symbole, char * symboleName, int symboleNumber){
 	
 	char * type;		
 	switch(ELF32_ST_TYPE(symbole.st_info)){
@@ -409,23 +408,20 @@ void displaySymbole(elf_t *elf, Elf32_Sym symbole, int symtabNum, int i){
 		break;
 	}
 
-	printf("%3d : %08x %3d %8s %8s %8s %5d %s \n",i,symbole.st_value,symbole.st_size,type,lien,visibilite,symbole.st_shndx,elf->sectionContents[symtabNum]+symbole.st_name);
+	printf("%3d : %08x %3d %8s %8s %8s %5d %s \n",symboleNumber,symbole.st_value,symbole.st_size,type,lien,visibilite,symbole.st_shndx,symboleName);
 }
 
 //Affiche les tables de symboles
 void displayTableSymbole(elf_t *elf){
 	
-	int i;
-	// Affichage des symboles de .symtab
-	int strtabNum = getSectionNumber(elf, ".strtab");
+    printf("\n\n");
+    printf("Table de symboles « .symtab » contient %d entrées:\n",elf->symboleNumber);
+    printf("Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom\n");
 
-       printf("\n\n");
-       printf("Table de symboles « .symtab » contient %d entrées:\n",elf->symboleNumber);
-       printf("Num : Valeur  Tail  Type       Lien    Vis       Ndx    Nom\n");
-       for(i=0; i < elf->symboleNumber; i++){
-           displaySymbole(elf, elf->symTable[i],strtabNum,i);
-       }
-     
+    int i;
+    for(i=0; i < elf->symboleNumber; i++){
+        displaySymbole(elf->symTable[i], elf->symbolesNames[i], i);
+    }
 }
 
 

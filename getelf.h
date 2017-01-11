@@ -5,13 +5,17 @@ typedef struct{
 	char *filename;
 	char *fileContent;
 	int fileSize;
-	Elf32_Ehdr header;
-	Elf32_Shdr *sectionHeaders;
 	FILE *file;
+	
+	Elf32_Ehdr header;
+
+	Elf32_Shdr *sectionHeaders;
 	char **sectionNames;
 	char **sectionContents;
+
 	Elf32_Sym *symTable;
 	int symboleNumber;
+	char **symbolesNames;
 }elf_t;
 
 int isElf(elf_t *elf);
@@ -25,6 +29,7 @@ void getSectionNames(elf_t *elf);
 int getSectionNumber(elf_t *elf, char *name);
 char* getTypeRealoc(int type);
 void getTableSymbole(elf_t *elf);
+void getSymbolesNames(elf_t *elf);
 
 char isNumber(char *str);
 

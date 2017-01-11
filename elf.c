@@ -70,7 +70,9 @@ int initElf(elf_t *elf, char *filename){
 	getSectionsHeaders(elf);
 	getSectionsContent(elf);
 	getSectionNames(elf);
+
 	getTableSymbole(elf);
+	getSymbolesNames(elf);
 	return 1;
 }
 
@@ -130,4 +132,19 @@ void getTableSymbole(elf_t *elf){
 	elf->symTable = malloc(sizeof(Elf32_Sym) * elf->sectionHeaders[numSymtab].sh_size);
 	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, elf->symTable);
 	elf->symboleNumber = elf->sectionHeaders[numSymtab].sh_size / sizeof(Elf32_Sym);
+}
+
+void getSymbolesNames(elf_t *elf){
+	elf->symbolesNames = malloc(elf->symboleNumber*sizeof(char*));
+	int i, j, strtab = getSectionNumber(elf, ".strtab");
+
+	for (i=0; i<elf->symboleNumber; i++){
+		elf->symbolesNames[i] = malloc(sizeof(char));
+		j=-1;
+		do{
+			j++;
+			elf->symbolesNames[i] = realloc(elf->symbolesNames[i], (j+2)*sizeof(char));
+			elf->symbolesNames[i][j] = elf->sectionContents[strtab][elf->symTable[i].st_name + j];
+		}while(elf->symbolesNames[i][j] != '\0');
+	}
 }
