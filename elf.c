@@ -126,7 +126,6 @@ void getSectionNames(elf_t *elf){
 	}
 }
 
-/* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
 void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
 	elf->symTable = malloc(sizeof(Elf32_Sym) * elf->sectionHeaders[numSymtab].sh_size);
