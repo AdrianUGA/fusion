@@ -1,0 +1,4 @@
+03/01/17 - Leture doc, Étapes 1, 2, 3, mise en place du dépot git
+04/01/17 - Récupération des noms de sections
+05/01/17 - Étapes 4&5, ajout de la structure elf_t
+06/01/17 - Début de la phase 2 
