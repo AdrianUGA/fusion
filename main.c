@@ -8,6 +8,7 @@
 #include <ctype.h>
 
 #include "display.h"
+#include "getelf.h"
 #include "debug.h"
 
 void usage(char *name);
@@ -15,8 +16,7 @@ void usage(char *name);
 int main(int argc, char* argv[]){
 	
 	/* Récupération des arguments */
-	int opt, nbc;
-	
+	int opt;
 	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_hexdump=0, arg_string_dump=0;
 	char * arg_section;
 	int num_section = -1;
@@ -89,70 +89,36 @@ int main(int argc, char* argv[]){
 			exit(1);
 		}
 	}
-	
-	/* Existence et ouverture du fichier */
-	char *filename;
+
+
+	/* Chargement du fichier dans la structure elf_t */
 	if(optind < argc){
-		filename = malloc(strlen(argv[optind]) *  sizeof(char));
-		strcpy(filename, argv[optind]);
-		optind++;
-		elf.file = fopen(filename, "rb");
-       	
-       	if(!elf.file){
-			fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", filename);
-			return 0;
+		if(initElf(&elf, argv[optind]) < 0){
+			return -1;
 		}
+		optind++;
 	}
 	else{
 		usage(argv[0]);
-		return 0;
-	}
-
-
-	/* ELF header */
-	nbc = fread(&(elf.header), 1, sizeof(elf.header), elf.file);
-	if(nbc != 1){
-		if(feof(elf.file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-	if(!(isELF(elf.header))){
-		fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", filename);
 		return -1;
 	}
-
-	/* Section headers */
-	elf.sectionHeaders = malloc(elf.header.e_shnum * sizeof(Elf32_Shdr));
-	fseek(elf.file, elf.header.e_shoff, SEEK_SET);
-	nbc = fread(elf.sectionHeaders, elf.header.e_shentsize, elf.header.e_shnum, elf.file);
-	if(nbc != 1){
-		if(feof(elf.file)){
-			/* End of file */
-		}else{
-			debug("Erreur de lecture.");
-		}
-	}
-
-	/* Section names */
-	elf.sectionNames = malloc(elf.header.e_shnum*sizeof(char*));
-	getSectionNames(&elf);
 
 
 	/* Execution des fonctions demandées */
 	if(arg_elf_header){
 		displayHeader(&elf);	
+		printf("\n");
 	}
 	if(arg_program_headers){
 		printf("Option not available yet.\n");
 	}
 	if(arg_section_headers){
 		displaySectionHeaders(&elf);
+		printf("\n");
 	}
 	if(arg_symbols){
 		displayTableSymbole(&elf);
+		printf("\n");
 	}
 	if(arg_dyn_syms){
 		printf("Option not available yet.\n");
@@ -162,6 +128,7 @@ int main(int argc, char* argv[]){
 	}
 	if(arg_relocs){
 		displayRelocTable(&elf);
+		printf("\n");
 	}
 	if(arg_hexdump){
 		if(isNumber(arg_section)){
@@ -174,6 +141,7 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
             displaySectionContent(&elf, num_section);
+            printf("\n");
 		}
 	}
 	if(arg_string_dump){
@@ -181,6 +149,7 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Identifiant de section invalide : %s\n", arg_section);
 		}else{
             printf("Option not available yet.\n");
+            printf("\n");
 		}
 	}
 

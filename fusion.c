@@ -99,7 +99,8 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
 }
 
 
-int main(int argc, char * argv[]){
+int main(int argc, char * argv[])
+{
     FILE * f1;
     FILE * f2;
     FILE * f3;
