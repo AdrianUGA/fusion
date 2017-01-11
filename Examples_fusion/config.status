@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/b/boussedm/fusion/Examples_fusion'
+ac_pwd='/home/a/amaglioa/fusion/Examples_fusion'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -660,12 +660,12 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="arm-none-eabi-strip"
-S["install_sh"]="${SHELL} /home/b/boussedm/fusion/build-aux/install-sh"
-S["MAKEINFO"]="${SHELL} /home/b/boussedm/fusion/build-aux/missing makeinfo"
-S["AUTOHEADER"]="${SHELL} /home/b/boussedm/fusion/build-aux/missing autoheader"
-S["AUTOMAKE"]="${SHELL} /home/b/boussedm/fusion/build-aux/missing automake-1.15"
-S["AUTOCONF"]="${SHELL} /home/b/boussedm/fusion/build-aux/missing autoconf"
-S["ACLOCAL"]="${SHELL} /home/b/boussedm/fusion/build-aux/missing aclocal-1.15"
+S["install_sh"]="${SHELL} /home/a/amaglioa/fusion/build-aux/install-sh"
+S["MAKEINFO"]="${SHELL} /home/a/amaglioa/fusion/build-aux/missing makeinfo"
+S["AUTOHEADER"]="${SHELL} /home/a/amaglioa/fusion/build-aux/missing autoheader"
+S["AUTOMAKE"]="${SHELL} /home/a/amaglioa/fusion/build-aux/missing automake-1.15"
+S["AUTOCONF"]="${SHELL} /home/a/amaglioa/fusion/build-aux/missing autoconf"
+S["ACLOCAL"]="${SHELL} /home/a/amaglioa/fusion/build-aux/missing aclocal-1.15"
 S["VERSION"]="1.0"
 S["PACKAGE"]="arm-examples"
 S["CYGPATH_W"]="echo"

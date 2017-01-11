@@ -86,7 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = Options_and_debug_example$(EXEEXT) main$(EXEEXT)
+bin_PROGRAMS = Options_and_debug_example$(EXEEXT) main$(EXEEXT) \
+	fusionSymbole$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/hostsubdir.m4 \
@@ -108,6 +109,10 @@ am_Options_and_debug_example_OBJECTS = $(am__objects_1) \
 Options_and_debug_example_OBJECTS =  \
 	$(am_Options_and_debug_example_OBJECTS)
 Options_and_debug_example_LDADD = $(LDADD)
+am_fusionSymbole_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) \
+	fusionSymbole.$(OBJEXT) debug.$(OBJEXT)
+fusionSymbole_OBJECTS = $(am_fusionSymbole_OBJECTS)
+fusionSymbole_LDADD = $(LDADD)
 am_main_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) main.$(OBJEXT) \
 	debug.$(OBJEXT)
 main_OBJECTS = $(am_main_OBJECTS)
@@ -140,8 +145,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(Options_and_debug_example_SOURCES) $(main_SOURCES)
-DIST_SOURCES = $(Options_and_debug_example_SOURCES) $(main_SOURCES)
+SOURCES = $(Options_and_debug_example_SOURCES) \
+	$(fusionSymbole_SOURCES) $(main_SOURCES)
+DIST_SOURCES = $(Options_and_debug_example_SOURCES) \
+	$(fusionSymbole_SOURCES) $(main_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -337,6 +344,7 @@ COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
 main_SOURCES = elf.c display.c main.c debug.c
+fusionSymbole_SOURCES = elf.c display.c fusionSymbole.c debug.c
 all: all-recursive
 
 .SUFFIXES:
@@ -421,6 +429,10 @@ Options_and_debug_example$(EXEEXT): $(Options_and_debug_example_OBJECTS) $(Optio
 	@rm -f Options_and_debug_example$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_LDADD) $(LIBS)
 
+fusionSymbole$(EXEEXT): $(fusionSymbole_OBJECTS) $(fusionSymbole_DEPENDENCIES) $(EXTRA_fusionSymbole_DEPENDENCIES) 
+	@rm -f fusionSymbole$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(fusionSymbole_OBJECTS) $(fusionSymbole_LDADD) $(LIBS)
+
 main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) $(EXTRA_main_DEPENDENCIES) 
 	@rm -f main$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(main_OBJECTS) $(main_LDADD) $(LIBS)
@@ -435,6 +447,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/display.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fusionSymbole.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
 

@@ -86,7 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = Options_and_debug_example$(EXEEXT) main$(EXEEXT)
+bin_PROGRAMS = Options_and_debug_example$(EXEEXT) main$(EXEEXT) \
+	fusionSymbole$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/hostsubdir.m4 \
@@ -108,6 +109,10 @@ am_Options_and_debug_example_OBJECTS = $(am__objects_1) \
 Options_and_debug_example_OBJECTS =  \
 	$(am_Options_and_debug_example_OBJECTS)
 Options_and_debug_example_LDADD = $(LDADD)
+am_fusionSymbole_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) \
+	fusionSymbole.$(OBJEXT) debug.$(OBJEXT)
+fusionSymbole_OBJECTS = $(am_fusionSymbole_OBJECTS)
+fusionSymbole_LDADD = $(LDADD)
 am_main_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) main.$(OBJEXT) \
 	debug.$(OBJEXT)
 main_OBJECTS = $(am_main_OBJECTS)
@@ -140,8 +145,10 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(Options_and_debug_example_SOURCES) $(main_SOURCES)
-DIST_SOURCES = $(Options_and_debug_example_SOURCES) $(main_SOURCES)
+SOURCES = $(Options_and_debug_example_SOURCES) \
+	$(fusionSymbole_SOURCES) $(main_SOURCES)
+DIST_SOURCES = $(Options_and_debug_example_SOURCES) \
+	$(fusionSymbole_SOURCES) $(main_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -233,12 +240,12 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/b/boussedm/fusion/build-aux/missing aclocal-1.15
+ACLOCAL = ${SHELL} /home/a/amaglioa/fusion/build-aux/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /home/b/boussedm/fusion/build-aux/missing autoconf
-AUTOHEADER = ${SHELL} /home/b/boussedm/fusion/build-aux/missing autoheader
-AUTOMAKE = ${SHELL} /home/b/boussedm/fusion/build-aux/missing automake-1.15
+AUTOCONF = ${SHELL} /home/a/amaglioa/fusion/build-aux/missing autoconf
+AUTOHEADER = ${SHELL} /home/a/amaglioa/fusion/build-aux/missing autoheader
+AUTOMAKE = ${SHELL} /home/a/amaglioa/fusion/build-aux/missing automake-1.15
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -267,7 +274,7 @@ LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/b/boussedm/fusion/build-aux/missing makeinfo
+MAKEINFO = ${SHELL} /home/a/amaglioa/fusion/build-aux/missing makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = elf_linker
@@ -282,10 +289,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 VERSION = 1.0
-abs_builddir = /home/b/boussedm/fusion
-abs_srcdir = /home/b/boussedm/fusion
-abs_top_builddir = /home/b/boussedm/fusion
-abs_top_srcdir = /home/b/boussedm/fusion
+abs_builddir = /home/a/amaglioa/fusion
+abs_srcdir = /home/a/amaglioa/fusion
+abs_top_builddir = /home/a/amaglioa/fusion
+abs_top_srcdir = /home/a/amaglioa/fusion
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -304,7 +311,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/b/boussedm/fusion/build-aux/install-sh
+install_sh = ${SHELL} /home/a/amaglioa/fusion/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -337,6 +344,7 @@ COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
 main_SOURCES = elf.c display.c main.c debug.c
+fusionSymbole_SOURCES = elf.c display.c fusionSymbole.c debug.c
 all: all-recursive
 
 .SUFFIXES:
@@ -421,6 +429,10 @@ Options_and_debug_example$(EXEEXT): $(Options_and_debug_example_OBJECTS) $(Optio
 	@rm -f Options_and_debug_example$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_LDADD) $(LIBS)
 
+fusionSymbole$(EXEEXT): $(fusionSymbole_OBJECTS) $(fusionSymbole_DEPENDENCIES) $(EXTRA_fusionSymbole_DEPENDENCIES) 
+	@rm -f fusionSymbole$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(fusionSymbole_OBJECTS) $(fusionSymbole_LDADD) $(LIBS)
+
 main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) $(EXTRA_main_DEPENDENCIES) 
 	@rm -f main$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(main_OBJECTS) $(main_LDADD) $(LIBS)
@@ -435,6 +447,7 @@ include ./$(DEPDIR)/Options_and_debug_example.Po
 include ./$(DEPDIR)/debug.Po
 include ./$(DEPDIR)/display.Po
 include ./$(DEPDIR)/elf.Po
+include ./$(DEPDIR)/fusionSymbole.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/util.Po
 
