@@ -241,6 +241,8 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                 /* S'ils sont tous les 2 définis, echec de la fusion */
                 if(newSymtab[i].st_shndx != SHN_UNDEF && elf2->symTable[j].st_shndx != SHN_UNDEF){
                     fprintf(stderr, "Erreur survenue, fin du programme \n");
+                    free(newSymtab);
+                    free(newStrtab);
                     exit(1);
                 }
                 /* Si les 2 symboles ont le même nom, si celui du fichier 2 est défini et pas celui du fichier 1, on corrige avec les valeurs du fichier 2 */

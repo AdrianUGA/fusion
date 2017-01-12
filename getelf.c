@@ -42,6 +42,9 @@ int initElf(elf_t *elf, char *filename, int mode){
 	/* Existence et ouverture du fichier */
 	elf->filename = malloc(strlen(filename) * sizeof(char));
 	elf->filename = strcpy(elf->filename, filename);
+    elf->relocTables = NULL;
+    elf->fileContent = NULL;
+    elf->symbolesNames = NULL;
 	
 	/* ouverture en écriture */
 	if(mode == MODE_W){
@@ -80,7 +83,8 @@ int initElf(elf_t *elf, char *filename, int mode){
 
 	getTableSymbole(elf);
 	getSymbolesNames(elf);
-        getStrtab(elf);
+    getStrtab(elf);
+
 	return 1;
 }
 
@@ -98,7 +102,9 @@ void freeelf(elf_t *elf){
 	int i;
 	free(elf->filename);
 	fclose(elf->file);
-	free(elf->fileContent);
+
+	if(elf->fileContent != NULL)
+		free(elf->fileContent);
 	free(elf->sectionHeaders);
 
 	for(i=0; i<elf->header.e_shnum; i++){
@@ -113,11 +119,21 @@ void freeelf(elf_t *elf){
 
 	free(elf->symTable);
 
-	for(i=0; i<elf->symboleNumber; i++){
-		free(elf->symbolesNames[i]);
+	if(elf->symbolesNames != NULL){
+		for(i=0; i<elf->symboleNumber; i++){
+			free(elf->symbolesNames[i]);
+		}
+		free(elf->symbolesNames);
 	}
-	free(elf->symbolesNames);
-	// TODO reloc table
+
+	for(i=0; i<elf->nbRelTable; i++){
+		free(elf->relocTables[i].relTable);
+	}
+	
+	if(elf->relocTables != NULL)
+		free(elf->relocTables);
+
+	free(elf->strtab);
 }
 
 void getElfHeader(elf_t *elf){
