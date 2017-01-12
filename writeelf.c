@@ -10,12 +10,13 @@
 #include "display.h"
 #include "debug.h"
 #include "getelf.h"
+#include "fusionelf.h"
 
 void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     int i;
 
     /* Récupération des tables de symboles */
-    int tailleSymb1,tailleSymb2;
+    // int tailleSymb1,tailleSymb2;
 
     getTableSymbole(&elf1);
     getTableSymbole(&elf2);
@@ -27,13 +28,13 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
     int size = elf1.sectionHeaders[numSymSec].sh_size;
     char strtab[size];
-    getSectionContent(&elf1, numSymSec, strtab);
+    memcpy(strtab, elf1.sectionContents[numSymSec], elf1.sectionHeaders[numSymSec].sh_size);
     elf1.strtab = strtab;
 
-    int size2 = elf2.sectionHeaders[numSymSec].sh_size;
+    // int size2 = elf2.sectionHeaders[numSymSec].sh_size;
     char strtab2[size];
     int numSymSec2 = getSectionNumber(&elf2, ".strtab");
-    getSectionContent(&elf2, numSymSec2, strtab2);
+    memcpy(strtab2, elf1.sectionContents[numSymSec2], elf1.sectionHeaders[numSymSec2].sh_size);
     elf2.strtab = strtab2;
 
     char *content[elf1.header.e_shnum+elf2.header.e_shnum];
@@ -87,10 +88,10 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
 
     for(i = 0; i < elf3->header.e_shnum; i++){
-        if(i != k1 && i!= k2){
+        if(i != k1 && i!= k2 && i != k3){
              int k;
             for(k=0; k<elf3->sectionHeaders[i].sh_size;k++){
-                unsigned char c = content[i][k];
+                //unsigned char c = content[i][k];
                 //printf("%x", c);
             }
             //printf("\n");

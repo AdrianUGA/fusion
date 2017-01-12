@@ -135,3 +135,18 @@ void getSymbolesNames(elf_t *elf){
 		}while(elf->symbolesNames[i][j] != '\0');
 	}
 }
+
+char* getTypeRealoc(int type){
+	switch(type){
+		case R_ARM_ABS32:
+			return "R_ARM_ABS32";
+		case R_ARM_PLT32:
+			return "R_ARM_PLT32";
+		case R_ARM_CALL:
+			return "R_ARM_CALL";
+		case R_ARM_JUMP24:
+			return "R_ARM_JUMP24";
+		default:
+			return "Autre instruction";
+	}
+}

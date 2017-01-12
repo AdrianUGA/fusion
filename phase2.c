@@ -54,12 +54,12 @@ int main(int argc, char * argv[]){
     }
 
     /* Vérification format ELF */
-    if(!(isELF(elf1.header))){
+    if(!(isElf(&elf1))){
         fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", filename1);
         return -1;
     }
 
-    if(!(isELF(elf2.header))){
+    if(!(isElf(&elf2))){
         fprintf(stderr, "Le fichier %s n'est pas au format ELF.\n", filename2);
         return -1;
     }
