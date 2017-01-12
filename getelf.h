@@ -18,8 +18,8 @@ typedef struct{
 	char **symbolesNames;
 	
 	char* strtab;
-	Elf32_Rel* relTable;
-	int tailleRelocTable;
+	Elf32_Rel **relTable;
+	int *tailleRelocTable;
 }elf_t;
 
 int isElf(elf_t *elf);
