@@ -107,7 +107,7 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
                 fwrite(elf3->symTable, sizeof(Elf32_Sym), elf3->symboleNumber, elf3->file);
             else if(i == k2)
  		for(k=0; k<elf3->nbRelTable; k++){
-			printf("On passe %d et %d et %d\n",sizeof(Elf32_Rel),elf3->relocTables[k].tailleRelocTable, elf3->relocTables[k].relTable[0].r_info);
+			printf("On passe %d et %d et %d\n",(int)sizeof(Elf32_Rel),elf3->relocTables[k].tailleRelocTable, elf3->relocTables[k].relTable[0].r_info);
                 	fwrite(elf3->relocTables[k].relTable, sizeof(Elf32_Rel), elf3->relocTables[k].tailleRelocTable, elf3->file);
 		
 	}
