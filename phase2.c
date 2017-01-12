@@ -29,10 +29,14 @@ int main(int argc, char * argv[]){
     if(!initElf(&elf3, argv[3], MODE_W)){
         return -1;
     }
-
-    /* Récupération des tables de réalocation */
-    getRelocTable(&elf1);
-    getRelocTable(&elf2); 
+    if(elf1.header.e_type != ET_REL){
+        fprintf(stderr,"Le fichier %s n'est pas translatable\n", argv[1]);
+        exit(1);
+    }
+    if(elf2.header.e_type != ET_REL){
+        fprintf(stderr,"Le fichier %s n'est pas translatable\n", argv[2]);
+        exit(1);
+    }
 
     //fusionElf(elf1, elf2, &elf3);
     /* Ecriture du fichier de fusion au format ELF */

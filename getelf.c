@@ -38,7 +38,6 @@ int isElf(elf_t *elf){
 }
 
 int initElf(elf_t *elf, char *filename, int mode){
-
 	/* Existence et ouverture du fichier */
 	elf->filename = malloc(strlen(filename) * sizeof(char));
 	elf->filename = strcpy(elf->filename, filename);
@@ -81,6 +80,9 @@ int initElf(elf_t *elf, char *filename, int mode){
 	getTableSymbole(elf);
 	getSymbolesNames(elf);
         getStrtab(elf);
+        
+        /* Récupération des tables de réalocation */
+        getRelocTable(elf);
 	return 1;
 }
 
