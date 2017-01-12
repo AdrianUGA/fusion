@@ -20,8 +20,8 @@ void getHeader(elf_t f1, elf_t f2, elf_t * f3){
 }
     
 
-void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
-    //content = malloc(sizeof(char *)*(f1.header.e_shnum + f2.header.e_shnum));
+void getSection(elf_t f1, elf_t f2, elf_t * f3, int * symb){
+    f3->sectionContents = malloc(sizeof(char *)*(f1.header.e_shnum + f2.header.e_shnum));
     f3->sectionNames = (char **)malloc(sizeof(char *)*(f1.header.e_shnum + f2.header.e_shnum));
     f3->sectionHeaders = malloc(sizeof(Elf32_Shdr)*(f1.header.e_shnum + f2.header.e_shnum));
     int i;
@@ -34,10 +34,9 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
         f3->sectionNames[i] = (char *) malloc(sizeof(char)*strlen(f1.sectionNames[i]));
         memcpy(f3->sectionNames[i], f1.sectionNames[i],sizeof(char)*strlen(f1.sectionNames[i]));
         
-        content[i] = malloc(f3->sectionHeaders[i].sh_size);
-        memcpy(content[i], f1.sectionContents[i], f1.sectionHeaders[i].sh_size);
-       
-         
+        f3->sectionContents[i] = malloc(f3->sectionHeaders[i].sh_size);
+        memcpy(f3->sectionContents[i], f1.sectionContents[i], f1.sectionHeaders[i].sh_size);
+        
     }
     int k;
     symb[0] = 0;
@@ -57,10 +56,9 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
             
             f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
             memcpy(f3->sectionNames[size], f2.sectionNames[i],sizeof(char)*strlen(f2.sectionNames[i]));
-            //printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
-            
-             content[size] = (char *)malloc(f3->sectionHeaders[size].sh_size);
-             memcpy(content[size], f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
+          
+            f3->sectionContents[size] = (char *)malloc(f3->sectionHeaders[size].sh_size);
+            memcpy(f3->sectionContents[size], f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
             symb[i] = size;
             size++;
         } else {
@@ -72,25 +70,22 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                                         
                     //maj size
                     f3->sectionHeaders[j].sh_size += f2.sectionHeaders[i].sh_size;
-                    //printf("%s fusionné | %s | %s\n",f3->sectionNames[j],f3->sectionNames[0],f3->sectionNames[1]);
                     
                     if(f3->sectionHeaders[j].sh_type == SHT_PROGBITS || f3->sectionHeaders[j].sh_type == SHT_STRTAB){
                         int taille = f1.sectionHeaders[j].sh_size;
                         int taille2 = f2.sectionHeaders[i].sh_size;
                         char * tmp = malloc(taille + taille2);
                         char * tmp2 = malloc(taille2);
-                        memcpy(tmp, content[j], taille);
-//                         printf("%d\n",taille);/*
-                        
+                        memcpy(tmp, f3->sectionContents[j], taille);
+//                      
                         memcpy(tmp2, f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
-                        
+                        printf("test3\n");
                         memcpy(tmp+taille, tmp2, taille2);
-                        content[j] = malloc(taille+taille2);
-                        memcpy(content[j],tmp,taille+taille2);
+                        f3->sectionContents[j] = malloc(taille+taille2);
+                        memcpy(f3->sectionContents[j],tmp,taille+taille2);
                         free(tmp);
                         free(tmp2);
                        
-                        //printf("\n");
                     }
                 }
             }
@@ -103,16 +98,10 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, char ** content, int * symb){
                 f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
                 memcpy(f3->sectionNames[size], f2.sectionNames[i], sizeof(char)*strlen(f2.sectionNames[i]));
                
-                //printf("%s inséré | %s | %s\n",f3->sectionNames[size],f3->sectionNames[0],f3->sectionNames[1]);
-                                    
-                content[size] = malloc(f3->sectionHeaders[size].sh_size);
-                //printf("Avant bug : %s \n",f3->sectionNames[0]);
-                memcpy(content[size], f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
-                //printf("Après bug : %s \n",f3->sectionNames[0]);
-                // int k;
+                f3->sectionContents[size] = malloc(f3->sectionHeaders[size].sh_size);
+                memcpy(f3->sectionContents[size], f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
                 symb[i] = size;
                 size++;
-                
             }
         }
     }

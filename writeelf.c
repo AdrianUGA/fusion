@@ -40,7 +40,7 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
     */
     
-    char *content[elf1.header.e_shnum+elf2.header.e_shnum];
+//     char *content[elf1.header.e_shnum+elf2.header.e_shnum];
     int symb[elf2.header.e_shnum];
     int newSymtabIdx1[elf1.symboleNumber];
     int newSymtabIdx2[elf2.symboleNumber];
@@ -50,8 +50,10 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     
 
     /* Fusion des données */
-    getHeader(elf1, elf2, elf3);    
-    getSection(elf1, elf2, elf3, content, symb);
+    getHeader(elf1, elf2, elf3);
+    printf("Header fusionné\n");
+    getSection(elf1, elf2, elf3, symb);
+    printf("Section fusionné\n");
 
     //displaySectionHeaders(elf3);
 
@@ -100,7 +102,7 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
                 //printf("%x", c);
             }
             //printf("\n");
-            fwrite(content[i], elf3->sectionHeaders[i].sh_size, 1, elf3->file);
+            fwrite(elf3->sectionContents[i], elf3->sectionHeaders[i].sh_size, 1, elf3->file);
         }
         else
             if(i == k1)
