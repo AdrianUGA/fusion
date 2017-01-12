@@ -18,7 +18,7 @@ int main(int argc, char* argv[]){
 	/* Récupération des arguments */
 	int opt;
 	char arg_elf_header=0, arg_program_headers=0, arg_section_headers=0, arg_symbols=0, arg_dyn_syms=0, arg_notes=0, arg_relocs=0, arg_hexdump=0, arg_string_dump=0;
-	char * arg_section;
+	char * arg_section=NULL;
 	int num_section = -1;
 	elf_t elf;
 
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]){
 
 	/* Chargement du fichier dans la structure elf_t */
 	if(optind < argc){
-		if(initElf(&elf, argv[optind]) < 0){
+		if(initElf(&elf, argv[optind], MODE_R) < 0){
 			return -1;
 		}
 		optind++;
@@ -151,12 +151,8 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	/* Memory free */
-	fclose(elf.file);
-	// free(elf.sectionHeaders);
-	// free(elf.sectionNames);
-
-
+	free(arg_section);
+	freeelf(&elf);
 	return 0;
 }
 

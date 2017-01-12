@@ -37,13 +37,19 @@ int isElf(elf_t *elf){
 	return (elf->header.e_ident[0]== 0x7f && elf->header.e_ident[1]=='E' && elf->header.e_ident[2]=='L' && elf->header.e_ident[3]== 'F');
 }
 
-int initElf(elf_t *elf, char *filename){
+int initElf(elf_t *elf, char *filename, int mode){
 
 	/* Existence et ouverture du fichier */
 	elf->filename = malloc(strlen(filename) * sizeof(char));
 	elf->filename = strcpy(elf->filename, filename);
 	
-	elf->file = fopen(filename, "rb"); 
+	/* ouverture en écriture */
+	if(mode == MODE_W){
+		elf->file = fopen(elf->filename, "wb+");
+		return 1;
+	}
+
+	elf->file = fopen(filename, "rb");
    	if(!elf->file){
 		fprintf(stderr, "Erreur d'ouverture du fichier : %s\n", elf->filename);
 		return -1;
@@ -58,6 +64,7 @@ int initElf(elf_t *elf, char *filename){
 
 	if(nbc != 1){
 		fprintf(stderr, "Erreur de lecture : %s\n", elf->filename);
+		freeelf(elf);
 		return -1;
 	}
 
@@ -87,6 +94,32 @@ void getSectionsContent(elf_t *elf){
 	}
 }
 
+void freeelf(elf_t *elf){
+	int i;
+	free(elf->filename);
+	fclose(elf->file);
+	free(elf->fileContent);
+	free(elf->sectionHeaders);
+
+	for(i=0; i<elf->header.e_shnum; i++){
+		free(elf->sectionContents[i]);
+	}
+	free(elf->sectionContents);
+
+	for(i=0; i<elf->header.e_shnum; i++){
+		free(elf->sectionNames[i]);
+	}
+	free(elf->sectionNames);
+
+	free(elf->symTable);
+
+	for(i=0; i<elf->symboleNumber; i++){
+		free(elf->symbolesNames[i]);
+	}
+	free(elf->symbolesNames);
+	// TODO reloc table
+}
+
 void getElfHeader(elf_t *elf){
 	readElf(elf, 0, sizeof(Elf32_Ehdr), (&(elf->header)));
 }
@@ -112,12 +145,13 @@ void getSectionNames(elf_t *elf){
 	}
 }
 
-/* Renvoie la table des symboles et modifie la taille (nombre de symbole) par effet de bord */
 void getTableSymbole(elf_t *elf){	
 	int numSymtab = getSectionNumber(elf, ".symtab");
-	elf->symTable = malloc(sizeof(Elf32_Sym) * elf->sectionHeaders[numSymtab].sh_size);
-	readElf(elf, elf->sectionHeaders[numSymtab].sh_offset, elf->sectionHeaders[numSymtab].sh_size, elf->symTable);
-	elf->symboleNumber = elf->sectionHeaders[numSymtab].sh_size / sizeof(Elf32_Sym);
+	Elf32_Shdr *symbTableHeader = &(elf->sectionHeaders[numSymtab]);
+
+	elf->symTable = malloc(sizeof(Elf32_Sym) * symbTableHeader->sh_size);
+	readElf(elf, symbTableHeader->sh_offset, symbTableHeader->sh_size, elf->symTable);
+	elf->symboleNumber = symbTableHeader->sh_size / sizeof(Elf32_Sym);
 }
 
 
@@ -173,6 +207,7 @@ void getRelocTable(elf_t *elf){
 	for(i=0; i<elf->header.e_shnum; i++){
 		sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
+			count=0;
 			nbEnt = sectionHeader.sh_size / sizeof(Elf32_Rel);
 			elf->relocTables[count].relTable = malloc(nbEnt*sizeof(Elf32_Rel));
 			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);

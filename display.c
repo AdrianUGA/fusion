@@ -184,7 +184,8 @@ void displaySectionContent(elf_t *elf, int sectionNumber){
 			}
 		}
 
-		printf(" %s\n",convert);		
+		printf(" %s\n",convert);	
+		free(convert);	
 		ligne += 16;	
 	}
 }
@@ -295,7 +296,8 @@ void displaySectionHeaders(elf_t *elf){
 			flags,
 			elf->sectionHeaders[i].sh_link,
 			elf->sectionHeaders[i].sh_info,
-			elf->sectionHeaders[i].sh_addralign);
+			elf->sectionHeaders[i].sh_addralign
+		);
     }
 }
 
