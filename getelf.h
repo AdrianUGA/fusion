@@ -20,10 +20,12 @@ typedef struct{
 	char* strtab;
 	Elf32_Rel **relTable;
 	int *tailleRelocTable;
+	int nbRelocTable;
 }elf_t;
 
 int isElf(elf_t *elf);
 int initElf(elf_t *elf, char *filename);
+void freeelf(elf_t *elf);
 void readElf(elf_t *elf, int offset, int size, void *buffer);
 
 void getElfHeader(elf_t *elf);

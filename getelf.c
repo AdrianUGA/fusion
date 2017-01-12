@@ -58,6 +58,7 @@ int initElf(elf_t *elf, char *filename){
 
 	if(nbc != 1){
 		fprintf(stderr, "Erreur de lecture : %s\n", elf->filename);
+		freeelf(elf);
 		return -1;
 	}
 
@@ -84,6 +85,28 @@ void getSectionsContent(elf_t *elf){
 		elf->sectionContents[i] = malloc(sizeof(char) * elf->sectionHeaders[i].sh_size);
 		readElf(elf, elf->sectionHeaders[i].sh_offset, elf->sectionHeaders[i].sh_size, elf->sectionContents[i]);
 	}
+}
+
+void freeelf(elf_t *elf){
+	free(elf->filename);
+	fclose(elf->file);
+	free(elf->fileContent);
+	free(elf->sectionHeaders);
+	free(elf->sectionContents);
+
+	int i;
+	for(i=0; i<elf->header.e_shnum; i++){
+		free(elf->sectionNames[i]);
+	}
+	free(elf->sectionNames);
+
+	free(elf->symTable);
+
+	for(i=0; i<elf->symboleNumber; i++){
+		free(elf->symbolesNames[i]);
+	}
+	free(elf->symbolesNames);
+
 }
 
 void getElfHeader(elf_t *elf){
@@ -155,10 +178,11 @@ char* getTypeRealoc(int type){
 void getRelocTable(elf_t *elf){
 	int i,j,nbc;
 	Elf32_Rel* relTab=NULL;
+	Elf32_Shdr sectionHeader;
 	int nbEnt = 0;
-	int fini = 0;
-	for(i=0;i<elf->header.e_shnum && fini==0;i++){
-		Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
+	elf->nbRelocTable=0;
+	for(i=0;i<elf->header.e_shnum;i++){
+		sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
 			nbEnt = sectionHeader.sh_size / sizeof(Elf32_Rel);
 			relTab = malloc(nbEnt*sizeof(Elf32_Rel));
@@ -173,11 +197,11 @@ void getRelocTable(elf_t *elf){
 					}
 				}
  			}
- 			fini = 1;
+			elf->relTable[elf->nbRelocTable] = malloc(nbEnt*sizeof(Elf32_Rel));
+			elf->relTable[elf->nbRelocTable] = relTab;
+			elf->tailleRelocTable[elf->nbRelocTable] = nbEnt;
  			free(relTab);
+ 			elf->nbRelocTable++;
 		} 
 	}
-	elf->relTable = malloc(nbEnt*sizeof(Elf32_Rel));
-	elf->relTable = relTab;
-	elf->tailleRelocTable = nbEnt;
 }

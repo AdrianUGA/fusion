@@ -18,8 +18,6 @@ int main(int argc, char * argv[]){
         printf("To few arguments\n");
         return -1;
     }
-
-    add_debug_to("debug.log");
     elf_t elf1,elf2, elf3;
 
     initElf(&elf1, argv[1]);
