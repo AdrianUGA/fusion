@@ -445,7 +445,7 @@ void displayRelocTable(elf_t *elf){
 
 		memcpy(relTable, elf->sectionContents[i], taille * sizeof(Elf32_Rel));
 
-		printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[j], elf->sectionHeaders[j].sh_offset, taille);
+		printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[i], elf->sectionHeaders[i].sh_offset, taille);
 		printf("-------------------------------------------------------------\n"); 
 		printf(" Offset     Info         Type            Sym. Value    	 Sym.\n");
 		printf("-------------------------------------------------------------\n"); 

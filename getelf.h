@@ -2,6 +2,13 @@
 #define __GETELF_H__
 
 typedef struct{
+    char *name;
+    Elf32_Rel *relTable;
+    int tailleRelocTable;
+} reloc_t;
+
+
+typedef struct{
 	char *filename;
 	char *fileContent;
 	int fileSize;
@@ -16,10 +23,10 @@ typedef struct{
 	Elf32_Sym *symTable;
 	int symboleNumber;
 	char **symbolesNames;
-	
 	char* strtab;
-	Elf32_Rel **relTable;
-	int *tailleRelocTable;
+        
+	reloc_t *relocTables;
+        int nbRelTable;
 }elf_t;
 
 int isElf(elf_t *elf);
@@ -36,6 +43,8 @@ void getTableSymbole(elf_t *elf);
 void getSymbolesNames(elf_t *elf);
 void getRelocTable(elf_t *elf);
 char isNumber(char *str);
+void writeELF(elf_t elf1, elf_t elf2, elf_t *elf3);
+void getStrtab(elf_t *elf);
 
 
 #endif //__GETELF_H__
