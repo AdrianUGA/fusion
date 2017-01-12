@@ -30,9 +30,9 @@ readelf -r Test/test.o >> fusion_reussi.txt
 echo "" >> fusion_reussi.txt
 echo "Génération de l'éxécutable et éxecution" >> fusion_reussi.txt
 echo "Version arm-none-eabi"
-amm-none-eabi-gcc --specs=rdimon.specs -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group -o Test/prog Test/prog.o && arm-none-eabi-run ./Test/prog 2>> fusion_reussi.txt
+arm-none-eabi-gcc --specs=rdimon.specs -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group -o Test/prog Test/prog.o && arm-none-eabi-run ./Test/prog 2>> fusion_reussi.txt
 echo "Version ./fusion" >> fusion.txt
-# amm-none-eabi-gcc --specs=rdimon.specs -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group -o Test/test Test/test.o && arm-none-eabi-run ./Test/test 2>> fusion.txt
+arm-none-eabi-gcc --specs=rdimon.specs -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group -o Test/test Test/test.o && arm-none-eabi-run ./Test/test 2>> fusion.txt
 
 
 

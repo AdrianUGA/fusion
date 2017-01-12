@@ -32,11 +32,11 @@ int main(int argc, char * argv[]){
 
     /* Récupération des tables de réalocation */
     getRelocTable(&elf1);
-    getRelocTable(&elf2); 
+    getRelocTable(&elf2);  
 
-    //fusionElf(elf1, elf2, &elf3);
+    fusionElf(elf1, elf2, &elf3);
     /* Ecriture du fichier de fusion au format ELF */
-    writeELF(elf1, elf2, &elf3);
+    writeELF(&elf3);
 
     fclose(elf1.file);
     fclose(elf2.file);

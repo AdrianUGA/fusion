@@ -24,6 +24,7 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     printf("Récupération table symbole OK\n");
 
     /* Récupération des strtab*/
+    /*
     int numSymSec = getSectionNumber(&elf1, ".strtab");
 
     int size = elf1.sectionHeaders[numSymSec].sh_size;
@@ -31,18 +32,22 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     memcpy(strtab, elf1.sectionContents[numSymSec], elf1.sectionHeaders[numSymSec].sh_size);
     elf1.strtab = strtab;
 
-    // int size2 = elf2.sectionHeaders[numSymSec].sh_size;
-    char strtab2[size];
+    int size2 = elf2.sectionHeaders[numSymSec].sh_size;
+    char strtab2[size2];
     int numSymSec2 = getSectionNumber(&elf2, ".strtab");
-    memcpy(strtab2, elf1.sectionContents[numSymSec2], elf1.sectionHeaders[numSymSec2].sh_size);
+    memcpy(strtab2, elf2.sectionContents[numSymSec2], elf2.sectionHeaders[numSymSec2].sh_size);
     elf2.strtab = strtab2;
 
+    */
+    
     char *content[elf1.header.e_shnum+elf2.header.e_shnum];
-    int symb[elf1.header.e_shnum];
+    int symb[elf2.header.e_shnum];
     int newSymtabIdx1[elf1.symboleNumber];
     int newSymtabIdx2[elf2.symboleNumber];
 
     printf("Récupération des strtab OK\n");
+    
+    
 
     /* Fusion des données */
     getHeader(elf1, elf2, elf3);    
@@ -61,8 +66,8 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     int k2 = getSectionNumber(elf3, ".rel.text");
     int k3 = getSectionNumber(elf3, ".strtab");
 
-    elf3->sectionHeaders[k1].sh_size = sizeof(Elf32_Sym)*elf3->symboleNumber;
-    elf3->sectionHeaders[k2].sh_size = sizeof(Elf32_Rel)*elf3->tailleRelocTable;
+    //elf3->sectionHeaders[k1].sh_size = sizeof(Elf32_Sym)*elf3->symboleNumber;
+   // elf3->sectionHeaders[k2].sh_size = sizeof(Elf32_Rel)*elf3->tailleRelocTable;
 
     printf("Fusion des données OK\n");
 
@@ -86,7 +91,7 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
     //printf("%s\n", content[0]);
     //printf("%s\n", content[1]);
 
-
+	int k;
     for(i = 0; i < elf3->header.e_shnum; i++){
         if(i != k1 && i!= k2 && i != k3){
              int k;
@@ -100,8 +105,12 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
         else
             if(i == k1)
                 fwrite(elf3->symTable, sizeof(Elf32_Sym), elf3->symboleNumber, elf3->file);
-            else if(i == k2) 
-                fwrite(elf3->relTable, sizeof(Elf32_Rel), elf3->tailleRelocTable, elf3->file);
+            else if(i == k2)
+ 		for(k=0; k<elf3->nbRelTable; k++){
+			printf("On passe %d et %d et %d\n",sizeof(Elf32_Rel),elf3->relocTables[k].tailleRelocTable, elf3->relocTables[k].relTable[0].r_info);
+                	fwrite(elf3->relocTables[k].relTable, sizeof(Elf32_Rel), elf3->relocTables[k].tailleRelocTable, elf3->file);
+		
+	}
             else
                 fwrite(elf3->strtab, elf3->sectionHeaders[i].sh_size, 1, elf3->file);
     }

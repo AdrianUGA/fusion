@@ -80,6 +80,7 @@ int initElf(elf_t *elf, char *filename, int mode){
 
 	getTableSymbole(elf);
 	getSymbolesNames(elf);
+        getStrtab(elf);
 	return 1;
 }
 
@@ -187,28 +188,52 @@ char* getTypeRealoc(int type){
 
 //Affiche les tables de réimplantation 
 void getRelocTable(elf_t *elf){
-	int i,j;
-	Elf32_Rel* relTab=NULL;
-	Elf32_Shdr sectionHeader;
-	int nbEnt = 0, count;
-	elf->nbRelocTable=0;
-	for(i=0;i<elf->header.e_shnum;i++){
+	int i,j,nbc;
+	int nbEnt = 0;
+        int nbRel = 0;
+        int count = 0;
+        Elf32_Shdr sectionHeader;
+        
+        for(i=0; i<elf->header.e_shnum; i++){
+            Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
+            if (sectionHeader.sh_type==SHT_REL){
+                nbRel++;
+            }
+        }
+        
+	elf->relocTables = (reloc_t * ) malloc(sizeof(struct reloc_t *)*nbRel);
+        elf->nbRelTable = nbRel;
+        
+	for(i=0; i<elf->header.e_shnum; i++){
 		sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
 			count=0;
 			nbEnt = sectionHeader.sh_size / sizeof(Elf32_Rel);
-			relTab = malloc(nbEnt*sizeof(Elf32_Rel));
-
+			elf->relocTables[count].relTable = malloc(nbEnt*sizeof(Elf32_Rel));
+			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
 			for(j = 0; j < nbEnt;j++){
-				readElf(elf, sectionHeader.sh_offset+count, sizeof(Elf32_Rel), &relTab[j]);
-				count += sizeof(Elf32_Rel);
-			}
-
-			elf->relTable[elf->nbRelocTable] = malloc(nbEnt*sizeof(Elf32_Rel));
-			elf->relTable[elf->nbRelocTable] = relTab;
-			elf->tailleRelocTable[elf->nbRelocTable] = nbEnt;
-			free(relTab);
-			elf->nbRelocTable++;
-		}
+				nbc = fread(&elf->relocTables[count].relTable[j],sizeof(Elf32_Rel),1,elf->file);
+				if(nbc != 1){
+					if(feof(elf->file)){
+						/* End of elf->file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
+ 			}
+                        elf->relocTables[count].tailleRelocTable = nbEnt;
+                        elf->relocTables[count].name = (char *) malloc((strlen(elf->sectionNames[i])+1)*sizeof(char));
+                        elf->relocTables[count].name = elf->sectionNames[i];
+                        count++;
+		} 
 	}
+	
+}
+
+void getStrtab(elf_t *elf){
+    int numSymSec = getSectionNumber(elf, ".strtab");
+
+    int size = elf->sectionHeaders[numSymSec].sh_size;
+    elf->strtab = (char *) malloc(size*sizeof(char));
+    memcpy(elf->strtab, elf->sectionContents[numSymSec], elf->sectionHeaders[numSymSec].sh_size);
 }
