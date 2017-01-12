@@ -23,8 +23,11 @@ typedef struct{
 	int nbRelocTable;
 }elf_t;
 
+#define MODE_R 1
+#define MODE_W 2
+
 int isElf(elf_t *elf);
-int initElf(elf_t *elf, char *filename);
+int initElf(elf_t *elf, char *filename, int mode);
 void freeelf(elf_t *elf);
 void readElf(elf_t *elf, int offset, int size, void *buffer);
 

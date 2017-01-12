@@ -20,22 +20,23 @@ int main(int argc, char * argv[]){
     }
     elf_t elf1,elf2, elf3;
 
-    initElf(&elf1, argv[1]);
-    initElf(&elf2, argv[2]);
-
-
-
-    char *filename3;
-    filename3 = malloc(strlen(argv[3]) *  sizeof(char));
-    strcpy(filename3, argv[3]);
-    elf3.file = fopen(filename3, "wb+");
+    if(!initElf(&elf1, argv[1], MODE_R)){
+        return -1;
+    }
+    if(!initElf(&elf2, argv[2], MODE_R)){
+        return -1;
+    }
+    if(!initElf(&elf3, argv[3], MODE_W)){
+        return -1;
+    }
 
     /* Récupération des tables de réalocation */
     getRelocTable(&elf1);
     getRelocTable(&elf2);  
 
+    fusionElf(elf1, elf2, &elf3);
     /* Ecriture du fichier de fusion au format ELF */
-    writeELF(elf1, elf2, &elf3);
+    writeELF(&elf3);
 
     fclose(elf1.file);
     fclose(elf2.file);
