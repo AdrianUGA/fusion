@@ -11,20 +11,17 @@ AM_CFLAGS+=-D WARNING
 
 
 SUBDIRS=
-SUBDIRS+=. Examples_fusion
 
 bin_PROGRAMS=
-bin_PROGRAMS+=Options_and_debug_example
-bin_PROGRAMS+=main
-bin_PROGRAMS+=fusionSymbole
+bin_PROGRAMS+=phase1
+bin_PROGRAMS+=phase2
 
 
-COMMON=debug.h debug.c util.h util.c
+COMMON=debug.h debug.c util.h util.c getelf.c display.c
 
 EXTRA_DIST=filtre.pl
-Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
-main_SOURCES=elf.c display.c main.c debug.c
-fusionSymbole_SOURCES=elf.c display.c fusionSymbole.c debug.c
+phase1_SOURCES=$(COMMON) phase1.c 
+phase2_SOURCES=$(COMMON) phase2.c writeelf.c fusionelf.c
 
 EXTRA_DIST+=
 

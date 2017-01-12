@@ -97,8 +97,7 @@ int main(int argc, char* argv[]){
 			return -1;
 		}
 		optind++;
-	}
-	else{
+	}else{
 		usage(argv[0]);
 		return -1;
 	}

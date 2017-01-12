@@ -33,7 +33,7 @@
 \section{Structure du code}
 	\begin{description}
 	\item [\bf{getelf.h}] Structure elf\_t réprésentant un fichier ELF en mémoire.
-	\item [\bf{getelf.c}] Fonctions de lecture d'un fichier ELF et de remplissage de la structure elf\_t.
+	\item [\bf{getelf.c}] Fonctions de lecture d'un fichier ELF et de remplissage de la structure elf\_t. Son "api publique" n'est composée que de la fonction initElf(elf\_t elf, str *filename) qui s'occupe d'ouvrir et charger le fichier.
 	\item [\bf{display.c}] Affichage d'informations contenues dans une structure elf\_t.
 	\item [\bf{phase1.c}] Lecture d'un fichier ELF avec les fonctions de getelf.c et appel des fonctions de display.c en fonction des arguments.
 	\item [\bf{fusionelf.c}] fusion de structures elf\_t.

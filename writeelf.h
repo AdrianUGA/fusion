@@ -1,0 +1,1 @@
+void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3);

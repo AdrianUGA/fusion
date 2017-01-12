@@ -431,25 +431,37 @@ void displayRelocTable(elf_t *elf){
 	printf("* Relocation table *\n");
 	printf("********************\n");
 	int j;
-	for(j = 0; j < elf->header.e_shnum && elf->sectionHeaders[j].sh_type != SHT_REL;j++);
-	
-	int offset, info, value;
-	printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[j], elf->sectionHeaders[j].sh_offset, elf->tailleRelocTable);
-	printf("-------------------------------------------------------------\n"); 
-	printf(" Offset     Info         Type            Sym. Value    	 Sym.\n");
-	printf("-------------------------------------------------------------\n"); 
+	int offset, info, value, taille;
+	Elf32_Rel *relTable;
+	for(j = 0; j < elf->header.e_shnum;j++){
+		if(elf->sectionHeaders[j].sh_type != SHT_REL){
+			continue;
+		}
+		
+		taille = elf->sectionHeaders[j].sh_size / sizeof(Elf32_Rel);
+		relTable = malloc(taille * sizeof(Elf32_Rel));
 
-	for(j = 0; j < elf->tailleRelocTable;j++){
-		offset = elf->relTable[j].r_offset;
-		info = elf->relTable[j].r_info;
-		value = elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_value;
-		if(ELF32_ST_TYPE(elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_info) != STT_SECTION){
-			printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(elf->relTable[j].r_info)), value, elf->strtab+elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_name);
-		} else {
-			printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(elf->relTable[j].r_info)), value, elf->sectionNames[elf->symTable[ELF32_R_SYM(elf->relTable[j].r_info)].st_shndx]);	
-		}		
-	}			 
-	printf("-------------------------------------------------------------\n"); 
-	printf("\n"); 
+		memcpy(relTable, elf->sectionContents[j], taille * sizeof(Elf32_Rel));
+
+		printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[j], elf->sectionHeaders[j].sh_offset, taille);
+		printf("-------------------------------------------------------------\n"); 
+		printf(" Offset     Info         Type            Sym. Value    	 Sym.\n");
+		printf("-------------------------------------------------------------\n"); 
+
+		for(j = 0; j < taille;j++){
+			offset = relTable[j].r_offset;
+			info = relTable[j].r_info;
+			value = elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_value;
+			if(ELF32_ST_TYPE(elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_info) != STT_SECTION){
+				printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(relTable[j].r_info)), value, elf->strtab+elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_name);
+			} else {
+				printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(relTable[j].r_info)), value, elf->sectionNames[elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_shndx]);	
+			}		
+		}			 
+		printf("-------------------------------------------------------------\n"); 
+		printf("\n");
+
+		free(relTable);
+	}
 
 }

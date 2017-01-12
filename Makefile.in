@@ -86,8 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = Options_and_debug_example$(EXEEXT) main$(EXEEXT) \
-	fusionSymbole$(EXEEXT)
+bin_PROGRAMS = phase1$(EXEEXT) phase2$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/hostsubdir.m4 \
@@ -103,20 +102,15 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = debug.$(OBJEXT) util.$(OBJEXT)
-am_Options_and_debug_example_OBJECTS = $(am__objects_1) \
-	Options_and_debug_example.$(OBJEXT)
-Options_and_debug_example_OBJECTS =  \
-	$(am_Options_and_debug_example_OBJECTS)
-Options_and_debug_example_LDADD = $(LDADD)
-am_fusionSymbole_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) \
-	fusionSymbole.$(OBJEXT) debug.$(OBJEXT)
-fusionSymbole_OBJECTS = $(am_fusionSymbole_OBJECTS)
-fusionSymbole_LDADD = $(LDADD)
-am_main_OBJECTS = elf.$(OBJEXT) display.$(OBJEXT) main.$(OBJEXT) \
-	debug.$(OBJEXT)
-main_OBJECTS = $(am_main_OBJECTS)
-main_LDADD = $(LDADD)
+am__objects_1 = debug.$(OBJEXT) util.$(OBJEXT) getelf.$(OBJEXT) \
+	display.$(OBJEXT)
+am_phase1_OBJECTS = $(am__objects_1) phase1.$(OBJEXT)
+phase1_OBJECTS = $(am_phase1_OBJECTS)
+phase1_LDADD = $(LDADD)
+am_phase2_OBJECTS = $(am__objects_1) phase2.$(OBJEXT) \
+	writeelf.$(OBJEXT) fusionelf.$(OBJEXT)
+phase2_OBJECTS = $(am_phase2_OBJECTS)
+phase2_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -145,10 +139,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(Options_and_debug_example_SOURCES) \
-	$(fusionSymbole_SOURCES) $(main_SOURCES)
-DIST_SOURCES = $(Options_and_debug_example_SOURCES) \
-	$(fusionSymbole_SOURCES) $(main_SOURCES)
+SOURCES = $(phase1_SOURCES) $(phase2_SOURCES)
+DIST_SOURCES = $(phase1_SOURCES) $(phase2_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -339,12 +331,11 @@ AM_CFLAGS = -Wall -Werror -g -D DEBUG -D WARNING
 # Warning, if uncommented, issuing calls to debug functions during options
 # parsing might result in debug flag incorrectly set to 0 for some files
 #AM_CFLAGS+=-D CACHE_DEBUG_FLAG
-SUBDIRS = . Examples_fusion
-COMMON = debug.h debug.c util.h util.c
+SUBDIRS = 
+COMMON = debug.h debug.c util.h util.c getelf.c display.c
 EXTRA_DIST = filtre.pl
-Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
-main_SOURCES = elf.c display.c main.c debug.c
-fusionSymbole_SOURCES = elf.c display.c fusionSymbole.c debug.c
+phase1_SOURCES = $(COMMON) phase1.c 
+phase2_SOURCES = $(COMMON) phase2.c writeelf.c fusionelf.c
 all: all-recursive
 
 .SUFFIXES:
@@ -425,17 +416,13 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-Options_and_debug_example$(EXEEXT): $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_DEPENDENCIES) $(EXTRA_Options_and_debug_example_DEPENDENCIES) 
-	@rm -f Options_and_debug_example$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_LDADD) $(LIBS)
+phase1$(EXEEXT): $(phase1_OBJECTS) $(phase1_DEPENDENCIES) $(EXTRA_phase1_DEPENDENCIES) 
+	@rm -f phase1$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(phase1_OBJECTS) $(phase1_LDADD) $(LIBS)
 
-fusionSymbole$(EXEEXT): $(fusionSymbole_OBJECTS) $(fusionSymbole_DEPENDENCIES) $(EXTRA_fusionSymbole_DEPENDENCIES) 
-	@rm -f fusionSymbole$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(fusionSymbole_OBJECTS) $(fusionSymbole_LDADD) $(LIBS)
-
-main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) $(EXTRA_main_DEPENDENCIES) 
-	@rm -f main$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(main_OBJECTS) $(main_LDADD) $(LIBS)
+phase2$(EXEEXT): $(phase2_OBJECTS) $(phase2_DEPENDENCIES) $(EXTRA_phase2_DEPENDENCIES) 
+	@rm -f phase2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(phase2_OBJECTS) $(phase2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -443,13 +430,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Options_and_debug_example.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/display.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fusionSymbole.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fusionelf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getelf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phase1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phase2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/writeelf.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
