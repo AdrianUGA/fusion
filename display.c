@@ -425,23 +425,25 @@ void displayTableSymbole(elf_t *elf){
 }
 
 
+
 //Affiche les tables de réimplantation 
 void displayRelocTable(elf_t *elf){
 	printf("********************\n");
 	printf("* Relocation table *\n");
 	printf("********************\n");
-	int j;
+	int j=0, i;
 	int offset, info, value, taille;
 	Elf32_Rel *relTable;
-	for(j = 0; j < elf->header.e_shnum;j++){
-		if(elf->sectionHeaders[j].sh_type != SHT_REL){
+
+	for(i = 0; i < elf->header.e_shnum;i++){
+		if(elf->sectionHeaders[i].sh_type != SHT_REL){
 			continue;
 		}
 		
-		taille = elf->sectionHeaders[j].sh_size / sizeof(Elf32_Rel);
+		taille = elf->sectionHeaders[i].sh_size / sizeof(Elf32_Rel);
 		relTable = malloc(taille * sizeof(Elf32_Rel));
 
-		memcpy(relTable, elf->sectionContents[j], taille * sizeof(Elf32_Rel));
+		memcpy(relTable, elf->sectionContents[i], taille * sizeof(Elf32_Rel));
 
 		printf("Section de relocalisation '%s' à l'adresse de décalage 0x%x contient %d entrées: \n", elf->sectionNames[j], elf->sectionHeaders[j].sh_offset, taille);
 		printf("-------------------------------------------------------------\n"); 
@@ -453,7 +455,7 @@ void displayRelocTable(elf_t *elf){
 			info = relTable[j].r_info;
 			value = elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_value;
 			if(ELF32_ST_TYPE(elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_info) != STT_SECTION){
-				printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(relTable[j].r_info)), value, elf->strtab+elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_name);
+				printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(relTable[j].r_info)), value, elf->symbolesNames[ELF32_R_SYM(relTable[j].r_info)]);
 			} else {
 				printf("%08x  %08x  %17s  %08x       %s\n", offset, info, getTypeRealoc(ELF32_R_TYPE(relTable[j].r_info)), value, elf->sectionNames[elf->symTable[ELF32_R_SYM(relTable[j].r_info)].st_shndx]);	
 			}		

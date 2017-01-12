@@ -150,3 +150,34 @@ char* getTypeRealoc(int type){
 			return "Autre instruction";
 	}
 }
+
+//Affiche les tables de réimplantation 
+void getRelocTable(elf_t *elf){
+	int i,j,nbc;
+	Elf32_Rel* relTab=NULL;
+	int nbEnt = 0;
+	int fini = 0;
+	for(i=0;i<elf->header.e_shnum && fini==0;i++){
+		Elf32_Shdr sectionHeader = elf->sectionHeaders[i];
+		if (sectionHeader.sh_type==SHT_REL){
+			nbEnt = sectionHeader.sh_size / sizeof(Elf32_Rel);
+			relTab = malloc(nbEnt*sizeof(Elf32_Rel));
+			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
+			for(j = 0; j < nbEnt;j++){
+				nbc = fread(&relTab[j],sizeof(Elf32_Rel),1,elf->file);
+				if(nbc != 1){
+					if(feof(elf->file)){
+						/* End of elf->file */
+					}else{
+						debug("Erreur de lecture.");
+					}
+				}
+ 			}
+ 			fini = 1;
+ 			free(relTab);
+		} 
+	}
+	elf->relTable = malloc(nbEnt*sizeof(Elf32_Rel));
+	elf->relTable = relTab;
+	elf->tailleRelocTable = nbEnt;
+}
