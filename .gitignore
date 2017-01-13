@@ -9,6 +9,7 @@
 main
 phase1
 phase2
+Makefile
 
 # Packages #
 ############
