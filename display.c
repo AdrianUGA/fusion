@@ -44,7 +44,24 @@ void displayHeader(elf_t *elf){
 			break;
 	}
 	printf("\tVersion : %d\n",elf->header.e_ident[EI_VERSION]);
-	printf("\tOS/ABI : %d\n", elf->header.e_ident[EI_OSABI]);	// switch a faire
+        switch(elf->header.e_ident[EI_OSABI]){
+            case ELFOSABI_SYSV:
+                printf("\tOS/ABI : ABI d'UNIX System V.\n");
+                break;
+            case ELFOSABI_HPUX:
+                printf("\tOS/ABI : HP-HUX\n");
+                break;
+            case ELFOSABI_NETBSD:
+                printf("\tOS/ABI : NetBSD\n");
+                break;
+            case ELFOSABI_LINUX:
+                printf("\tOS/ABI : Linux\n");
+                break;
+            case ELFOSABI_SOLARIS:
+                printf("\tOS/ABI : Solaris\n");
+                break;
+        }
+// 	printf("\tOS/ABI : %d\n", elf->header.e_ident[EI_OSABI]);	// switch a faire
 	printf("\tVersion ABI: %d\n",elf->header.e_ident[EI_ABIVERSION]);	
 	switch(elf->header.e_type){
 		case ET_REL:
