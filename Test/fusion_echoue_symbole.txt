@@ -1,0 +1,7 @@
+Version arm-none-eabi :
+Test/fusion/file1.o: In function `main':
+file1.c:(.text+0x0): multiple definition of `main'
+Test/fusion/file1.o:file1.c:(.text+0x0): first defined here
+Version ./fusion :
+Erreur survenue, 2 symboles globaux définis ont le même nom.
+Fin du programme 

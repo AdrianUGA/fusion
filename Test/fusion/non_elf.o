@@ -285,7 +285,7 @@ void displaySectionHeaders(elf_t *elf){
 		}
 
 
-		printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%06x\t%02x\t%s\t%d\t%d\t%d\n",
+		printf("[%d]\t%-15s\t%-10s\t%08x\t%08x\t%d\t%02x\t%s\t%d\t%d\t%d\n",
 			i,
 			elf->sectionNames[i],
 			type,

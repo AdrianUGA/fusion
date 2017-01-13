@@ -1,0 +1,6 @@
+Version arm-none-eabi :
+Test/fusion/exec: In function `afficher':
+:(.text+0x291c): multiple definition of `afficher'
+Test/fusion/file2.o:file2.c:(.text+0x0): first defined here
+Version ./fusion :
+Le fichier Test/fusion/exec n'est pas translatable

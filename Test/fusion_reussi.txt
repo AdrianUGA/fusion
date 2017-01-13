@@ -1,0 +1,165 @@
+******************************header******************************
+Version arm-none-eabi-
+En-tête : ELF
+	Magique :  7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+	Classe : ELF32 
+	Donnees : Complement à 2, Little Endian
+	Version : 1
+	OS/ABI : 0
+	Version ABI: 0
+	Type : RELOCABLE
+	Machine : Advanced RISC Machines
+	Version: 1
+	Adresse du point d'entree 0x0
+	Début des  en-têtes de programme: 0
+	Débuts des entêtes de sections: 684
+	Flags : 5000000
+	Taille de cet entête : 52
+	Taille de l'entête du programme : 0
+	Nombre d'entêtes du programme : 0
+	Taille des entêtes de section : 40
+	Nombre d'entêtes de section : 11
+	Table d'indexes des chaînes d'entête de sections : 8
+
+Version ./fusion
+En-tête : ELF
+	Magique :  7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+	Classe : ELF32 
+	Donnees : Complement à 2, Little Endian
+	Version : 1
+	OS/ABI : 0
+	Version ABI: 0
+	Type : RELOCABLE
+	Machine : Advanced RISC Machines
+	Version: 1
+	Adresse du point d'entree 0x0
+	Début des  en-têtes de programme: 0
+	Débuts des entêtes de sections: 52
+	Flags : 5000000
+	Taille de cet entête : 52
+	Taille de l'entête du programme : 0
+	Nombre d'entêtes du programme : 0
+	Taille des entêtes de section : 40
+	Nombre d'entêtes de section : 11
+	Table d'indexes des chaînes d'entête de sections : 7
+
+
+******************************section header******************************
+Version arm-none-eabi-
+Il y a 11 en-têtes de section, débutant à l'adresse de décalage 0x2ac
+[Nr]	Nom            	Type      	Adr		Decala.		Taille	ES	Fan	LN	Inf	Al
+[0]	               	NULL      	00000000	00000000	000000	00		0	0	0
+[1]	.text          	PROGBITS  	00000000	00000034	000030	00	AX	0	0	4
+[2]	.rel.text      	REL       	00000000	00000240	000018	08		9	1	4
+[3]	.rodata        	PROGBITS  	00000000	00000064	00000c	00	A	0	0	4
+[4]	.data          	PROGBITS  	00000000	00000070	000000	00	WA	0	0	1
+[5]	.bss           	NOBITS    	00000000	00000070	000000	00	WA	0	0	1
+[6]	.comment       	PROGBITS  	00000000	00000070	000072	01		0	0	1
+[7]	.ARM.attributes	NONDEF    	00000000	000000e2	000030	00		0	0	1
+[8]	.shstrtab      	STRTAB    	00000000	00000258	000051	00		0	0	1
+[9]	.symtab        	SYMTAB    	00000000	00000114	000100	10		10	13	4
+[10]	.strtab        	STRTAB    	00000000	00000214	00002a	00		0	0	1
+
+Version ./fusion
+Il y a 11 en-têtes de section, débutant à l'adresse de décalage 0x34
+[Nr]	Nom            	Type      	Adr		Decala.		Taille	ES	Fan	LN	Inf	Al
+[0]	               	NULL      	00000000	000001ec	000000	00		0	0	0
+[1]	.text          	PROGBITS  	00000000	000001ec	000030	00	AX	0	0	4
+[2]	.rel.text      	REL       	00000000	0000021c	000018	08		8	1	4
+[3]	.data          	PROGBITS  	00000000	00000234	000000	00	WA	0	0	1
+[4]	.bss           	NOBITS    	00000000	00000234	000000	00	WA	0	0	1
+[5]	.comment       	PROGBITS  	00000000	00000234	000072	01		0	0	1
+[6]	.ARM.attributes	NONDEF    	00000000	000002a6	000030	00		0	0	1
+[7]	.shstrtab      	STRTAB    	00000000	000002d6	00009a	00		0	0	1
+[8]	.symtab        	SYMTAB    	00000000	00000370	000150	10		9	18	4
+[9]	.strtab        	STRTAB    	00000000	000004c0	000037	00		0	0	1
+[10]	.rodata        	PROGBITS  	00000000	000004f7	00000c	00	A	0	0	4
+
+
+******************************symbole******************************
+Version arm-none-eabi-
+
+
+Table de symboles « .symtab » contient 16 entrées:
+Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom
+  0 : 00000000   0   NOTYPE    LOCAL  DEFAULT     0  
+  1 : 00000000   0  SECTION    LOCAL  DEFAULT     1  
+  2 : 00000000   0  SECTION    LOCAL  DEFAULT     3  
+  3 : 00000000   0  SECTION    LOCAL  DEFAULT     4  
+  4 : 00000000   0  SECTION    LOCAL  DEFAULT     5  
+  5 : 00000000   0  SECTION    LOCAL  DEFAULT     6  
+  6 : 00000000   0  SECTION    LOCAL  DEFAULT     7  
+  7 : 00000000   0     FILE    LOCAL  DEFAULT 65521 file1.c 
+  8 : 00000000   0   NOTYPE    LOCAL  DEFAULT     1 $a 
+  9 : 00000000   0     FILE    LOCAL  DEFAULT 65521 file2.c 
+ 10 : 00000000   0   NOTYPE    LOCAL  DEFAULT     3 $d 
+ 11 : 00000018   0   NOTYPE    LOCAL  DEFAULT     1 $a 
+ 12 : 0000002c   0   NOTYPE    LOCAL  DEFAULT     1 $d 
+ 13 : 00000018  24 FONCTION   GLOBAL  DEFAULT     1 afficher 
+ 14 : 00000000   0   NOTYPE   GLOBAL  DEFAULT     0 puts 
+ 15 : 00000000  24 FONCTION   GLOBAL  DEFAULT     1 main 
+
+Version ./fusion
+
+
+Table de symboles « .symtab » contient 21 entrées:
+Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom
+  0 : 00000000   0   NOTYPE    LOCAL  DEFAULT     0  
+  1 : 00000000   0     FILE    LOCAL  DEFAULT 65521 file1.c 
+  2 : 00000000   0  SECTION    LOCAL  DEFAULT     1  
+  3 : 00000000   0  SECTION    LOCAL  DEFAULT     3  
+  4 : 00000000   0  SECTION    LOCAL  DEFAULT     4  
+  5 : 00000000   0   NOTYPE    LOCAL  DEFAULT     1 $a 
+  6 : 00000000   0  SECTION    LOCAL  DEFAULT     5  
+  7 : 00000000   0  SECTION    LOCAL  DEFAULT     6  
+  8 : 00000000   0   NOTYPE    LOCAL  DEFAULT     0  
+  9 : 00000018   0     FILE    LOCAL  DEFAULT 65521 file2.c 
+ 10 : 00000008   0  SECTION    LOCAL  DEFAULT     1  
+ 11 : 00000000   0  SECTION    LOCAL  DEFAULT     3  
+ 12 : 00000000   0  SECTION    LOCAL  DEFAULT     4  
+ 13 : 00000000   0  SECTION    LOCAL  DEFAULT    10  
+ 14 : 00000039   0   NOTYPE    LOCAL  DEFAULT    10 $d 
+ 15 : 00000000   0   NOTYPE    LOCAL  DEFAULT     1 $a 
+ 16 : 0000005d   0   NOTYPE    LOCAL  DEFAULT     1 $d 
+ 17 : 000000a0   0  SECTION    LOCAL  DEFAULT     5  
+ 18 : 00000000  24 FONCTION   GLOBAL  DEFAULT     1 main 
+ 19 : 00000000  24 FONCTION   GLOBAL  DEFAULT     1 afficher 
+ 20 : 00000018   0   NOTYPE   GLOBAL  DEFAULT     0 puts 
+
+
+******************************table des reimplantation******************************
+Version arm-none-eabi-
+********************
+* Relocation table *
+********************
+Section de relocalisation '.rel.text' à l'adresse de décalage 0x240 contient 3 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000008  00000d1c         R_ARM_CALL  00000018       afficher
+00000024  00000e1c         R_ARM_CALL  00000000       puts
+0000002c  00000202        R_ARM_ABS32  00000000       .rodata
+-------------------------------------------------------------
+
+
+Version ./fusion
+********************
+* Relocation table *
+********************
+Section de relocalisation '.rel.text' à l'adresse de décalage 0x21c contient 3 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000008  0000131c         R_ARM_CALL  00000000       afficher
+0000000c  0000141c         R_ARM_CALL  00000018       puts
+0000002e  00000d02        R_ARM_ABS32  00000000       .rodata
+-------------------------------------------------------------
+
+
+
+******************************Génération de l'éxécutable et éxecution******************************
+Version arm-none-eabi
+Hello world
+Version ./fusion
+Version ./fusion
+Version ./fusion

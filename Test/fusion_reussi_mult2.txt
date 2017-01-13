@@ -1,0 +1,192 @@
+******************************header******************************
+Version arm-none-eabi-
+En-tête : ELF
+	Magique :  7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+	Classe : ELF32 
+	Donnees : Complement à 2, Little Endian
+	Version : 1
+	OS/ABI : 0
+	Version ABI: 0
+	Type : RELOCABLE
+	Machine : Advanced RISC Machines
+	Version: 1
+	Adresse du point d'entree 0x0
+	Début des  en-têtes de programme: 0
+	Débuts des entêtes de sections: 2568
+	Flags : 5000000
+	Taille de cet entête : 52
+	Taille de l'entête du programme : 0
+	Nombre d'entêtes du programme : 0
+	Taille des entêtes de section : 40
+	Nombre d'entêtes de section : 25
+	Table d'indexes des chaînes d'entête de sections : 22
+
+Version ./fusion
+
+******************************section header******************************
+Version arm-none-eabi-
+Il y a 25 en-têtes de section, débutant à l'adresse de décalage 0xa08
+[Nr]	Nom            	Type      	Adr		Decala.		Taille	ES	Fan	LN	Inf	Al
+[0]	               	NULL      	00000000	00000000	000000	00		0	0	0
+[1]	.text          	PROGBITS  	00000000	00000034	00000c	00	AX	0	0	4
+[2]	.rel.text      	REL       	00000000	000007ac	000010	08		23	1	4
+[3]	.text.startup  	PROGBITS  	00000000	00000040	000010	00	AX	0	0	4
+[4]	.rel.text.startup	REL       	00000000	000007bc	000008	08		23	3	4
+[5]	.rodata.str1.4 	PROGBITS  	00000000	00000050	00000c	01	A	0	0	4
+[6]	.data          	PROGBITS  	00000000	0000005c	000000	00	WA	0	0	1
+[7]	.bss           	NOBITS    	00000000	0000005c	000000	00	WA	0	0	1
+[8]	.comment       	PROGBITS  	00000000	0000005c	000072	01		0	0	1
+[9]	.debug_aranges 	PROGBITS  	00000000	000000ce	000040	00		0	0	1
+[10]	.rel.debug_aranges	REL       	00000000	000007c4	000020	08		23	9	4
+[11]	.debug_info    	PROGBITS  	00000000	0000010e	00011c	00		0	0	1
+[12]	.rel.debug_info	REL       	00000000	000007e4	000108	08		23	11	4
+[13]	.debug_abbrev  	PROGBITS  	00000000	0000022a	0000e0	00		0	0	1
+[14]	.debug_line    	PROGBITS  	00000000	0000030a	00007b	00		0	0	1
+[15]	.rel.debug_line	REL       	00000000	000008ec	000010	08		23	14	4
+[16]	.debug_frame   	PROGBITS  	00000000	00000388	000048	00		0	0	4
+[17]	.rel.debug_frame	REL       	00000000	000008fc	000020	08		23	16	4
+[18]	.debug_str     	PROGBITS  	00000000	000003d0	0001cd	01		0	0	1
+[19]	.debug_ranges  	PROGBITS  	00000000	0000059d	000010	00		0	0	1
+[20]	.rel.debug_ranges	REL       	00000000	0000091c	000010	08		23	19	4
+[21]	.ARM.attributes	NONDEF    	00000000	000005ad	000030	00		0	0	1
+[22]	.shstrtab      	STRTAB    	00000000	0000092c	0000d9	00		0	0	1
+[23]	.symtab        	SYMTAB    	00000000	000005e0	0001a0	10		24	23	4
+[24]	.strtab        	STRTAB    	00000000	00000780	00002a	00		0	0	1
+
+Version ./fusion
+
+******************************symbole******************************
+Version arm-none-eabi-
+
+
+Table de symboles « .symtab » contient 26 entrées:
+Num : Valeur Tail   Type    Lien      Vis      Ndx    Nom
+  0 : 00000000   0   NOTYPE    LOCAL  DEFAULT     0  
+  1 : 00000000   0  SECTION    LOCAL  DEFAULT     1  
+  2 : 00000000   0  SECTION    LOCAL  DEFAULT     3  
+  3 : 00000000   0  SECTION    LOCAL  DEFAULT     5  
+  4 : 00000000   0  SECTION    LOCAL  DEFAULT     6  
+  5 : 00000000   0  SECTION    LOCAL  DEFAULT     7  
+  6 : 00000000   0  SECTION    LOCAL  DEFAULT     8  
+  7 : 00000000   0  SECTION    LOCAL  DEFAULT     9  
+  8 : 00000000   0  SECTION    LOCAL  DEFAULT    11  
+  9 : 00000000   0  SECTION    LOCAL  DEFAULT    13  
+ 10 : 00000000   0  SECTION    LOCAL  DEFAULT    14  
+ 11 : 00000000   0  SECTION    LOCAL  DEFAULT    16  
+ 12 : 00000000   0  SECTION    LOCAL  DEFAULT    18  
+ 13 : 00000000   0  SECTION    LOCAL  DEFAULT    19  
+ 14 : 00000000   0  SECTION    LOCAL  DEFAULT    21  
+ 15 : 00000000   0     FILE    LOCAL  DEFAULT 65521 file2.c 
+ 16 : 00000000   0   NOTYPE    LOCAL  DEFAULT     1 $a 
+ 17 : 00000008   0   NOTYPE    LOCAL  DEFAULT     1 $d 
+ 18 : 00000000   0   NOTYPE    LOCAL  DEFAULT     5 $d 
+ 19 : 00000010   0   NOTYPE    LOCAL  DEFAULT    16 $d 
+ 20 : 00000000   0     FILE    LOCAL  DEFAULT 65521 file1.c 
+ 21 : 00000000   0   NOTYPE    LOCAL  DEFAULT     3 $a 
+ 22 : 00000030   0   NOTYPE    LOCAL  DEFAULT    16 $d 
+ 23 : 00000000  12 FONCTION   GLOBAL  DEFAULT     1 afficher 
+ 24 : 00000000   0   NOTYPE   GLOBAL  DEFAULT     0 puts 
+ 25 : 00000000  16 FONCTION   GLOBAL  DEFAULT     3 main 
+
+Version ./fusion
+
+******************************table des reimplantation******************************
+Version arm-none-eabi-
+********************
+* Relocation table *
+********************
+Section de relocalisation '.rel.text' à l'adresse de décalage 0x7ac contient 2 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000004  0000181d       R_ARM_JUMP24  00000000       puts
+00000008  00000302        R_ARM_ABS32  00000000       .rodata.str1.4
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.text.startup' à l'adresse de décalage 0x7bc contient 1 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000004  0000171c         R_ARM_CALL  00000000       afficher
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.debug_aranges' à l'adresse de décalage 0x7c4 contient 4 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000006  00000802        R_ARM_ABS32  00000000       .debug_info
+00000010  00000102        R_ARM_ABS32  00000000       .text
+00000026  00000802        R_ARM_ABS32  00000000       .debug_info
+00000030  00000202        R_ARM_ABS32  00000000       .text.startup
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.debug_info' à l'adresse de décalage 0x7e4 contient 33 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000006  00000902        R_ARM_ABS32  00000000       .debug_abbrev
+0000000c  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000011  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000015  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000019  00000102        R_ARM_ABS32  00000000       .text
+00000021  00000a02        R_ARM_ABS32  00000000       .debug_line
+00000028  00000c02        R_ARM_ABS32  00000000       .debug_str
+0000002f  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000036  00000c02        R_ARM_ABS32  00000000       .debug_str
+0000003d  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000044  00000c02        R_ARM_ABS32  00000000       .debug_str
+0000004b  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000052  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000059  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000067  00000c02        R_ARM_ABS32  00000000       .debug_str
+0000006e  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000075  00000c02        R_ARM_ABS32  00000000       .debug_str
+00000085  00000c02        R_ARM_ABS32  00000000       .debug_str
+0000008b  00000102        R_ARM_ABS32  00000000       .text
+0000009a  00000102        R_ARM_ABS32  00000000       .text
+000000a7  00000302        R_ARM_ABS32  00000000       .rodata.str1.4
+000000ae  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000b4  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000c9  00000902        R_ARM_ABS32  00000000       .debug_abbrev
+000000cf  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000d4  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000d8  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000dc  00000d02        R_ARM_ABS32  00000000       .debug_ranges
+000000e4  00000a02        R_ARM_ABS32  00000000       .debug_line
+000000e9  00000c02        R_ARM_ABS32  00000000       .debug_str
+000000f3  00000202        R_ARM_ABS32  00000000       .text.startup
+00000102  00000202        R_ARM_ABS32  00000000       .text.startup
+00000113  00000c02        R_ARM_ABS32  00000000       .debug_str
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.debug_line' à l'adresse de décalage 0x8ec contient 2 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000039  00000102        R_ARM_ABS32  00000000       .text
+0000006f  00000202        R_ARM_ABS32  00000000       .text.startup
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.debug_frame' à l'adresse de décalage 0x8fc contient 4 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000014  00000b02        R_ARM_ABS32  00000000       .debug_frame
+00000018  00000102        R_ARM_ABS32  00000000       .text
+00000034  00000b02        R_ARM_ABS32  00000000       .debug_frame
+00000038  00000202        R_ARM_ABS32  00000000       .text.startup
+-------------------------------------------------------------
+
+Section de relocalisation '.rel.debug_ranges' à l'adresse de décalage 0x91c contient 2 entrées: 
+-------------------------------------------------------------
+ Offset     Info         Type            Sym. Value    	 Sym.
+-------------------------------------------------------------
+00000000  00000202        R_ARM_ABS32  00000000       .text.startup
+00000004  00000202        R_ARM_ABS32  00000000       .text.startup
+-------------------------------------------------------------
+
+
+Version ./fusion
+
+******************************Génération de l'éxécutable et éxecution******************************
+Version arm-none-eabi
