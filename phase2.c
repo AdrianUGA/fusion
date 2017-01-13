@@ -42,9 +42,9 @@ int main(int argc, char * argv[]){
     /* Ecriture du fichier de fusion au format ELF */
     writeELF(elf1, elf2, &elf3);
 
-    fclose(elf1.file);
-    fclose(elf2.file);
-    fclose(elf3.file);
+    freeelf(&elf1);
+    freeelf(&elf2);
+    freeelf(&elf3);
 
     return 0;
 }
