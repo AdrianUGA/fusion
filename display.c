@@ -424,6 +424,7 @@ void displayTableSymbole(elf_t *elf){
     for(i=0; i < elf->symboleNumber; i++){
         displaySymbole(elf->symTable[i], elf->symbolesNames[i], i);
     }
+    printf("\n\n\n Si Ndx = 0 alors INDEFINI, si Ndx = 65521\n");
 }
 
 
