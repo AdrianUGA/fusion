@@ -203,16 +203,16 @@ void getRelocTable(elf_t *elf){
             }
         }
         
-	elf->relocTables = (reloc_t * ) malloc(sizeof(struct reloc_t *)*nbRel);
+	elf->relocTables = (reloc_t * ) malloc(sizeof(reloc_t)*nbRel);
         elf->nbRelTable = nbRel;
         
 	for(i=0; i<elf->header.e_shnum; i++){
 		sectionHeader = elf->sectionHeaders[i];
 		if (sectionHeader.sh_type==SHT_REL){
-			count=0;
 			nbEnt = sectionHeader.sh_size / sizeof(Elf32_Rel);
 			elf->relocTables[count].relTable = malloc(nbEnt*sizeof(Elf32_Rel));
 			fseek(elf->file,(int)sectionHeader.sh_offset,SEEK_SET);
+                        
 			for(j = 0; j < nbEnt;j++){
 				nbc = fread(&elf->relocTables[count].relTable[j],sizeof(Elf32_Rel),1,elf->file);
 				if(nbc != 1){
@@ -223,13 +223,15 @@ void getRelocTable(elf_t *elf){
 					}
 				}
  			}
+ 			
                         elf->relocTables[count].tailleRelocTable = nbEnt;
                         elf->relocTables[count].name = (char *) malloc((strlen(elf->sectionNames[i])+1)*sizeof(char));
-                        elf->relocTables[count].name = elf->sectionNames[i];
+                        memcpy(elf->relocTables[count].name, elf->sectionNames[i], (strlen(elf->sectionNames[i])+1)*sizeof(char));
+                        //printf("nbent: %d\n", elf->relocTables[count].tailleRelocTable);
                         count++;
+                        
 		} 
 	}
-	
 }
 
 void getStrtab(elf_t *elf){

@@ -155,20 +155,16 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                 newSymtab[idx].st_shndx = secFusion[newSymtab[idx].st_shndx];
             }
             tmp = secFusion[j];
-            //printf("[%d]%s : %d\n",idx, elf2->symbolesNames[j], newSymtab[idx].st_shndx);
             if (tmp < elf1->header.e_shnum){
-                //printf("maj: %d  old: %d   new: %d\n", idx, newSymtab[idx].st_value, newSymtab[idx].st_value+elf1->sectionHeaders[tmp].sh_size);
                 newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
             }
             newSymtabIdx2[j]=idx;
-	    //printf("[%d] %s\n", idx, newStrtab + newSymtab[idx].st_name);
             idx++;
             
         }
     }
 
     idxGlob = idx;
-    //printf("On démarre : %d %d\n", idxGlob, j);
 
     /* Ajout des symboles globaux du fichier 1 dans la table des symboles du nouvel elf */
     while(i<taille1){
@@ -186,7 +182,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
         /* Parcours des symboles globaux du fichier 1 (déjà ajoutés dans le nouvel elf) */
         for(i = idxGlob; i < idxFin; i++){
             /* Si les 2 symboles ont le même nom */
-            //printf("%d: %s    %d: %s\n", i, newStrtab+newSymtab[i].st_name, j, elf2->strtab+elf2->symTable[j].st_name);
             if(strcmp(newStrtab+newSymtab[i].st_name, elf2->strtab+elf2->symTable[j].st_name) == 0){
                 /* S'ils sont tous les 2 définis, echec de la fusion */
                 if(newSymtab[i].st_shndx != SHN_UNDEF && elf2->symTable[j].st_shndx != SHN_UNDEF){
@@ -195,7 +190,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                 }
                 /* Si les 2 symboles ont le même nom, si celui du fichier 2 est défini et pas celui du fichier 1, on corrige avec les valeurs du fichier 2 */
                 else if(newSymtab[i].st_shndx == SHN_UNDEF && elf2->symTable[j].st_shndx != SHN_UNDEF){
-                    //printf("blabla\n");
                     name = newSymtab[i].st_name;
                     newSymtab[i] = elf2->symTable[j];
                     newSymtab[i].st_name = name;
@@ -247,33 +241,34 @@ void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int
     int trouve = 0;
     int idx = 0;
     
-    elf3->relocTables = (reloc_t*) malloc(sizeof(struct reloc_t*)*elf3->nbRelTable);
+    elf3->relocTables = (reloc_t*) malloc(sizeof(reloc_t)*(elf1->nbRelTable+elf2->nbRelTable));
     elf3->nbRelTable = 0;	
     /* Concaténation des tables de réalocation du fichier 1 et du fichier 2 */
     for(k=0; k<elf1->nbRelTable; k++){
         for(l=0; l<elf2->nbRelTable; l++){
             if(strcmp(elf1->relocTables[k].name, elf2->relocTables[l].name)==0){
                 trouve = 1;
-                taille1 = elf1->relocTables[k].tailleRelocTable*sizeof(Elf32_Rel);
-                taille2 = elf2->relocTables[l].tailleRelocTable*sizeof(Elf32_Rel);
-                newRelocTab = malloc(taille1 + taille2);
-                
+                taille1 = elf1->relocTables[k].tailleRelocTable;
+                taille2 = elf2->relocTables[l].tailleRelocTable;
+                newRelocTab = malloc((taille1+taille2)*sizeof(Elf32_Rel));
                 for(i = 0; i < elf1->relocTables[k].tailleRelocTable; i++){
                     newRelocTab[i] = elf1->relocTables[k].relTable[i];
                     newRelocTab[i].r_info = ELF32_R_INFO(newSymtabIdx1[ELF32_R_SYM(newRelocTab[i].r_info)], ELF32_R_TYPE(newRelocTab[i].r_info));
-                } 
-
+                }
                 for(j = 0; j < elf2->relocTables[l].tailleRelocTable; j++) {
                     newRelocTab[i] = elf2->relocTables[l].relTable[j];
-                    //printf("%s\n", getTypeRealoc(ELF32_R_TYPE(newRelocTab[i].r_info)));
                     newRelocTab[i].r_info = ELF32_R_INFO(newSymtabIdx2[ELF32_R_SYM(newRelocTab[i].r_info)], ELF32_R_TYPE(newRelocTab[i].r_info));
 
-                    int tmp = secFusion[j]; /* Numéro de la section fusionnée */
-                    //printf("section: %d %d\n", elf2->symTable[j].st_shndx, tmp);
-                    newRelocTab[i].r_offset += elf1->sectionHeaders[tmp].sh_size;
+                    int tmp = secFusion[elf3->symTable[ELF32_R_SYM(newRelocTab[i].r_info)].st_shndx]; /* Numéro de la section fusionnée */
+                    if (tmp!=-1){
+                        newRelocTab[i].r_offset += elf1->sectionHeaders[tmp].sh_size;
+                    } else {
+                        tmp = getSectionNumber(elf3, ".ARM.attributes");
+                        newRelocTab[i].r_offset += elf1->sectionHeaders[tmp].sh_size;
+                    }
+                    
                     i++;
                 }
-                
                 /* Affectation dans le nouvel elf */
                 taille = elf1->relocTables[k].tailleRelocTable + elf2->relocTables[l].tailleRelocTable;
 
@@ -283,13 +278,16 @@ void fusionRelocTable(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, int
 		elf3->relocTables[idx].name = elf1->relocTables[k].name;
                 idx++;
 		elf3->nbRelTable++;
-            } 
+                free(newRelocTab);
+            }
+            
             if(trouve==0){
             	memcpy(&elf3->relocTables[idx], &elf1->relocTables[k], sizeof(reloc_t));
             	idx++;
 		elf3->nbRelTable++;
             }
         }
+        
     }
     
     trouve = 0;
