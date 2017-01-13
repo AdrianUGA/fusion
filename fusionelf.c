@@ -36,7 +36,6 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, int * symb){
         
         f3->sectionContents[i] = malloc(f3->sectionHeaders[i].sh_size);
         memcpy(f3->sectionContents[i], f1.sectionContents[i], f1.sectionHeaders[i].sh_size);
-        printf("La section présente dans le fichier 1 de nom %s à été ajoutée à la table des sections du fichier résultat\n",f3->sectionNames[i]); 
         
     }
     int k;
@@ -44,13 +43,11 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, int * symb){
     for(i=1; i<f2.header.e_shnum;i++){
         if(f2.sectionHeaders[i].sh_type == SHT_ARM_ATTRIBUTES){
             symb[i] = -1;
-            printf("On ne fusionne pas la section ARM_ATTRIBUTES du fichier 2\n");
         }
         else if(f2.sectionHeaders[i].sh_type == SHT_NOBITS && strcmp(".bss", f2.sectionNames[i]) == 0) {
             k = getSectionNumber(&f1, ".bss");
             f3->sectionHeaders[k].sh_size += f2.sectionHeaders[i].sh_size;
             symb[i]=k;
-            printf("On ne fusionne pas la section .bss du fichier 2\n" );
         }
         else if(f2.sectionHeaders[i].sh_type != SHT_PROGBITS && f2.sectionHeaders[i].sh_type != SHT_STRTAB && f2.sectionHeaders[i].sh_type != SHT_SYMTAB && f1.sectionHeaders[i].sh_type != SHT_REL){
             
@@ -75,7 +72,6 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, int * symb){
                     
                     //maj size
                     f3->sectionHeaders[j].sh_size += f2.sectionHeaders[i].sh_size;
-                    printf("On fusionne le contenu de la section %s car elle est présente dans le fichier résultat\n",f3->sectionNames[j]);
                     if(f3->sectionHeaders[j].sh_type == SHT_PROGBITS || f3->sectionHeaders[j].sh_type == SHT_STRTAB){
                         int taille = f1.sectionHeaders[j].sh_size;
                         int taille2 = f2.sectionHeaders[i].sh_size;
@@ -100,7 +96,6 @@ void getSection(elf_t f1, elf_t f2, elf_t * f3, int * symb){
                 
                 f3->sectionNames[size] = malloc(sizeof(char)*strlen(f2.sectionNames[i]));
                 memcpy(f3->sectionNames[size], f2.sectionNames[i], sizeof(char)*strlen(f2.sectionNames[i]));
-                printf("La section de nom %s n'était pas présente dans le fichier 1, donc on l'ajoute au fichier résultat\n",f3->sectionNames[size]);
                 f3->sectionContents[size] = malloc(f3->sectionHeaders[size].sh_size);
                 memcpy(f3->sectionContents[size], f2.sectionContents[i], f2.sectionHeaders[i].sh_size);
                 symb[i] = size;
@@ -148,7 +143,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
     for(i = 0; i<taille1 && ELF32_ST_BIND(elf1->symTable[i].st_info) != STB_GLOBAL; i++){
         newSymtab[idx] = elf1->symTable[i];
         newSymtabIdx1[i]=idx;
-        printf("Le symbole local numéro %d du fichier numéro 1 est ajouté à la table des symboles\n",idx);
         idx++;        
     }
 
@@ -165,7 +159,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                 newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
             }
             newSymtabIdx2[j]=idx;
-            printf("Le symbole local numéro %d du fichier numéro 2 est ajouté à la table des symboles à l'indice %d \n",j,idx);
 	    //printf("[%d] %s\n", idx, newStrtab + newSymtab[idx].st_name);
 
             idx++;
@@ -179,7 +172,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
     while(i<taille1){
         newSymtab[idx] = elf1->symTable[i];
         newSymtabIdx1[i]=idx;
-        printf("Le symbole global numéro %d du fichier numéro 1 est ajouté à la table des symboles à l'indice %d\n",i,idx);
         idx++;
         i++;
     }
@@ -207,7 +199,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                     name = newSymtab[i].st_name;
                     newSymtab[i] = elf2->symTable[j];
                     newSymtab[i].st_name = name;
-                    printf("Le symbole global numéro %d du fichier numéro 2 est fusionné avec le symbole  %d du fichier 1 et est mis à l'indice %d\n",j,i,idx);
                     trouve = 1;
                 }
                 /* Si les 2 symboles ont le même nom, si celui du fichier 1 est défini et pas celui du fichier 2, on garde les valeurs du fichier 1 */
@@ -229,7 +220,6 @@ void fusionTableSymbole(elf_t* elf1, elf_t* elf2, elf_t* elf3, int* secFusion, i
                 newSymtab[idx].st_value += elf1->sectionHeaders[tmp].sh_size;
             }
             newSymtabIdx2[j]=idx;
-            printf("Le symbole global numéro %d du fichier numéro 2 n'était pas présent dans le fichier 1, on l'ajoute à l'indice %d\n",j,idx);
             idx++;
         }
 

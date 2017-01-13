@@ -167,3 +167,25 @@ echo " " >> Test/display_notELF.txt
 echo "Version projet :" >> Test/display_notELF.txt
 ./phase1 -r Test/display/non_elf.o 2>> Test/display_notELF.txt
 
+#Lecture de session
+touch Test/display_hexa_section.txt
+echo "*********************************Bonne indice*********************************" > Test/display_hexa_section.txt
+echo "version readelf :" >> Test/display_hexa_section.txt
+readelf -x 5 Test/display/obj.o >> Test/display_hexa_section.txt
+echo "version pojet" >> Test/display_hexa_section.txt
+./phase1 -x 5 Test/display/obj.o >> Test/display_hexa_section.txt
+echo "*********************************Mauvais indice*********************************" >> Test/display_hexa_section.txt
+echo "version readelf :" >> Test/display_hexa_section.txt
+readelf -x 55 Test/display/obj.o 2>> Test/display_hexa_section.txt
+echo "version pojet" >> Test/display_hexa_section.txt
+./phase1 -x 55 Test/display/obj.o 2>> Test/display_hexa_section.txt
+echo "*********************************Bonne nom*********************************" >> Test/display_hexa_section.txt
+echo "version readelf :" >> Test/display_hexa_section.txt
+readelf -x  ".shstrtab" Test/display/obj.o >> Test/display_hexa_section.txt
+echo "version pojet" >> Test/display_hexa_section.txt
+./phase1 -x ".shstrtab" Test/display/obj.o >> Test/display_hexa_section.txt
+echo "*********************************Mauvais nom*********************************" >> Test/display_hexa_section.txt
+echo "version readelf :" >> Test/display_hexa_section.txt
+readelf -x "kyhfifvuy" Test/display/obj.o 2>> Test/display_hexa_section.txt
+echo "version pojet" >> Test/display_hexa_section.txt
+./phase1 -x "kyhfifvuy" Test/display/obj.o 2>> Test/display_hexa_section.txt

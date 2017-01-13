@@ -1,0 +1,5 @@
+Version readelf :
+readelf: ERREUR: N'est pas un fichier ELF - a les mauvais octets magiques au départ
+ 
+Version projet :
+Le fichier Test/display/non_elf.o n'est pas au format ELF.

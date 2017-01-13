@@ -1,0 +1,45 @@
+*********************************Bonne indice*********************************
+version readelf :
+
+Vidange hexadécimale de la section « .comment »:
+  0x00000000 00474343 3a202831 353a342e 392e332b .GCC: (15:4.9.3+
+  0x00000010 73766e32 33313137 372d3129 20342e39 svn231177-1) 4.9
+  0x00000020 2e332032 30313530 35323920 28707265 .3 20150529 (pre
+  0x00000030 72656c65 61736529 00                release).
+
+version pojet
+Affichage hexadécimal de la section « .comment »
+  Ox00000000 00474343 3a202831 353a342e 392e332b .GCC: (15:4.9.3+
+  Ox00000010 73766e32 33313137 372d3129 20342e39 svn231177-1) 4.9
+  Ox00000020 2e332032 30313530 35323920 28707265 .3 20150529 (pre
+  Ox00000030 72656c65 61736529 00                release).29 (pre
+
+*********************************Mauvais indice*********************************
+version readelf :
+readelf: AVERTISSEMENT: La section 55 n'a pas été vidangée parce qu'inexistante!
+readelf: AVERTISSEMENT: La section 56 n'a pas été vidangée parce qu'inexistante!
+version pojet
+Identifiant de section invalide : 55
+*********************************Bonne nom*********************************
+version readelf :
+
+Vidange hexadécimale de la section « .shstrtab »:
+  0x00000000 002e7379 6d746162 002e7374 72746162 ..symtab..strtab
+  0x00000010 002e7368 73747274 6162002e 72656c2e ..shstrtab..rel.
+  0x00000020 74657874 002e6461 7461002e 62737300 text..data..bss.
+  0x00000030 2e636f6d 6d656e74 002e4152 4d2e6174 .comment..ARM.at
+  0x00000040 74726962 75746573 00                tributes.
+
+version pojet
+Affichage hexadécimal de la section « .shstrtab »
+  Ox00000000 002e7379 6d746162 002e7374 72746162 ..symtab..strtab
+  Ox00000010 002e7368 73747274 6162002e 72656c2e ..shstrtab..rel.
+  Ox00000020 74657874 002e6461 7461002e 62737300 text..data..bss.
+  Ox00000030 2e636f6d 6d656e74 002e4152 4d2e6174 .comment..ARM.at
+  Ox00000040 74726962 75746573 00                tributes..ARM.at
+
+*********************************Mauvais nom*********************************
+version readelf :
+readelf: AVERTISSEMENT: La section «kyhfifvuy» n'a pas été vidangée parce qu'inexistante!
+version pojet
+Identifiant de section invalide : kyhfifvuy

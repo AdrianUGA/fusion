@@ -46,25 +46,25 @@ echo "******************************header******************************" > Test
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult.txt
 ./phase1 -h Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult.txt
-./phase1 -h Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt
+./phase1 -h Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt 2>> Test/fusion_reussi_mult.txt
 echo "" >> Test/fusion_reussi_mult.txt
 echo "******************************section header******************************" >> Test/fusion_reussi_mult.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult.txt
 ./phase1 -S Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult.txt
-./phase1 -S Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt
+./phase1 -S Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt 2>> Test/fusion_reussi_mult.txt
 echo "" >> Test/fusion_reussi_mult.txt
 echo "******************************symbole******************************" >> Test/fusion_reussi_mult.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult.txt
 ./phase1 -s Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult.txt
-./phase1 -s Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt
+./phase1 -s Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt 2>> Test/fusion_reussi_mult.txt
 echo "" >> Test/fusion_reussi_mult.txt
 echo "******************************table des reimplantation******************************" >> Test/fusion_reussi_mult.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult.txt
 ./phase1 -r Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult.txt
-./phase1 -r Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt
+./phase1 -r Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult.txt 2>> Test/fusion_reussi_mult.txt
 echo "" >> Test/fusion_reussi_mult.txt
 echo "******************************Génération de l'éxécutable et éxecution******************************" >> Test/fusion_reussi_mult.txt
 echo "Version arm-none-eabi" >> Test/fusion_reussi_mult.txt
@@ -96,8 +96,6 @@ echo "Version ./fusion :" >> Test/fusion_echoue_symbole.txt
 
 
 
-
-
 #fusion réussi avec mult1.o et mult2.o
 touch Test/fusion_reussi_mult2.txt
 # ./fusion Test/file1.o Test/file2.o Test/test.o
@@ -107,25 +105,25 @@ echo "******************************header******************************" > Test
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult2.txt
 ./phase1 -h Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult2.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult2.txt
-./phase1 -h Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult2.txt
+./phase1 -h Test/fusion/fusion_projet2.o 2>> Test/fusion_reussi_mult2.txt >> Test/fusion_reussi_mult2.txt 
 echo "" >> Test/fusion_reussi_mult2.txt
 echo "******************************section header******************************" >> Test/fusion_reussi_mult2.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult2.txt
 ./phase1 -S Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult2.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult2.txt
-./phase1 -S Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult2.txt
+./phase1 -S Test/fusion/fusion_projet2.o 2>> Test/fusion_reussi_mult2.txt >> Test/fusion_reussi_mult2.txt
 echo "" >> Test/fusion_reussi_mult2.txt
 echo "******************************symbole******************************" >> Test/fusion_reussi_mult2.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult2.txt
 ./phase1 -s Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult2.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult2.txt
-./phase1 -s Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult2.txt
+./phase1 -s Test/fusion/fusion_projet2.o 2>> Test/fusion_reussi_mult2.txt >> Test/fusion_reussi_mult2.txt 
 echo "" >> Test/fusion_reussi_mult2.txt
 echo "******************************table des reimplantation******************************" >> Test/fusion_reussi_mult2.txt
 echo "Version arm-none-eabi-" >> Test/fusion_reussi_mult2.txt
 ./phase1 -r Test/fusion/fusion_eabi2.o >> Test/fusion_reussi_mult2.txt
 echo "Version ./fusion" >> Test/fusion_reussi_mult2.txt
-./phase1 -r Test/fusion/fusion_projet2.o >> Test/fusion_reussi_mult2.txt
+./phase1 -r Test/fusion/fusion_projet2.o  2>> Test/fusion_reussi_mult2.txt >> Test/fusion_reussi_mult2.txt
 echo "" >> Test/fusion_reussi_mult2.txt
 echo "******************************Génération de l'éxécutable et éxecution******************************" >> Test/fusion_reussi_mult2.txt
 echo "Version arm-none-eabi" >> Test/fusion_reussi_mult2.txt
