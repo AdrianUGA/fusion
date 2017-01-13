@@ -26,7 +26,7 @@ typedef struct{
 	char* strtab;
 
 	reloc_t *relocTables;
-        int nbRelTable;
+	int nbRelTable;
 }elf_t;
 
 #define MODE_R 1

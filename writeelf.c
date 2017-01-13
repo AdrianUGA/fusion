@@ -34,11 +34,14 @@ void writeELF(elf_t elf1, elf_t elf2, elf_t* elf3){
 
     /* Fusion des données */
     getHeader(elf1, elf2, elf3);
+    printf("Récupération des sections : \n\n");
     getSection(elf1, elf2, elf3, symb);
+    displaySectionHeaders(elf3);
 
     //displaySectionHeaders(elf3);
-
+    printf("\nRécupération des symboles : \n\n");
     fusionTableSymbole(&elf1, &elf2, elf3, symb, newSymtabIdx1, newSymtabIdx2);
+    displayTableSymbole(elf3);
 
     /* Initialisation de l'offset après les section headers */
     int current_offset = sizeof(Elf32_Ehdr)+sizeof(Elf32_Shdr)*elf3->header.e_shnum;

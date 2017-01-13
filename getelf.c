@@ -128,10 +128,10 @@ void freeelf(elf_t *elf){
 		free(elf->symbolesNames);
 	}
 
+	printf("Coucou\n");
 	for(i=0; i<elf->nbRelTable; i++){
 		free(elf->relocTables[i].relTable);
 	}
-	
 	if(elf->relocTables != NULL)
 		free(elf->relocTables);
 
